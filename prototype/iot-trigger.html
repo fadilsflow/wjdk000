@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IoT Trigger Simulator - Smart Sprayer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <main class="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+    <header class="rounded-2xl bg-emerald-700 p-6 text-white shadow-sm">
+      <h1 class="text-2xl font-bold">IoT Trigger Simulator</h1>
+      <p class="mt-1 text-emerald-100">Kirim data sensor dummy ke API Laravel saat perangkat IoT belum tersedia.</p>
+    </header>
+
+    <section class="grid gap-4 lg:grid-cols-3">
+      <div class="rounded-2xl bg-white p-5 shadow-sm lg:col-span-1">
+        <h2 class="font-semibold">Konfigurasi API</h2>
+        <div class="mt-4 space-y-3">
+          <label class="block">
+            <span class="text-sm text-slate-600">Base URL Laravel</span>
+            <input id="baseUrl" class="mt-1 w-full rounded-lg border px-3 py-2" value="http://127.0.0.1:8000" />
+          </label>
+          <label class="block">
+            <span class="text-sm text-slate-600">Endpoint Sensor</span>
+            <input id="sensorEndpoint" class="mt-1 w-full rounded-lg border px-3 py-2" value="/api/sensor-readings" />
+          </label>
+          <label class="block">
+            <span class="text-sm text-slate-600">Device API Key</span>
+            <input id="apiKey" class="mt-1 w-full rounded-lg border px-3 py-2" value="DEVICE_API_KEY" />
+          </label>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm lg:col-span-2">
+        <h2 class="font-semibold">Trigger Cepat</h2>
+        <p class="mt-1 text-sm text-slate-500">Gunakan tombol ini untuk mengirim kondisi sensor tertentu ke backend.</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <button data-scenario="normal" class="trigger rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700">Normal</button>
+          <button data-scenario="waspada" class="trigger rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white hover:bg-orange-600">Waspada</button>
+          <button data-scenario="kritis" class="trigger rounded-xl bg-red-600 px-4 py-3 font-semibold text-white hover:bg-red-700">Kritis</button>
+          <button data-scenario="hujan" class="trigger rounded-xl bg-sky-600 px-4 py-3 font-semibold text-white hover:bg-sky-700">Hujan</button>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+          <button id="randomBtn" class="rounded-xl bg-slate-900 px-4 py-2 font-semibold text-white hover:bg-slate-700">Random Data</button>
+          <button id="loopBtn" class="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700">Start Loop</button>
+          <button id="stopLoopBtn" class="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-800 hover:bg-slate-300">Stop Loop</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between">
+          <h2 class="font-semibold">Payload yang Dikirim</h2>
+          <button id="sendCurrentBtn" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700">Kirim Payload Ini</button>
+        </div>
+        <textarea id="payloadEditor" class="h-80 w-full rounded-xl border bg-slate-950 p-4 font-mono text-sm text-emerald-300" spellcheck="false"></textarea>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <h2 class="font-semibold">Response & Log</h2>
+        <pre id="responseBox" class="mt-3 h-44 overflow-auto rounded-xl bg-slate-950 p-4 text-sm text-sky-300">Belum ada response.</pre>
+        <ul id="logList" class="mt-4 max-h-56 space-y-2 overflow-auto text-sm"></ul>
+      </div>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow-sm">
+      <h2 class="font-semibold">Catatan CORS</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Jika request dari HTML ini diblokir browser karena CORS, aktifkan CORS di Laravel untuk endpoint <code>/api/sensor-readings</code>,
+        atau jalankan file ini dari domain yang sama dengan Laravel. Untuk development awal, simulator ini tetap berguna sebagai acuan payload.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const els = {
+      baseUrl: document.getElementById('baseUrl'),
+      sensorEndpoint: document.getElementById('sensorEndpoint'),
+      apiKey: document.getElementById('apiKey'),
+      payloadEditor: document.getElementById('payloadEditor'),
+      responseBox: document.getElementById('responseBox'),
+      logList: document.getElementById('logList'),
+      loopBtn: document.getElementById('loopBtn'),
+      stopLoopBtn: document.getElementById('stopLoopBtn')
+    };
+
+    let loopTimer = null;
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function makePayload(scenario) {
+      const apiKey = els.apiKey.value || 'DEVICE_API_KEY';
+      const base = {
+        api_key: apiKey,
+        temperature: 28,
+        air_humidity: 70,
+        soil_moisture: 55,
+        rain_status: 'no_rain',
+        sprayer_status: 'off',
+        recorded_at: nowIso()
+      };
+
+      const map = {
+        normal: {
+          temperature: 27.5,
+          air_humidity: 72,
+          soil_moisture: 58,
+          rain_status: 'no_rain',
+          sprayer_status: 'off'
+        },
+        waspada: {
+          temperature: 32.2,
+          air_humidity: 55,
+          soil_moisture: 45,
+          rain_status: 'no_rain',
+          sprayer_status: 'off'
+        },
+        kritis: {
+          temperature: 34.1,
+          air_humidity: 50,
+          soil_moisture: 25,
+          rain_status: 'no_rain',
+          sprayer_status: 'on'
+        },
+        hujan: {
+          temperature: 25.4,
+          air_humidity: 88,
+          soil_moisture: 62,
+          rain_status: 'rain',
+          sprayer_status: 'off'
+        },
+        random: {
+          temperature: +(24 + Math.random() * 12).toFixed(1),
+          air_humidity: Math.floor(45 + Math.random() * 45),
+          soil_moisture: Math.floor(20 + Math.random() * 60),
+          rain_status: Math.random() > 0.78 ? 'rain' : 'no_rain',
+          sprayer_status: 'off'
+        }
+      };
+
+      return { ...base, ...(map[scenario] || map.random), api_key: apiKey, recorded_at: nowIso() };
+    }
+
+    function setPayload(scenario) {
+      const payload = makePayload(scenario);
+      els.payloadEditor.value = JSON.stringify(payload, null, 2);
+      return payload;
+    }
+
+    function getUrl() {
+      return `${els.baseUrl.value.replace(/\/$/, '')}${els.sensorEndpoint.value}`;
+    }
+
+    function addLog(message, ok = true) {
+      const li = document.createElement('li');
+      li.className = `rounded-lg px-3 py-2 ${ok ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'}`;
+      li.textContent = `${new Date().toLocaleTimeString('id-ID')} - ${message}`;
+      els.logList.prepend(li);
+    }
+
+    async function sendPayload(payload) {
+      const url = getUrl();
+      els.responseBox.textContent = `Sending POST ${url} ...`;
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await response.text();
+        let body = text;
+        try { body = JSON.stringify(JSON.parse(text), null, 2); } catch (_) {}
+
+        els.responseBox.textContent = `HTTP ${response.status}\n\n${body}`;
+        addLog(`POST ${url} → HTTP ${response.status}`, response.ok);
+      } catch (error) {
+        els.responseBox.textContent = `Request gagal:\n${error.message}`;
+        addLog(`Request gagal: ${error.message}`, false);
+      }
+    }
+
+    document.querySelectorAll('.trigger').forEach(button => {
+      button.addEventListener('click', () => {
+        const scenario = button.dataset.scenario;
+        const payload = setPayload(scenario);
+        sendPayload(payload);
+      });
+    });
+
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      const payload = setPayload('random');
+      sendPayload(payload);
+    });
+
+    document.getElementById('sendCurrentBtn').addEventListener('click', () => {
+      try {
+        const payload = JSON.parse(els.payloadEditor.value);
+        sendPayload(payload);
+      } catch (error) {
+        addLog('Payload JSON tidak valid', false);
+        els.responseBox.textContent = `Payload JSON tidak valid:\n${error.message}`;
+      }
+    });
+
+    els.loopBtn.addEventListener('click', () => {
+      if (loopTimer) return;
+      addLog('Loop simulator dimulai');
+      loopTimer = setInterval(() => {
+        const scenarios = ['normal', 'waspada', 'kritis', 'hujan', 'random'];
+        const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+        const payload = setPayload(scenario);
+        sendPayload(payload);
+      }, 5000);
+    });
+
+    els.stopLoopBtn.addEventListener('click', () => {
+      clearInterval(loopTimer);
+      loopTimer = null;
+      addLog('Loop simulator dihentikan');
+    });
+
+    setPayload('normal');
+  </script>
+</body>
+</html>
