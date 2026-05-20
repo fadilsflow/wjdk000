@@ -21,7 +21,7 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 QUEUE_CONNECTION=database
-CACHE_DRIVER=file
+CACHE_STORE=file
 SESSION_DRIVER=file
 
 # WhatsApp Gateway/API
