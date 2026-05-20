@@ -240,7 +240,7 @@ Sebuah task dianggap **selesai** jika semua kondisi berikut terpenuhi:
 
 ## Doc Update Policy
 
-> Docs diupdate **setelah** perubahan kode, bukan sebelumnya. Cek dulu apakah perubahan yang dilakukan masuk kategori di bawah ini.
+> Docs diupdate **setelah** perubahan kode, bukan sebelumnya. Cek dulu apakah perubahan yang dilakukan masuk kategori di bawah ini..
 
 ### Wajib update docs jika:
 
