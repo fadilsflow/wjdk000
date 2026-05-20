@@ -9,3 +9,8 @@
 /.idea
 /.vscode
 .DS_Store
+
+# AI Agent & Local Dev
+skills-lock.json
+logs/
+.agents/
