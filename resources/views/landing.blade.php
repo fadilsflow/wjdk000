@@ -28,8 +28,7 @@
     {{-- NAV (overlay hero) --}}
     <header class="absolute top-0 inset-x-0 z-20 px-4 sm:px-8 py-5 flex items-center gap-3">
         <a href="/" class="flex items-center gap-2.5 mr-auto">
-            <span class="w-9 h-9 rounded-full bg-[color:var(--color-brand)] grid place-items-center text-black font-black">S</span>
-            <span class="font-extrabold text-[color:var(--color-text)] tracking-tight">Smart Sprayer IoT</span>
+            <span class="font-extrabold text-xl text-[color:var(--color-text)] tracking-tight">Smart Sprayer</span>
         </a>
         <nav class="hidden md:flex items-center gap-1">
             <a href="#data" class="nav-pill">Data Publik</a>

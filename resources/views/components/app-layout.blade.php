@@ -32,10 +32,8 @@ $isHistoryRoute = request()->routeIs('history.*');
     <header class="bg-[color:var(--color-bg-surface)]">
         <div class="flex items-center flex-wrap gap-y-2 px-6 h-[64px]">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 mr-6 whitespace-nowrap">
-                <span class="w-8 h-8 rounded-full grid place-items-center bg-[color:var(--color-brand)] text-black font-black text-sm">S</span>
-                <span class="font-extrabold text-[15px] text-[color:var(--color-text)]">Smart Sprayer IoT</span>
+                <span class="font-extrabold text-xl text-[color:var(--color-text)]">Smart Sprayer</span>
             </a>
-
             {{-- Desktop Nav --}}
             <nav class="hidden md:flex items-center gap-1">
                 @foreach($navLinks as $link)
