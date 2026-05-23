@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $title ?? config('app.name', 'Smart Sprayer IoT') }}</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
+</head>
+<body class="font-sans antialiased bg-[#111111] text-[#eeeeee]">
+
+    {{-- TOPBAR --}}
+    <header class="h-auto bg-[#232323] border-b border-[#151817]">
+        <div class="flex items-center flex-wrap gap-y-2 px-6 h-[68px]">
+            {{-- Brand --}}
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 font-extrabold text-[#43c766] text-lg whitespace-nowrap mr-4">
+                <span class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#43c766] to-[#2d9650] grid place-items-center text-[#102015] font-black text-sm">S</span>
+                Smart Sprayer IoT
+            </a>
+
+            {{-- Desktop Nav --}}
+            <nav class="hidden md:flex h-full items-stretch" x-data>
+                @php
+                    $navLinks = $navLinks ?? [
+                        ['route' => 'dashboard', 'label' => 'Dashboard'],
+                        ['route' => 'sprayer.control', 'label' => 'Kontrol Sprayer'],
+                        ['route' => 'history.sensor', 'label' => 'Riwayat'],
+                        ['route' => 'public.summary', 'label' => 'Publik'],
+                        ['route' => 'admin.devices.index', 'label' => 'Konfigurasi'],
+                    ];
+                @endphp
+                @foreach($navLinks as $link)
+                    @if(\Illuminate\Support\Facades\Route::has($link['route']))
+                    <a href="{{ route($link['route']) }}"
+                       class="px-6 flex items-center text-[13px] font-semibold transition-colors
+                              {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*')
+                                 ? 'bg-[#353a38] text-white'
+                                 : 'text-[#b9c0bc] hover:text-white hover:bg-[#2a2e2c]' }}">
+                        {{ $link['label'] }}
+                    </a>
+                    @endif
+                @endforeach
+            </nav>
+
+            {{-- User info (static dummy) --}}
+            <div class="ml-auto flex items-center gap-4">
+                <span class="text-[#c8cfcb] text-sm hidden sm:block">
+                    {{ $userName ?? 'Petani' }}
+                    <span class="capitalize text-xs text-[#999]">{{ $userRole ?? 'Petani' }}</span>
+                </span>
+                <span class="text-[#666] text-xs hidden sm:block">{{ $currentTime ?? now()->format('d M Y, H:i') }}</span>
+
+                {{-- Mobile hamburger --}}
+                <button class="md:hidden text-[#999] hover:text-white" x-data @click="$dispatch('toggle-mobile-nav')">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Mobile Nav --}}
+        <div class="md:hidden border-t border-[#2a2a2a]"
+             x-data="{ open: false }"
+             @toggle-mobile-nav.window="open = !open"
+             x-show="open"
+             x-cloak>
+            @foreach($navLinks as $link)
+                @if(\Illuminate\Support\Facades\Route::has($link['route']))
+                <a href="{{ route($link['route']) }}"
+                   class="block px-6 py-3 text-sm font-semibold border-b border-[#2a2a2a] transition-colors
+                          {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*')
+                             ? 'bg-[#353a38] text-white'
+                             : 'text-[#b9c0bc] hover:bg-[#2a2e2c] hover:text-white' }}">
+                    {{ $link['label'] }}
+                </a>
+                @endif
+            @endforeach
+        </div>
+    </header>
+
+    {{-- SUBBAR (page title area, optional) --}}
+    @isset($subbar)
+        <div class="min-h-[58px] bg-[#242927] flex flex-wrap items-center gap-3 px-6 py-3 shadow-[inset_0_-1px_#151817]">
+            {{ $subbar }}
+        </div>
+    @endisset
+
+    {{-- MAIN CONTENT --}}
+    <main>
+        {{ $slot }}
+    </main>
+
+    @stack('scripts')
+</body>
+</html>

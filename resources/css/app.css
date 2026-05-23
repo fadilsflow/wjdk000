@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +6,235 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-green-brand: #43c766;
+    --color-bg-dark: #111111;
+    --color-panel: #252525;
+    --color-panel-2: #2b2b2b;
+    --color-line: #3b3b3b;
+    --color-muted: #999999;
+    --color-text: #eeeeee;
+    --color-top: #232323;
+    --color-sub: #242927;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-bg-dark);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@layer components {
+    .card {
+        background-color: var(--color-panel);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 1rem;
+        font-size: 1.0625rem;
+        font-weight: 800;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+    .badge-normal {
+        background: rgba(67,199,102,0.15);
+        color: #43c766;
+        border: 1px solid rgba(67,199,102,0.3);
+    }
+    .badge-waspada {
+        background: rgba(244,183,64,0.15);
+        color: #f4b740;
+        border: 1px solid rgba(244,183,64,0.3);
+    }
+    .badge-kritis {
+        background: rgba(239,68,68,0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239,68,68,0.3);
+    }
+    .badge-on, .badge-sent, .badge-automatic {
+        background: rgba(67,199,102,0.15);
+        color: #43c766;
+        border: 1px solid rgba(67,199,102,0.3);
+    }
+    .badge-off, .badge-failed {
+        background: rgba(105,111,108,0.15);
+        color: #696f6c;
+        border: 1px solid rgba(105,111,108,0.3);
+    }
+    .badge-manual {
+        background: rgba(59,130,246,0.15);
+        color: #3b82f6;
+        border: 1px solid rgba(59,130,246,0.3);
+    }
+
+    .btn-primary {
+        background-color: #43c766;
+        color: #0f1f14;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.15s;
+        border: 0;
+        cursor: pointer;
+    }
+    .btn-primary:hover {
+        background-color: #38b358;
+    }
+
+    .btn-danger {
+        background-color: #dc2626;
+        color: white;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.15s;
+        border: 0;
+        cursor: pointer;
+    }
+    .btn-danger:hover {
+        background-color: #b91c1c;
+    }
+
+    .btn-secondary {
+        background-color: #3b3b3b;
+        color: #eeeeee;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.15s;
+        border: 0;
+        cursor: pointer;
+    }
+    .btn-secondary:hover {
+        background-color: #4a4a4a;
+    }
+
+    .form-input {
+        background-color: #2b2b2b;
+        border: 1px solid #3b3b3b;
+        color: #eeeeee;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        width: 100%;
+        outline: none;
+        transition: border-color 0.15s;
+    }
+    .form-input:focus {
+        border-color: #43c766;
+        box-shadow: 0 0 0 1px #43c766;
+    }
+    .form-input::placeholder {
+        color: #999999;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #cccccc;
+        margin-bottom: 0.25rem;
+    }
+
+    .status-pill-normal {
+        padding: 0.5rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.875rem;
+        background: rgba(67,199,102,0.15);
+        color: #43c766;
+        border: 1px solid rgba(67,199,102,0.3);
+    }
+    .status-pill-waspada {
+        padding: 0.5rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.875rem;
+        background: rgba(244,183,64,0.15);
+        color: #f4b740;
+        border: 1px solid rgba(244,183,64,0.3);
+    }
+    .status-pill-kritis {
+        padding: 0.5rem 0.75rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.875rem;
+        background: rgba(239,68,68,0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .data-table {
+        width: 100%;
+        font-size: 0.875rem;
+        border-collapse: collapse;
+    }
+    .data-table th {
+        text-align: left;
+        padding: 0.75rem 0.75rem;
+        color: #999999;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-bottom: 1px solid #3b3b3b;
+    }
+    .data-table td {
+        padding: 0.75rem 0.75rem;
+        color: #eef4f0;
+        border-bottom: 1px solid #2b2b2b;
+    }
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    .data-table tbody tr:hover {
+        background: rgba(43,43,43,0.5);
+    }
+
+    .alert-warning {
+        background: rgba(244,183,64,0.15);
+        border: 1px solid rgba(244,183,64,0.4);
+        color: #f4b740;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    .alert-info {
+        background: rgba(59,130,246,0.15);
+        border: 1px solid rgba(59,130,246,0.4);
+        color: #93c5fd;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    .alert-success {
+        background: rgba(67,199,102,0.15);
+        border: 1px solid rgba(67,199,102,0.4);
+        color: #43c766;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    .alert-error {
+        background: rgba(239,68,68,0.15);
+        border: 1px solid rgba(239,68,68,0.4);
+        color: #f87171;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
 }
