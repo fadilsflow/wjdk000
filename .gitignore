@@ -7,10 +7,16 @@
 !.env.example
 /storage/*.key
 /storage/pail
-/storage/framework/cache/data
-/storage/framework/sessions
-/storage/framework/testing
-/storage/framework/views
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/testing/*
+!/storage/framework/testing/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
 /public/storage
 /.phpunit.cache
 /.phpunit.result.cache
@@ -24,3 +30,6 @@
 skills-lock.json
 logs/
 .agents/
+# Compiled files
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
