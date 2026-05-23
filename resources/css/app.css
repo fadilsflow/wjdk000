@@ -6,180 +6,385 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --color-green-brand: #43c766;
-    --color-bg-dark: #111111;
-    --color-panel: #252525;
-    --color-panel-2: #2b2b2b;
-    --color-line: #3b3b3b;
-    --color-muted: #999999;
-    --color-text: #eeeeee;
-    --color-top: #232323;
-    --color-sub: #242927;
+    /* Surfaces (DESIGN.md §2) */
+    --color-bg-base:     #121212;
+    --color-bg-surface:  #181818;
+    --color-bg-elevated: #1f1f1f;
+    --color-bg-card-2:   #252525;
+    --color-bg-card-3:   #272727;
+
+    /* Brand */
+    --color-brand:        #1ed760;
+    --color-brand-border: #1db954;
+
+    /* Text */
+    --color-text:        #ffffff;
+    --color-text-muted:  #b3b3b3;
+    --color-text-near:   #cbcbcb;
+    --color-text-faint:  #fdfdfd;
+
+    /* Semantic */
+    --color-negative: #f3727f;
+    --color-warning:  #ffa42b;
+    --color-info:     #539df5;
+
+    /* Borders */
+    --color-border:       #4d4d4d;
+    --color-border-light: #7c7c7c;
+    --color-separator:    #b3b3b3;
+
+    /* Type — Manrope is the closest free Circular-family substitute */
+    --font-sans: 'Manrope', 'Inter', 'Helvetica Neue', helvetica, arial, sans-serif;
+    --font-title: 'Manrope', 'Inter', 'Helvetica Neue', helvetica, arial, sans-serif;
 }
 
 @layer base {
     body {
-        background-color: var(--color-bg-dark);
+        background-color: var(--color-bg-base);
         color: var(--color-text);
         font-family: var(--font-sans);
+        font-weight: 400;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
+    [x-cloak] { display: none !important; }
 }
 
 @layer components {
+    /* === Cards === */
     .card {
-        background-color: var(--color-panel);
-        border-radius: 0.5rem;
+        background-color: var(--color-bg-surface);
+        border-radius: 0.5rem; /* 8px */
         overflow: hidden;
-        box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset;
+    }
+    .card-elevated {
+        background-color: var(--color-bg-surface);
+        border-radius: 0.5rem;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 8px 8px;
     }
     .card-header {
         display: flex;
         align-items: center;
         min-height: 48px;
         padding: 0 1rem;
-        font-size: 1.0625rem;
-        font-weight: 800;
+        font-size: 1.125rem; /* 18px Feature Heading */
+        font-weight: 700;
+        line-height: 1.3;
         gap: 0.5rem;
-        border-bottom: 1px solid var(--color-line);
+        border-bottom: 1px solid rgba(77, 77, 77, 0.35);
     }
 
+    /* === Badges (compact tags) === */
     .badge {
         display: inline-block;
         padding: 0.25rem 0.5rem;
-        border-radius: 999px;
+        border-radius: 9999px;
         font-size: 0.75rem;
-        font-weight: 800;
+        font-weight: 700;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
     }
-    .badge-normal {
-        background: rgba(67,199,102,0.15);
-        color: #43c766;
-        border: 1px solid rgba(67,199,102,0.3);
+    .badge-normal,
+    .badge-on,
+    .badge-sent,
+    .badge-automatic {
+        background: rgba(30, 215, 96, 0.15);
+        color: var(--color-brand);
+        border: 1px solid rgba(30, 215, 96, 0.35);
     }
     .badge-waspada {
-        background: rgba(244,183,64,0.15);
-        color: #f4b740;
-        border: 1px solid rgba(244,183,64,0.3);
+        background: rgba(255, 164, 43, 0.15);
+        color: var(--color-warning);
+        border: 1px solid rgba(255, 164, 43, 0.35);
     }
     .badge-kritis {
-        background: rgba(239,68,68,0.15);
-        color: #ef4444;
-        border: 1px solid rgba(239,68,68,0.3);
+        background: rgba(243, 114, 127, 0.15);
+        color: var(--color-negative);
+        border: 1px solid rgba(243, 114, 127, 0.35);
     }
-    .badge-on, .badge-sent, .badge-automatic {
-        background: rgba(67,199,102,0.15);
-        color: #43c766;
-        border: 1px solid rgba(67,199,102,0.3);
-    }
-    .badge-off, .badge-failed {
-        background: rgba(105,111,108,0.15);
-        color: #696f6c;
-        border: 1px solid rgba(105,111,108,0.3);
+    .badge-off,
+    .badge-failed {
+        background: rgba(124, 124, 124, 0.15);
+        color: var(--color-border-light);
+        border: 1px solid rgba(124, 124, 124, 0.35);
     }
     .badge-manual {
-        background: rgba(59,130,246,0.15);
-        color: #3b82f6;
-        border: 1px solid rgba(59,130,246,0.3);
+        background: rgba(83, 157, 245, 0.15);
+        color: var(--color-info);
+        border: 1px solid rgba(83, 157, 245, 0.35);
     }
 
+    /* === Buttons (DESIGN.md §4) === */
     .btn-primary {
-        background-color: #43c766;
-        color: #0f1f14;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-brand);
+        color: #000;
         font-weight: 700;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        transition: background-color 0.15s;
+        font-size: 0.875rem;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.75rem 1.75rem;
+        border-radius: 9999px;
+        transition: transform 0.12s ease, background-color 0.15s, filter 0.15s;
         border: 0;
         cursor: pointer;
+        white-space: nowrap;
     }
-    .btn-primary:hover {
-        background-color: #38b358;
+    .btn-primary:hover:not(:disabled) {
+        transform: scale(1.03);
+        filter: brightness(1.05);
     }
-
-    .btn-danger {
-        background-color: #dc2626;
-        color: white;
-        font-weight: 700;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        transition: background-color 0.15s;
-        border: 0;
-        cursor: pointer;
-    }
-    .btn-danger:hover {
-        background-color: #b91c1c;
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
     .btn-secondary {
-        background-color: #3b3b3b;
-        color: #eeeeee;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-bg-elevated);
+        color: var(--color-text);
         font-weight: 700;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.75rem 1.75rem;
+        border-radius: 9999px;
         transition: background-color 0.15s;
         border: 0;
         cursor: pointer;
+        white-space: nowrap;
     }
-    .btn-secondary:hover {
-        background-color: #4a4a4a;
+    .btn-secondary:hover:not(:disabled) {
+        background-color: var(--color-bg-card-2);
+    }
+    .btn-secondary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
+    .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        color: var(--color-text);
+        font-weight: 700;
+        font-size: 0.875rem;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        border: 1px solid var(--color-border-light);
+        transition: border-color 0.15s, color 0.15s;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .btn-outline:hover:not(:disabled) {
+        border-color: var(--color-text);
+    }
+    .btn-outline:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-negative);
+        color: #1a0000;
+        font-weight: 700;
+        font-size: 0.875rem;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.75rem 1.75rem;
+        border-radius: 9999px;
+        transition: filter 0.15s, transform 0.12s ease;
+        border: 0;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .btn-danger:hover:not(:disabled) {
+        filter: brightness(1.05);
+        transform: scale(1.03);
+    }
+    .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-light-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #eeeeee;
+        color: #181818;
+        font-weight: 700;
+        font-size: 0.875rem;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.625rem 1.5rem;
+        border-radius: 9999px;
+        border: 0;
+        cursor: pointer;
+        transition: filter 0.15s, transform 0.12s ease;
+        white-space: nowrap;
+    }
+    .btn-light-pill:hover:not(:disabled) {
+        filter: brightness(0.94);
+        transform: scale(1.03);
+    }
+
+    /* Circular play/control button (DESIGN.md §4 Circular Play) */
+    .btn-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 3rem;
+        height: 3rem;
+        border-radius: 9999px;
+        background-color: var(--color-bg-elevated);
+        color: var(--color-text);
+        border: 0;
+        cursor: pointer;
+        transition: transform 0.12s ease, background-color 0.15s, filter 0.15s;
+    }
+    .btn-circle:hover:not(:disabled) {
+        transform: scale(1.05);
+        background-color: var(--color-bg-card-2);
+    }
+    .btn-circle.is-active {
+        background-color: var(--color-brand);
+        color: #000;
+    }
+    .btn-circle.is-active:hover:not(:disabled) {
+        background-color: var(--color-brand);
+        filter: brightness(1.05);
+    }
+    .btn-circle-lg {
+        width: 4.5rem;
+        height: 4.5rem;
+    }
+
+    /* Small variants (used for table-row actions, pagination, in-card mini buttons) */
+    .btn-sm {
+        padding: 0.4rem 0.9rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+    }
+
+    /* === Inputs === */
     .form-input {
-        background-color: #2b2b2b;
-        border: 1px solid #3b3b3b;
-        color: #eeeeee;
-        border-radius: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        background-color: var(--color-bg-elevated);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        border-radius: 0.25rem; /* 4px */
+        padding: 0.625rem 0.875rem;
         width: 100%;
         outline: none;
-        transition: border-color 0.15s;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        font-size: 0.875rem;
     }
     .form-input:focus {
-        border-color: #43c766;
-        box-shadow: 0 0 0 1px #43c766;
+        border-color: var(--color-brand);
+        box-shadow: 0 0 0 1px var(--color-brand);
     }
     .form-input::placeholder {
-        color: #999999;
+        color: var(--color-text-muted);
     }
-
+    /* Pill search input variant (DESIGN.md §4) */
+    .form-input-pill {
+        background-color: var(--color-bg-elevated);
+        color: var(--color-text);
+        border-radius: 500px;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        width: 100%;
+        outline: none;
+        box-shadow:
+            rgb(18, 18, 18) 0px 1px 0px,
+            rgb(124, 124, 124) 0px 0px 0px 1px inset;
+        transition: box-shadow 0.15s;
+        font-size: 0.875rem;
+        border: 0;
+    }
+    .form-input-pill:focus {
+        box-shadow: rgb(255, 255, 255) 0px 0px 0px 2px inset;
+    }
+    .form-input-pill::placeholder {
+        color: var(--color-text-muted);
+    }
     .form-label {
         display: block;
         font-size: 0.875rem;
         font-weight: 600;
-        color: #cccccc;
-        margin-bottom: 0.25rem;
+        color: var(--color-text-near);
+        margin-bottom: 0.375rem;
+    }
+    .form-checkbox {
+        appearance: none;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 0.125rem;
+        background-color: var(--color-bg-elevated);
+        border: 1px solid var(--color-border);
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.15s, border-color 0.15s;
+    }
+    .form-checkbox:checked {
+        background-color: var(--color-brand);
+        border-color: var(--color-brand);
+    }
+    .form-checkbox:checked::after {
+        content: '';
+        position: absolute;
+        top: 0.05rem;
+        left: 0.3rem;
+        width: 0.3rem;
+        height: 0.55rem;
+        border: solid #000;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
     }
 
-    .status-pill-normal {
-        padding: 0.5rem 0.75rem;
-        border-radius: 999px;
-        font-weight: 800;
+    /* === Status pills (subbar / hero) === */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-weight: 700;
         font-size: 0.875rem;
-        background: rgba(67,199,102,0.15);
-        color: #43c766;
-        border: 1px solid rgba(67,199,102,0.3);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+    .status-pill-normal {
+        background: rgba(30, 215, 96, 0.15);
+        color: var(--color-brand);
+        border: 1px solid rgba(30, 215, 96, 0.35);
     }
     .status-pill-waspada {
-        padding: 0.5rem 0.75rem;
-        border-radius: 999px;
-        font-weight: 800;
-        font-size: 0.875rem;
-        background: rgba(244,183,64,0.15);
-        color: #f4b740;
-        border: 1px solid rgba(244,183,64,0.3);
+        background: rgba(255, 164, 43, 0.15);
+        color: var(--color-warning);
+        border: 1px solid rgba(255, 164, 43, 0.35);
     }
     .status-pill-kritis {
-        padding: 0.5rem 0.75rem;
-        border-radius: 999px;
-        font-weight: 800;
-        font-size: 0.875rem;
-        background: rgba(239,68,68,0.15);
-        color: #ef4444;
-        border: 1px solid rgba(239,68,68,0.3);
+        background: rgba(243, 114, 127, 0.15);
+        color: var(--color-negative);
+        border: 1px solid rgba(243, 114, 127, 0.35);
     }
 
+    /* === Tables === */
     .data-table {
         width: 100%;
         font-size: 0.875rem;
@@ -187,54 +392,85 @@
     }
     .data-table th {
         text-align: left;
-        padding: 0.75rem 0.75rem;
-        color: #999999;
-        font-weight: 600;
+        padding: 0.75rem 1rem;
+        color: var(--color-text-muted);
+        font-weight: 700;
         font-size: 0.75rem;
-        border-bottom: 1px solid #3b3b3b;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(77, 77, 77, 0.4);
+        background-color: var(--color-bg-surface);
     }
     .data-table td {
-        padding: 0.75rem 0.75rem;
-        color: #eef4f0;
-        border-bottom: 1px solid #2b2b2b;
+        padding: 0.875rem 1rem;
+        color: var(--color-text);
+        border-bottom: 1px solid rgba(37, 37, 37, 0.8);
     }
     .data-table tr:last-child td {
         border-bottom: none;
     }
+    .data-table tbody tr {
+        transition: background-color 0.12s;
+    }
     .data-table tbody tr:hover {
-        background: rgba(43,43,43,0.5);
+        background-color: var(--color-bg-card-2);
     }
 
-    .alert-warning {
-        background: rgba(244,183,64,0.15);
-        border: 1px solid rgba(244,183,64,0.4);
-        color: #f4b740;
+    /* === Alerts === */
+    .alert {
         border-radius: 0.5rem;
         padding: 0.75rem 1rem;
         font-size: 0.875rem;
-    }
-    .alert-info {
-        background: rgba(59,130,246,0.15);
-        border: 1px solid rgba(59,130,246,0.4);
-        color: #93c5fd;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
+        line-height: 1.5;
     }
     .alert-success {
-        background: rgba(67,199,102,0.15);
-        border: 1px solid rgba(67,199,102,0.4);
-        color: #43c766;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
+        background: rgba(30, 215, 96, 0.12);
+        border: 1px solid rgba(30, 215, 96, 0.4);
+        color: var(--color-brand);
+    }
+    .alert-warning {
+        background: rgba(255, 164, 43, 0.12);
+        border: 1px solid rgba(255, 164, 43, 0.4);
+        color: var(--color-warning);
     }
     .alert-error {
-        background: rgba(239,68,68,0.15);
-        border: 1px solid rgba(239,68,68,0.4);
-        color: #f87171;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
+        background: rgba(243, 114, 127, 0.12);
+        border: 1px solid rgba(243, 114, 127, 0.4);
+        color: var(--color-negative);
+    }
+    .alert-info {
+        background: rgba(83, 157, 245, 0.12);
+        border: 1px solid rgba(83, 157, 245, 0.4);
+        color: var(--color-info);
+    }
+
+    /* === Shadows (DESIGN.md §6) === */
+    .shadow-elevated {
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 8px 8px;
+    }
+    .shadow-dialog {
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px;
+    }
+
+    /* === Nav pill (used by topbar + x-nav-link) === */
+    .nav-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
         font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--color-text-muted);
+        transition: color 0.15s, background-color 0.15s;
+        white-space: nowrap;
+    }
+    .nav-pill:hover {
+        color: var(--color-text);
+        background-color: var(--color-bg-elevated);
+    }
+    .nav-pill.is-active {
+        color: var(--color-text);
+        background-color: var(--color-bg-elevated);
     }
 }

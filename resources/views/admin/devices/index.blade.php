@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="subbar">
         <div>
-            <div class="text-xl font-extrabold">Konfigurasi Alat & Threshold</div>
-            <div class="text-[#999] text-sm">Pengaturan perangkat IoT dan batas sensor</div>
+            <div class="text-2xl font-extrabold leading-tight">Konfigurasi Alat & Threshold</div>
+            <div class="text-[color:var(--color-text-muted)] text-sm">Pengaturan perangkat IoT dan batas sensor</div>
         </div>
     </x-slot>
 
@@ -10,9 +10,7 @@
 
         {{-- Device list --}}
         <div class="card">
-            <div class="card-header">
-                Perangkat IoT
-            </div>
+            <div class="card-header">Perangkat IoT</div>
             <div class="overflow-x-auto">
                 <table class="data-table">
                     <thead>
@@ -27,9 +25,9 @@
                     <tbody>
                         @foreach($devices as $d)
                         <tr>
-                            <td class="font-medium">{{ $d['name'] }}</td>
-                            <td class="text-xs">{{ $d['location'] }}</td>
-                            <td class="text-xs font-mono">{{ substr($d['api_key'], 0, 8) }}...</td>
+                            <td class="font-semibold">{{ $d['name'] }}</td>
+                            <td class="text-xs text-[color:var(--color-text-muted)]">{{ $d['location'] }}</td>
+                            <td class="text-xs font-mono text-[color:var(--color-text-muted)]">{{ substr($d['api_key'], 0, 8) }}...</td>
                             <td>
                                 <span class="badge badge-{{ $d['mode'] === 'automatic' ? 'automatic' : 'manual' }}">
                                     {{ ucfirst($d['mode']) }}
@@ -49,9 +47,7 @@
 
         {{-- Threshold settings --}}
         <div class="card">
-            <div class="card-header">
-                Threshold Sensor
-            </div>
+            <div class="card-header">Threshold Sensor</div>
             <div class="p-6 space-y-4">
                 <div>
                     <label class="form-label">Min. Kelembapan Tanah (%)</label>

@@ -22,40 +22,38 @@ $isHistoryRoute = request()->routeIs('history.*');
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Smart Sprayer IoT' }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{ $head ?? '' }}
 </head>
-<body class="font-sans antialiased bg-[#111111] text-[#eeeeee]">
+<body class="font-sans antialiased">
 
     {{-- TOPBAR --}}
-    <header class="h-auto bg-[#232323] border-b border-[#151817]">
-        <div class="flex items-center flex-wrap gap-y-2 px-6 h-[68px]">
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 font-extrabold text-[#43c766] text-lg whitespace-nowrap mr-4">
-                <span class="w-8 h-8 rounded-[10px] bg-gradient-to-br from-[#43c766] to-[#2d9650] grid place-items-center text-[#102015] font-black text-sm">S</span>
-                Smart Sprayer IoT
+    <header class="bg-[color:var(--color-bg-surface)]">
+        <div class="flex items-center flex-wrap gap-y-2 px-6 h-[64px]">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 mr-6 whitespace-nowrap">
+                <span class="w-8 h-8 rounded-full grid place-items-center bg-[color:var(--color-brand)] text-black font-black text-sm">S</span>
+                <span class="font-extrabold text-[15px] text-[color:var(--color-text)]">Smart Sprayer IoT</span>
             </a>
 
             {{-- Desktop Nav --}}
-            <nav class="hidden md:flex h-full items-stretch">
+            <nav class="hidden md:flex items-center gap-1">
                 @foreach($navLinks as $link)
                     @if(isset($link['children']))
-                        {{-- Dropdown --}}
                         <div class="relative group">
                             <button
-                                    class="px-6 flex items-center text-[13px] font-semibold transition-colors h-full gap-1
-                                           {{ $isHistoryRoute ? 'bg-[#353a38] text-white' : 'text-[#b9c0bc] hover:text-white hover:bg-[#2a2e2c]' }}">
+                                class="nav-pill {{ $isHistoryRoute ? 'is-active' : '' }}">
                                 {{ $link['label'] }}
-                                <svg class="w-3 h-3 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
-                            <div class="absolute top-full left-0 mt-0 w-48 bg-[#2b2b2b] border border-[#3b3b3b] rounded-lg overflow-hidden shadow-lg z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
+                            <div class="absolute top-full left-0 mt-1 w-52 bg-[color:var(--color-bg-card-2)] rounded-lg overflow-hidden shadow-dialog z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150">
                                 @foreach($link['children'] as $child)
                                     @if(\Illuminate\Support\Facades\Route::has($child['route']))
                                     <a href="{{ route($child['route']) }}"
-                                       class="block px-5 py-3 text-sm font-semibold transition-colors border-b border-[#3b3b3b] last:border-0
-                                              {{ request()->routeIs($child['route']) ? 'bg-[#353a38] text-white' : 'text-[#b9c0bc] hover:bg-[#353a38] hover:text-white' }}">
+                                       class="block px-5 py-3 text-sm font-semibold transition-colors
+                                              {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
                                         {{ $child['label'] }}
                                     </a>
                                     @endif
@@ -65,10 +63,7 @@ $isHistoryRoute = request()->routeIs('history.*');
                     @else
                         @if(\Illuminate\Support\Facades\Route::has($link['route']))
                         <a href="{{ route($link['route']) }}"
-                           class="px-6 flex items-center text-[13px] font-semibold transition-colors
-                                  {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*')
-                                     ? 'bg-[#353a38] text-white'
-                                     : 'text-[#b9c0bc] hover:text-white hover:bg-[#2a2e2c]' }}">
+                           class="nav-pill {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*') ? 'is-active' : '' }}">
                             {{ $link['label'] }}
                         </a>
                         @endif
@@ -76,14 +71,15 @@ $isHistoryRoute = request()->routeIs('history.*');
                 @endforeach
             </nav>
 
-            {{-- User info (static dummy) --}}
-            <div class="ml-auto flex items-center gap-4">
-                <span class="text-[#c8cfcb] text-sm hidden sm:block">
-                    {{ $userName }}
-                    <span class="capitalize text-xs text-[#999]">{{ $userRole }}</span>
-                </span>
-                <span class="text-[#666] text-xs hidden sm:block">{{ $currentTime }}</span>
-                <button class="md:hidden text-[#999] hover:text-white" x-data @click="$dispatch('toggle-mobile-nav')">
+            {{-- User info --}}
+            <div class="ml-auto flex items-center gap-3">
+                <div class="hidden sm:flex flex-col items-end leading-tight">
+                    <span class="text-[color:var(--color-text)] text-sm font-bold">{{ $userName }}</span>
+                    <span class="text-[color:var(--color-text-muted)] text-[11px] uppercase tracking-wider">{{ $userRole }}</span>
+                </div>
+                <span class="text-[color:var(--color-text-muted)] text-xs hidden lg:block">{{ $currentTime }}</span>
+
+                <button type="button" class="md:hidden btn-circle" style="width:2.5rem;height:2.5rem;" x-data @click="$dispatch('toggle-mobile-nav')" aria-label="Menu">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                     </svg>
@@ -92,20 +88,21 @@ $isHistoryRoute = request()->routeIs('history.*');
         </div>
 
         {{-- Mobile Nav --}}
-        <div class="md:hidden border-t border-[#2a2a2a]"
+        <div class="md:hidden"
              x-data="{ open: false }"
              @toggle-mobile-nav.window="open = !open"
              x-show="open"
              x-cloak>
+            <div class="px-3 pb-3 pt-1 space-y-1">
             @foreach($navLinks as $link)
                 @if(isset($link['children']))
-                    <div class="border-b border-[#2a2a2a]">
-                        <div class="px-6 py-3 text-sm font-semibold text-[#999] uppercase tracking-wider">{{ $link['label'] }}</div>
+                    <div class="pt-2">
+                        <div class="px-3 py-1 text-[11px] font-bold text-[color:var(--color-text-muted)] uppercase tracking-wider">{{ $link['label'] }}</div>
                         @foreach($link['children'] as $child)
                             @if(\Illuminate\Support\Facades\Route::has($child['route']))
                             <a href="{{ route($child['route']) }}"
-                               class="block pl-10 pr-6 py-3 text-sm font-semibold transition-colors border-b border-[#2a2a2a] last:border-0
-                                      {{ request()->routeIs($child['route']) ? 'bg-[#353a38] text-white' : 'text-[#b9c0bc] hover:bg-[#2a2e2c] hover:text-white' }}">
+                               class="block px-3 py-2.5 ml-2 text-sm font-bold rounded-full transition-colors
+                                      {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
                                 {{ $child['label'] }}
                             </a>
                             @endif
@@ -114,37 +111,36 @@ $isHistoryRoute = request()->routeIs('history.*');
                 @else
                     @if(\Illuminate\Support\Facades\Route::has($link['route']))
                     <a href="{{ route($link['route']) }}"
-                       class="block px-6 py-3 text-sm font-semibold border-b border-[#2a2a2a] transition-colors
-                              {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*')
-                                 ? 'bg-[#353a38] text-white'
-                                 : 'text-[#b9c0bc] hover:bg-[#2a2e2c] hover:text-white' }}">
+                       class="block px-3 py-2.5 text-sm font-bold rounded-full transition-colors
+                              {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*') ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
                         {{ $link['label'] }}
                     </a>
                     @endif
                 @endif
             @endforeach
+            </div>
         </div>
     </header>
 
     {{-- SUBBAR --}}
     @if($subbar)
-        <div class="min-h-[58px] bg-[#242927] flex flex-wrap items-center gap-3 px-6 py-3 shadow-[inset_0_-1px_#151817]">
+        <div class="min-h-[64px] bg-[color:var(--color-bg-base)] flex flex-wrap items-center gap-3 px-6 py-4 border-b border-[color:var(--color-bg-surface)]">
             {{ $subbar }}
         </div>
     @endif
 
     {{-- MAIN --}}
-    <main>
+    <main class="min-h-[calc(100vh-200px)]">
         {{ $slot }}
     </main>
 
     {{-- Footer --}}
-    <footer class="text-center text-xs text-[#666] py-6 border-t border-[#2a2a2a] mt-8">
-        <a href="{{ route('public.summary') }}" class="hover:text-[#43c766] transition-colors">
-            📊 Ringkasan Publik
+    <footer class="text-center text-xs text-[color:var(--color-text-muted)] py-6 mt-8 border-t border-[color:var(--color-bg-surface)]">
+        <a href="{{ route('public.summary') }}" class="hover:text-[color:var(--color-brand)] transition-colors font-semibold">
+            Ringkasan Publik
         </a>
-        <span class="mx-3">•</span>
-        Smart Sprayer IoT — Bawang Merah Brebes
+        <span class="mx-3 text-[color:var(--color-border)]">/</span>
+        <span>Smart Sprayer IoT — Bawang Merah Brebes</span>
     </footer>
 
     @stack('scripts')

@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="subbar">
         <div>
-            <div class="text-xl font-extrabold">Dashboard</div>
-            <div class="text-[#999] text-sm">{{ $device['name'] }} — Monitoring kondisi real-time</div>
+            <div class="text-2xl font-extrabold leading-tight">Dashboard</div>
+            <div class="text-[color:var(--color-text-muted)] text-sm">{{ $device['name'] }} — Monitoring kondisi real-time</div>
         </div>
         @php
             $cs = $sensor['condition_status'] ?? 'normal';
@@ -12,7 +12,7 @@
                 default => 'status-pill-normal',
             };
         @endphp
-        <span class="ml-auto {{ $pillClass }}">{{ strtoupper($cs) }}</span>
+        <span class="ml-auto status-pill {{ $pillClass }}">{{ $cs }}</span>
     </x-slot>
 
     <div class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -23,10 +23,10 @@
             <div class="p-4 flex flex-col items-center">
                 <canvas id="soilGauge" width="180" height="180" class="mx-auto"></canvas>
                 <div class="text-center text-sm mt-2">
-                    <div class="text-3xl font-extrabold text-white" id="soilValue">{{ $sensor['soil_moisture'] }}%</div>
-                    <div class="text-[#999] text-xs mt-1">
+                    <div class="text-3xl font-extrabold text-[color:var(--color-text)]" id="soilValue">{{ $sensor['soil_moisture'] }}%</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs mt-1">
                         {{ $sensor['soil_moisture'] < 40 ? 'Tanah kering' : 'Tanah lembab' }}
-                        • threshold min. 40%
+                        · threshold min. 40%
                     </div>
                 </div>
             </div>
@@ -34,27 +34,26 @@
 
         {{-- 2. Condition Status --}}
         <div class="card">
-            <div class="card-header">Status Kondisi Lingkungan</div>
+            <div class="card-header">Status Kondisi</div>
             <div class="p-4">
-                <div class="rounded-xl p-5 text-center border"
-                     style="background: {{ $cs === 'kritis' ? 'rgba(239,68,68,0.12)' : ($cs === 'waspada' ? 'rgba(244,183,64,0.12)' : 'rgba(67,199,102,0.12)') }};
-                            border-color: {{ $cs === 'kritis' ? 'rgba(239,68,68,0.28)' : ($cs === 'waspada' ? 'rgba(244,183,64,0.28)' : 'rgba(67,199,102,0.28)') }};">
-                    <div class="text-[#999] text-sm">Status saat ini</div>
-                    <div class="text-4xl font-black mt-1
-                        {{ $cs === 'kritis' ? 'text-red-400' : ($cs === 'waspada' ? 'text-yellow-400' : 'text-green-400') }}">
-                        {{ strtoupper($cs) }}
+                <div class="rounded-xl p-5 text-center"
+                     style="background: {{ $cs === 'kritis' ? 'rgba(243,114,127,0.12)' : ($cs === 'waspada' ? 'rgba(255,164,43,0.12)' : 'rgba(30,215,96,0.12)') }};">
+                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Saat ini</div>
+                    <div class="text-4xl font-black mt-2 uppercase"
+                         style="color: {{ $cs === 'kritis' ? 'var(--color-negative)' : ($cs === 'waspada' ? 'var(--color-warning)' : 'var(--color-brand)') }};">
+                        {{ $cs }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-3">
-                    <div class="bg-[#303634] rounded-lg p-3 text-center">
-                        <div class="text-[#999] text-xs">Mode</div>
-                        <div class="text-base font-extrabold text-white uppercase">{{ $device['mode'] }}</div>
+                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
+                        <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Mode</div>
+                        <div class="text-base font-extrabold text-[color:var(--color-text)] uppercase mt-1">{{ $device['mode'] }}</div>
                     </div>
-                    <div class="bg-[#303634] rounded-lg p-3 text-center">
-                        <div class="text-[#999] text-xs">Sprayer</div>
-                        <div class="text-base font-extrabold"
-                             style="color: {{ $sensor['sprayer_status'] === 'on' ? '#43c766' : '#696f6c' }}">
-                            {{ strtoupper($sensor['sprayer_status']) }}
+                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
+                        <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sprayer</div>
+                        <div class="text-base font-extrabold uppercase mt-1"
+                             style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-border-light)' }};">
+                            {{ $sensor['sprayer_status'] }}
                         </div>
                     </div>
                 </div>
@@ -65,11 +64,12 @@
         <div class="card">
             <div class="card-header">Suhu Udara</div>
             <div class="p-4 flex flex-col items-center justify-center h-[180px] text-center">
-                <div class="text-[#999] text-sm">Sensor BME280</div>
-                <div class="text-5xl font-extrabold mt-2 {{ $sensor['temperature'] > 32 ? 'text-yellow-400' : 'text-green-400' }}">
+                <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
+                <div class="text-5xl font-extrabold mt-2"
+                     style="color: {{ $sensor['temperature'] > 32 ? 'var(--color-warning)' : 'var(--color-brand)' }};">
                     {{ $sensor['temperature'] }}°C
                 </div>
-                <div class="text-[#999] text-xs mt-2">Max threshold: 32°C</div>
+                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Max threshold: 32°C</div>
             </div>
         </div>
 
@@ -77,75 +77,75 @@
         <div class="card">
             <div class="card-header">Kelembapan Udara</div>
             <div class="p-4 flex flex-col items-center justify-center h-[180px] text-center">
-                <div class="text-[#999] text-sm">Sensor BME280</div>
-                <div class="text-5xl font-extrabold mt-2 text-green-400">{{ $sensor['air_humidity'] }}%</div>
-                <div class="text-[#999] text-xs mt-2">Normal untuk monitoring</div>
+                <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
+                <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]">{{ $sensor['air_humidity'] }}%</div>
+                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Normal untuk monitoring</div>
             </div>
         </div>
 
-        {{-- 5. Chart (span 2 cols desktop) --}}
+        {{-- 5. Chart --}}
         <div class="card sm:col-span-2">
             <div class="card-header">
                 Grafik Sensor Real-Time
-                <span class="ml-auto text-[#999] text-xs">60 menit terakhir</span>
+                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs font-bold uppercase tracking-wider">60 Menit Terakhir</span>
             </div>
             <div class="p-4">
                 <canvas id="sensorChart" height="200" class="w-full"></canvas>
             </div>
         </div>
 
-        {{-- 6. Control Panel (span 2 cols desktop) — functional --}}
+        {{-- 6. Control Panel --}}
         <div class="card sm:col-span-2">
             <div class="card-header">
                 Kontrol Penyemprotan
-                <span class="ml-auto text-[#999] text-xs">Aksi akan dikirim ke perangkat</span>
+                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs">Aksi dikirim ke perangkat</span>
             </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-[#2b2b2b] rounded-lg p-5 text-center">
-                    <div class="text-[#999] text-sm mb-2">Mode</div>
-                    <div class="w-[80px] h-[44px] mx-auto rounded-full relative transition-colors cursor-pointer
-                        {{ $device['mode'] === 'automatic' ? 'bg-[#43c766]' : 'bg-[#626866]' }}">
-                        <div class="w-[32px] h-[32px] bg-white rounded-full absolute top-[6px]
-                            {{ $device['mode'] === 'automatic' ? 'right-[6px]' : 'left-[6px]' }}">
-                        </div>
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                {{-- Mode toggle --}}
+                <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
+                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Mode</div>
+                    <div class="text-lg font-extrabold uppercase mb-3"
+                         style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
+                        {{ $device['mode'] }}
                     </div>
-                    <div class="text-lg font-extrabold mt-2 {{ $device['mode'] === 'automatic' ? 'text-[#43c766]' : 'text-[#c0c6c2]' }}">
-                        {{ strtoupper($device['mode']) }}
-                    </div>
-                    <button class="btn-secondary text-xs py-1 px-3 mt-2" onclick="alert('Ganti mode (backend)')">
-                        {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
+                    <button class="btn-outline btn-sm" onclick="alert('Ganti mode (backend)')">
+                        Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
                     </button>
                 </div>
-                <div class="bg-[#2b2b2b] rounded-lg p-5 text-center">
-                    <div class="text-[#999] text-sm mb-2">Pompa Sprayer</div>
-                    <div class="w-[80px] h-[44px] mx-auto rounded-full relative transition-colors
-                        {{ $sensor['sprayer_status'] === 'on' ? 'bg-[#43c766]' : 'bg-[#626866]' }}">
-                        <div class="w-[32px] h-[32px] bg-white rounded-full absolute top-[6px]
-                            {{ $sensor['sprayer_status'] === 'on' ? 'right-[6px]' : 'left-[6px]' }}">
-                        </div>
-                    </div>
-                    <div class="text-lg font-extrabold mt-2 {{ $sensor['sprayer_status'] === 'on' ? 'text-[#43c766]' : 'text-[#c0c6c2]' }}">
-                        {{ strtoupper($sensor['sprayer_status']) }}
-                    </div>
-                    <div class="flex gap-2 mt-2 justify-center">
-                        <button class="btn-primary text-xs py-1 px-3 {{ $sensor['sprayer_status'] === 'on' ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}"
-                                onclick="alert('Nyalakan sprayer (backend)')">
-                            Nyalakan
-                        </button>
-                        <button class="btn-secondary text-xs py-1 px-3 {{ $sensor['sprayer_status'] === 'off' ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}"
-                                onclick="alert('Matikan sprayer (backend)')">
-                            Matikan
-                        </button>
+
+                {{-- Sprayer circular control --}}
+                <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
+                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Pompa Sprayer</div>
+                    <button class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
+                            onclick="alert('Toggle sprayer (backend)')"
+                            aria-label="Toggle sprayer">
+                        @if($sensor['sprayer_status'] === 'on')
+                            {{-- Pause icon (sprayer running, click to stop) --}}
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                <rect x="14" y="5" width="4" height="14" rx="1"/>
+                            </svg>
+                        @else
+                            {{-- Play icon (sprayer idle, click to start) --}}
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        @endif
+                    </button>
+                    <div class="text-lg font-extrabold uppercase mt-3"
+                         style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
+                        {{ $sensor['sprayer_status'] }}
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- 7. Recent Activity (span 2 cols) --}}
+        {{-- 7. Recent Activity --}}
         <div class="card sm:col-span-2">
             <div class="card-header">
-                Riwayat Aktivitas Terbaru
-                <a href="{{ route('history.sensor') }}" class="ml-auto text-[#43c766] text-xs">Lihat semua →</a>
+                Riwayat Aktivitas
+                <a href="{{ route('history.sensor') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Lihat Semua</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="data-table">
@@ -162,25 +162,25 @@
                             <td class="text-xs">{{ $sensor['recorded_at'] }}</td>
                             <td>Sensor</td>
                             <td><span class="badge badge-{{ $cs }}">{{ ucfirst($cs) }}</span></td>
-                            <td class="text-[#999] text-xs">Tanah kering, tidak hujan</td>
+                            <td class="text-[color:var(--color-text-muted)] text-xs">Tanah kering, tidak hujan</td>
                         </tr>
                         <tr>
                             <td class="text-xs">10:00</td>
                             <td>Sprayer</td>
                             <td><span class="badge badge-on">ON</span></td>
-                            <td class="text-[#999] text-xs">Aktif otomatis</td>
+                            <td class="text-[color:var(--color-text-muted)] text-xs">Aktif otomatis</td>
                         </tr>
                         <tr>
                             <td class="text-xs">09:45</td>
                             <td>WhatsApp</td>
                             <td><span class="badge badge-sent">Sent</span></td>
-                            <td class="text-[#999] text-xs">Peringatan kondisi kritis</td>
+                            <td class="text-[color:var(--color-text-muted)] text-xs">Peringatan kondisi kritis</td>
                         </tr>
                         <tr>
                             <td class="text-xs">09:30</td>
                             <td>Sensor</td>
                             <td><span class="badge badge-normal">Normal</span></td>
-                            <td class="text-[#999] text-xs">Monitoring berkala</td>
+                            <td class="text-[color:var(--color-text-muted)] text-xs">Monitoring berkala</td>
                         </tr>
                     </tbody>
                 </table>
@@ -192,13 +192,21 @@
             <div class="card-header">Status Hujan</div>
             <div class="p-4 flex flex-col items-center justify-center h-[200px] text-center gap-3">
                 @if(($sensor['rain_status'] ?? '') === 'rain')
-                    <div class="text-5xl">🌧️</div>
-                    <div class="text-blue-400 text-2xl font-extrabold">Hujan</div>
-                    <div class="text-[#999] text-xs">Penyemprotan otomatis tidak dijalankan.</div>
+                    <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-info)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5zM8 19l-1 3M12 19l-1 3M16 19l-1 3"/>
+                        </svg>
+                    </div>
+                    <div class="text-2xl font-extrabold" style="color: var(--color-info)">Hujan</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis tidak dijalankan.</div>
                 @else
-                    <div class="text-5xl">☁️</div>
-                    <div class="text-blue-400 text-2xl font-extrabold">Tidak Hujan</div>
-                    <div class="text-[#999] text-xs">Penyemprotan otomatis diizinkan bila tanah kering.</div>
+                    <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-text-near)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5z"/>
+                        </svg>
+                    </div>
+                    <div class="text-2xl font-extrabold text-[color:var(--color-text)]">Tidak Hujan</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis diizinkan bila tanah kering.</div>
                 @endif
             </div>
         </div>
@@ -207,10 +215,14 @@
         <div class="card">
             <div class="card-header">Notifikasi WhatsApp</div>
             <div class="p-4 flex flex-col items-center justify-center h-[200px] text-center gap-3">
-                <div class="text-5xl">💬</div>
-                <div class="text-green-400 text-2xl font-extrabold">Terkirim</div>
-                <div class="text-[#999] text-xs">
-                    Peringatan kritis, sprayer mulai/berhenti, dan hujan terdeteksi disimpan ke log.
+                <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-brand)">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="text-2xl font-extrabold" style="color: var(--color-brand)">Aktif</div>
+                <div class="text-[color:var(--color-text-muted)] text-xs">
+                    Peringatan kritis dan aktivitas sprayer disimpan ke log.
                 </div>
             </div>
         </div>
@@ -234,24 +246,22 @@
             // Background arc
             ctx.beginPath();
             ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-            ctx.strokeStyle = '#3b3b3b';
+            ctx.strokeStyle = '#1f1f1f';
             ctx.lineWidth = 18;
             ctx.lineCap = 'round';
             ctx.stroke();
 
             // Value arc
             const endAngle = Math.PI + (angle * Math.PI / 180);
-            const gradient = ctx.createLinearGradient(0, cy-r, 0, cy+r);
+            let strokeColor;
             if (sm < 40) {
-                gradient.addColorStop(0, '#f4b740');
-                gradient.addColorStop(1, '#ef4444');
+                strokeColor = '#ffa42b'; // warning
             } else {
-                gradient.addColorStop(0, '#43c766');
-                gradient.addColorStop(1, '#2d9650');
+                strokeColor = '#1ed760'; // brand
             }
             ctx.beginPath();
             ctx.arc(cx, cy, r, Math.PI, endAngle);
-            ctx.strokeStyle = gradient;
+            ctx.strokeStyle = strokeColor;
             ctx.lineWidth = 18;
             ctx.lineCap = 'round';
             ctx.stroke();
@@ -268,20 +278,20 @@
                 data: {
                     labels: ['09:00', '09:15', '09:30', '09:45', '10:00'],
                     datasets: [
-                        { label: 'Suhu (°C)', data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: '#43c766', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70], borderColor: '#e6f5ea', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35], borderColor: '#f4b740', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Suhu (°C)',         data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: '#1ed760', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70],            borderColor: '#539df5', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35],            borderColor: '#ffa42b', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                     ],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
                     plugins: {
-                        legend: { labels: { color: '#999', font: { size: 12 } } }
+                        legend: { labels: { color: '#b3b3b3', font: { size: 12, weight: 600 } } }
                     },
                     scales: {
-                        x: { ticks: { color: '#999', font: { size: 11 } }, grid: { color: '#3b3b3b' } },
-                        y: { beginAtZero: true, max: 100, ticks: { color: '#999', font: { size: 11 } }, grid: { color: '#3b3b3b' } }
+                        x: { ticks: { color: '#b3b3b3', font: { size: 11 } }, grid: { color: '#252525' } },
+                        y: { beginAtZero: true, max: 100, ticks: { color: '#b3b3b3', font: { size: 11 } }, grid: { color: '#252525' } }
                     }
                 }
             });

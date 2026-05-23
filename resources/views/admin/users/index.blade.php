@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="subbar">
         <div>
-            <div class="text-xl font-extrabold">Manajemen Pengguna</div>
-            <div class="text-[#999] text-sm">Kelola akun admin dan petani</div>
+            <div class="text-2xl font-extrabold leading-tight">Manajemen Pengguna</div>
+            <div class="text-[color:var(--color-text-muted)] text-sm">Kelola akun admin dan petani</div>
         </div>
     </x-slot>
 
@@ -20,14 +20,14 @@
                             <th>Email</th>
                             <th>Role</th>
                             <th>No. WhatsApp</th>
-                            <th>Aksi</th>
+                            <th class="text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $user)
                         <tr>
-                            <td class="font-medium">{{ $user['name'] }}</td>
-                            <td class="text-xs">{{ $user['email'] }}</td>
+                            <td class="font-semibold">{{ $user['name'] }}</td>
+                            <td class="text-xs text-[color:var(--color-text-muted)]">{{ $user['email'] }}</td>
                             <td>
                                 <span class="badge {{ $user['role'] === 'admin' ? 'badge-automatic' : 'badge-manual' }}">
                                     {{ ucfirst($user['role']) }}
@@ -35,9 +35,9 @@
                             </td>
                             <td class="text-xs">{{ $user['phone'] }}</td>
                             <td>
-                                <div class="flex gap-2">
-                                    <button class="btn-primary text-xs py-1 px-2" onclick="alert('Edit user (backend)')">Edit</button>
-                                    <button class="btn-danger text-xs py-1 px-2" onclick="if(confirm('Hapus user ini?')) alert('Hapus (backend)')">Hapus</button>
+                                <div class="flex gap-2 justify-end">
+                                    <button class="btn-outline btn-sm" onclick="alert('Edit user (backend)')">Edit</button>
+                                    <button class="btn-danger btn-sm" onclick="if(confirm('Hapus user ini?')) alert('Hapus (backend)')">Hapus</button>
                                 </div>
                             </td>
                         </tr>
@@ -45,6 +45,7 @@
                     </tbody>
                 </table>
             </div>
+            <x-pagination :currentPage="1" :lastPage="1" />
         </div>
     </div>
 </x-app-layout>
