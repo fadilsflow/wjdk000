@@ -238,10 +238,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        try {
-            const gaugeCanvas = document.getElementById('soilGauge');
-            if (!gaugeCanvas) throw new Error('soilGauge canvas not found');
+        const themeColor = (name, fallback) =>
+            (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
+        function renderGauge() {
+            const gaugeCanvas = document.getElementById('soilGauge');
+            if (!gaugeCanvas) return;
             const ctx = gaugeCanvas.getContext('2d');
             const sm = {{ $sensor['soil_moisture'] }};
             const angle = (sm / 100) * 180;
@@ -251,38 +253,39 @@
             const cy = h * 0.68;
             const r = 55;
 
+            ctx.clearRect(0, 0, w, h);
+
             ctx.beginPath();
             ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-            ctx.strokeStyle = '#1f1f1f';
+            ctx.strokeStyle = themeColor('--color-bg-elevated', '#1f1f1f');
             ctx.lineWidth = 18;
             ctx.lineCap = 'round';
             ctx.stroke();
 
             const endAngle = Math.PI + (angle * Math.PI / 180);
-            const strokeColor = sm < 40 ? '#ffa42b' : '#1ed760';
-
             ctx.beginPath();
             ctx.arc(cx, cy, r, Math.PI, endAngle);
-            ctx.strokeStyle = strokeColor;
+            ctx.strokeStyle = sm < 40 ? themeColor('--color-warning', '#ffa42b') : themeColor('--color-brand', '#1ed760');
             ctx.lineWidth = 18;
             ctx.lineCap = 'round';
             ctx.stroke();
-        } catch (e) {
-            console.warn('Gauge render skipped:', e.message);
         }
 
-        try {
+        let chartInstance = null;
+        function renderChart() {
             const chartCanvas = document.getElementById('sensorChart');
-            if (!chartCanvas || typeof Chart === 'undefined') throw new Error('Chart.js or canvas not available');
+            if (!chartCanvas || typeof Chart === 'undefined') return;
 
-            new Chart(chartCanvas, {
+            if (chartInstance) { chartInstance.destroy(); }
+
+            chartInstance = new Chart(chartCanvas, {
                 type: 'line',
                 data: {
                     labels: ['09:00', '09:15', '09:30', '09:45', '10:00'],
                     datasets: [
-                        { label: 'Suhu (°C)', data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: '#1ed760', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70], borderColor: '#539df5', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35], borderColor: '#ffa42b', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Suhu (°C)', data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70], borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35], borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                     ],
                 },
                 options: {
@@ -291,28 +294,35 @@
                     plugins: {
                         legend: {
                             labels: {
-                                color: '#b3b3b3',
+                                color: themeColor('--color-text-muted', '#b3b3b3'),
                                 font: { size: 12, weight: 600 }
                             }
                         }
                     },
                     scales: {
                         x: {
-                            ticks: { color: '#b3b3b3', font: { size: 11 } },
-                            grid: { color: '#252525' }
+                            ticks: { color: themeColor('--color-text-muted', '#b3b3b3'), font: { size: 11 } },
+                            grid: { color: themeColor('--color-bg-card-2', '#252525') }
                         },
                         y: {
                             beginAtZero: true,
                             max: 100,
-                            ticks: { color: '#b3b3b3', font: { size: 11 } },
-                            grid: { color: '#252525' }
+                            ticks: { color: themeColor('--color-text-muted', '#b3b3b3'), font: { size: 11 } },
+                            grid: { color: themeColor('--color-bg-card-2', '#252525') }
                         }
                     }
                 }
             });
-        } catch (e) {
-            console.warn('Chart render skipped:', e.message);
         }
+
+        try { renderGauge(); } catch (e) { console.warn('Gauge render skipped:', e.message); }
+        try { renderChart(); } catch (e) { console.warn('Chart render skipped:', e.message); }
+
+        // Re-render canvases when the theme class on <html> changes.
+        new MutationObserver(function () {
+            try { renderGauge(); } catch (e) {}
+            try { renderChart(); } catch (e) {}
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     });
     </script>
     @endpush
