@@ -1,12 +1,12 @@
 <x-app-layout>
     <x-slot name="subbar">
-        <div>
+        <div class="max-w-2xl w-full mx-auto px-6">
             <div class="text-2xl font-extrabold leading-tight">Pengaturan WhatsApp</div>
             <div class="text-[color:var(--color-text-muted)] text-sm">Konfigurasi gateway dan penerima notifikasi</div>
         </div>
     </x-slot>
 
-    <div class="p-6 max-w-2xl space-y-6">
+    <div class="p-6 max-w-2xl space-y-6 mx-auto">
 
         {{-- Connection status --}}
         @php $connected = $settings['connection_status'] === 'connected'; @endphp

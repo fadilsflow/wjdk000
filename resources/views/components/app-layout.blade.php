@@ -2,17 +2,23 @@
 @php
 $navLinks = $navLinks ?? [
     ['route' => 'dashboard', 'label' => 'Dashboard'],
+    ['route' => 'sprayer.control', 'label' => 'Kontrol Sprayer'],
     ['route' => 'history.sensor', 'label' => 'Riwayat', 'children' => [
         ['route' => 'history.sensor', 'label' => 'Data Sensor'],
         ['route' => 'history.spray', 'label' => 'Penyemprotan'],
         ['route' => 'history.notification', 'label' => 'Notifikasi'],
     ]],
-    ['route' => 'admin.devices.index', 'label' => 'Konfigurasi'],
+    ['route' => 'admin.devices.index', 'label' => 'Pengaturan', 'group' => 'admin', 'children' => [
+        ['route' => 'admin.devices.index', 'label' => 'Konfigurasi Alat'],
+        ['route' => 'admin.users.index', 'label' => 'Pengguna'],
+        ['route' => 'admin.whatsapp.index', 'label' => 'WhatsApp'],
+    ]],
 ];
-$userName = $userName ?? 'Petani';
+$userName = $userName ?? 'Petani Demo';
 $userRole = $userRole ?? 'Petani';
 $currentTime = $currentTime ?? now()->format('d M Y, H:i');
 $isHistoryRoute = request()->routeIs('history.*');
+$isAdminRoute = request()->routeIs('admin.*');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -38,9 +44,10 @@ $isHistoryRoute = request()->routeIs('history.*');
             <nav class="hidden md:flex items-center gap-1">
                 @foreach($navLinks as $link)
                     @if(isset($link['children']))
+                        @php $groupActive = ($link['group'] ?? null) === 'admin' ? $isAdminRoute : $isHistoryRoute; @endphp
                         <div class="relative group">
                             <button
-                                class="nav-pill {{ $isHistoryRoute ? 'is-active' : '' }}">
+                                class="nav-pill {{ $groupActive ? 'is-active' : '' }}">
                                 {{ $link['label'] }}
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
@@ -69,13 +76,57 @@ $isHistoryRoute = request()->routeIs('history.*');
                 @endforeach
             </nav>
 
-            {{-- User info --}}
+            {{-- Right: clock + user dropdown + mobile hamburger --}}
             <div class="ml-auto flex items-center gap-3">
-                <div class="hidden sm:flex flex-col items-end leading-tight">
-                    <span class="text-[color:var(--color-text)] text-sm font-bold">{{ $userName }}</span>
-                    <span class="text-[color:var(--color-text-muted)] text-[11px] uppercase tracking-wider">{{ $userRole }}</span>
-                </div>
                 <span class="text-[color:var(--color-text-muted)] text-xs hidden lg:block">{{ $currentTime }}</span>
+
+                {{-- User dropdown (desktop & tablet) --}}
+                <div class="hidden sm:block relative" x-data="{ open: false }" @click.outside="open = false">
+                    <button type="button" @click="open = !open"
+                            class="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full hover:bg-[color:var(--color-bg-elevated)] transition-colors"
+                            aria-haspopup="true" :aria-expanded="open">
+                        <span class="w-8 h-8 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center text-[color:var(--color-text)] font-extrabold text-sm">
+                            {{ strtoupper(substr($userName, 0, 1)) }}
+                        </span>
+                        <span class="flex flex-col items-start leading-tight">
+                            <span class="text-[color:var(--color-text)] text-sm font-bold">{{ $userName }}</span>
+                            <span class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider">{{ $userRole }}</span>
+                        </span>
+                        <svg class="w-3 h-3 text-[color:var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 top-full mt-2 w-56 bg-[color:var(--color-bg-card-2)] rounded-lg overflow-hidden shadow-dialog z-50 origin-top-right"
+                         style="display: none;">
+                        <div class="px-4 py-3 border-b border-[color:var(--color-bg-elevated)]">
+                            <div class="text-[color:var(--color-text)] text-sm font-bold truncate">{{ $userName }}</div>
+                            <div class="text-[color:var(--color-text-muted)] text-xs">{{ $userRole }}</div>
+                        </div>
+                        @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
+                            <a href="{{ route('profile.edit') }}"
+                               class="block px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                                Profil
+                            </a>
+                        @endif
+                        @if(\Illuminate\Support\Facades\Route::has('logout'))
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="block w-full text-left px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors border-t border-[color:var(--color-bg-elevated)]">
+                                    Keluar
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
 
                 <button type="button" class="md:hidden btn-circle" style="width:2.5rem;height:2.5rem;" x-data @click="$dispatch('toggle-mobile-nav')" aria-label="Menu">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,6 +167,30 @@ $isHistoryRoute = request()->routeIs('history.*');
                     @endif
                 @endif
             @endforeach
+
+            {{-- Mobile user section --}}
+            <div class="border-t border-[color:var(--color-bg-elevated)] mt-3 pt-3">
+                <div class="px-3 py-1 text-[11px] font-bold text-[color:var(--color-text-muted)] uppercase tracking-wider">Akun</div>
+                <div class="px-3 py-2">
+                    <div class="text-[color:var(--color-text)] text-sm font-bold">{{ $userName }}</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs">{{ $userRole }}</div>
+                </div>
+                @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
+                    <a href="{{ route('profile.edit') }}"
+                       class="block px-3 py-2.5 ml-2 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                        Profil
+                    </a>
+                @endif
+                @if(\Illuminate\Support\Facades\Route::has('logout'))
+                    <form method="POST" action="{{ route('logout') }}" class="ml-2">
+                        @csrf
+                        <button type="submit"
+                                class="block w-full text-left px-3 py-2.5 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                            Keluar
+                        </button>
+                    </form>
+                @endif
+            </div>
             </div>
         </div>
     </header>

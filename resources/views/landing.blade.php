@@ -35,9 +35,9 @@
             <a href="#tentang" class="nav-pill">Tentang</a>
         </nav>
         @if(\Illuminate\Support\Facades\Route::has('login'))
-            <a href="{{ route('login') }}" class="btn-primary btn-sm">Login</a>
+            <a href="{{ route('login') }}" class="btn-primary">Login</a>
         @else
-            <a href="{{ route('dashboard') }}" class="btn-primary btn-sm">Login</a>
+            <a href="{{ route('dashboard') }}" class="btn-primary">Login</a>
         @endif
     </header>
 
