@@ -69,7 +69,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                                     @if(\Illuminate\Support\Facades\Route::has($child['route']))
                                     <a href="{{ route($child['route']) }}"
                                        class="block px-5 py-3 text-sm font-semibold transition-colors
-                                              {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
+                                              {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)]' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)]' }}">
                                         {{ $child['label'] }}
                                     </a>
                                     @endif
@@ -139,7 +139,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                         </div>
                         @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
                             <a href="{{ route('profile.edit') }}"
-                               class="block px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                               class="block px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)] transition-colors">
                                 Profil
                             </a>
                         @endif
@@ -147,7 +147,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
-                                        class="block w-full text-left px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors border-t border-[color:var(--color-bg-elevated)]">
+                                        class="block w-full text-left px-4 py-2.5 text-sm font-semibold text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)] transition-colors border-t border-[color:var(--color-bg-elevated)]">
                                     Keluar
                                 </button>
                             </form>
@@ -178,7 +178,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                             @if(\Illuminate\Support\Facades\Route::has($child['route']))
                             <a href="{{ route($child['route']) }}"
                                class="block px-3 py-2.5 ml-2 text-sm font-bold rounded-full transition-colors
-                                      {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
+                                      {{ request()->routeIs($child['route']) ? 'bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)]' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)]' }}">
                                 {{ $child['label'] }}
                             </a>
                             @endif
@@ -188,7 +188,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                     @if(\Illuminate\Support\Facades\Route::has($link['route']))
                     <a href="{{ route($link['route']) }}"
                        class="block px-3 py-2.5 text-sm font-bold rounded-full transition-colors
-                              {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*') ? 'bg-[color:var(--color-bg-elevated)] text-white' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white' }}">
+                              {{ request()->routeIs($link['route']) || request()->routeIs($link['route'].'*') ? 'bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)]' : 'text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)]' }}">
                         {{ $link['label'] }}
                     </a>
                     @endif
@@ -204,7 +204,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                 </div>
                 @if(\Illuminate\Support\Facades\Route::has('profile.edit'))
                     <a href="{{ route('profile.edit') }}"
-                       class="block px-3 py-2.5 ml-2 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                       class="block px-3 py-2.5 ml-2 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)] transition-colors">
                         Profil
                     </a>
                 @endif
@@ -212,7 +212,7 @@ $isAdminRoute = request()->routeIs('admin.*');
                     <form method="POST" action="{{ route('logout') }}" class="ml-2">
                         @csrf
                         <button type="submit"
-                                class="block w-full text-left px-3 py-2.5 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-white transition-colors">
+                                class="block w-full text-left px-3 py-2.5 text-sm font-bold rounded-full text-[color:var(--color-text-muted)] hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-text)] transition-colors">
                             Keluar
                         </button>
                     </form>
