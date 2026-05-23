@@ -68,9 +68,9 @@
         </div>
 
         {{-- 3. Temperature --}}
-        <div class="card">
-            <div class="card-header">Suhu Udara</div>
-            <div class="p-4 flex flex-col items-center justify-center min-h-[260px] text-center">
+        <div class="card flex flex-col">
+            <div class="card-header shrink-0">Suhu Udara</div>
+            <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
                 <div class="text-5xl font-extrabold mt-2"
                      style="color: {{ $sensor['temperature'] > 32 ? 'var(--color-warning)' : 'var(--color-brand)' }};">
@@ -81,9 +81,9 @@
         </div>
 
         {{-- 4. Humidity --}}
-        <div class="card">
-            <div class="card-header">Kelembapan Udara</div>
-            <div class="p-4 flex flex-col items-center justify-center min-h-[260px] text-center">
+        <div class="card flex flex-col">
+            <div class="card-header shrink-0">Kelembapan Udara</div>
+            <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
                 <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]">
                     {{ $sensor['air_humidity'] }}%
