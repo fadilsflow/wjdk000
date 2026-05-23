@@ -1,106 +1,126 @@
 # Smart Sprayer IoT Web
 
-Website monitoring + kendali Smart Sprayer IoT bawang merah.
+Website monitoring + kendali Smart Sprayer IoT untuk pengendalian hama kutu pada tanaman bawang merah di Brebes.
 
-Stack target:
+## Tech Stack
 
-- Laravel
-- PHP
-- MySQL
-- Tailwind CSS
-- REST API
-- WhatsApp Gateway/API
+| Layer               | Teknologi                                     |
+|---------------------|-----------------------------------------------|
+| Framework           | Laravel 13 (PHP 8.2+)                         |
+| Database            | SQLite (default) / MySQL                      |
+| ORM                 | Eloquent ORM                                  |
+| Auth                | Laravel Breeze (session-based) + role middleware |
+| Frontend            | Blade + Alpine.js                             |
+| Styling             | Tailwind CSS v4 (via `@tailwindcss/vite`)     |
+| Charts              | Chart.js                                      |
+| Notifications       | WhatsApp Gateway/API (via HTTP client)        |
+| API                 | REST API                                      |
 
-## Docs
+## Quick Start
 
-- `docs/proposal.md` - proposal web
-- `docs/proposal-iot.md` - proposal IoT
-- `docs/prd.md` - product requirements untuk development
+```bash
+# 1. Clone
+git clone https://github.com/fadilsflow/wjdk000
+cd wjdk000
 
-## Prototype Dev
+# 2. Install PHP dependencies
+composer install
 
-- `prototype/index.html` - dummy dashboard UI
-- `prototype/iot-trigger.html` - simulator IoT untuk trigger API Laravel
-- `prototype/README.md` - cara pakai simulator
+# 3. Setup environment
+cp .env.example .env
+php artisan key:generate
 
-## Scope Utama
+# 4. Setup database (SQLite — default)
+touch database/database.sqlite
+php artisan migrate
 
-- Login Admin/Petani
-- Dashboard sensor real-time
-- Data sensor:
-  - suhu udara
-  - kelembapan udara
-  - kelembapan tanah
-  - status hujan
-- Status kondisi:
-  - normal
-  - waspada
-  - kritis
-- Kontrol sprayer manual
-- Mode sprayer otomatis
-- Riwayat sensor
-- Riwayat penyemprotan
-- Riwayat notifikasi
-- WhatsApp notification
-- Halaman publik ringkasan
+# 5. (Opsional) Buat user test
+php artisan tinker --execute="\App\Models\User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => bcrypt('password')]);"
 
-## Dev Flow
+# 6. Install frontend dependencies
+bun install    # atau npm install
+bun run build  # atau npm run build
 
-1. Setup Laravel + MySQL + Tailwind.
-2. Buat auth + role Admin/Petani.
-3. Buat migration sesuai `docs/prd.md`.
-4. Buat endpoint:
+# 7. Jalankan
+php artisan serve
+# Terminal lain: bun run dev (untuk hot-reload CSS/JS)
+```
+
+Akses `http://localhost:8000`.
+
+### Pakai MySQL
+
+Kalo mau pake MySQL, edit `.env`:
+
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=smart_sprayer
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Lalu:
+
+```bash
+php artisan migrate
+```
+
+## User Role
+
+| Role   | Akses                                                   |
+|--------|----------------------------------------------------------|
+| Admin  | Semua fitur: manajemen user, konfigurasi alat, threshold |
+| Petani | Dashboard, riwayat, kontrol sprayer, notifikasi          |
+| Publik | Halaman ringkasan publik (tanpa login)                   |
+
+## Fitur
+
+- Login/Register Admin & Petani
+- Dashboard sensor real-time (suhu, kelembapan udara/tanah, status hujan)
+- Status kondisi: Normal / Waspada / Kritis
+- Kontrol sprayer manual & otomatis
+- Riwayat sensor, penyemprotan, notifikasi
+- Notifikasi WhatsApp
+- Mode gelap/terang
+- Halaman publik
+
+## API Endpoint
 
 ```txt
 POST /api/sensor-readings
-GET /api/devices/{device}/command
+GET  /api/devices/{device}/command
 POST /devices/{device}/sprayer/on
 POST /devices/{device}/sprayer/off
 POST /devices/{device}/mode
 ```
 
-5. Test API pakai:
-
-```txt
-prototype/iot-trigger.html
-```
-
-6. Buat dashboard.
-7. Buat kontrol sprayer.
-8. Buat riwayat.
-9. Integrasi WhatsApp.
-10. Buat halaman publik.
-11. Black Box Testing.
-
 ## IoT Simulator
-
-Jalankan Laravel:
 
 ```bash
 php artisan serve
 ```
 
-Buka:
+Lalu buka:
 
 ```txt
 prototype/iot-trigger.html
 ```
 
-Default target:
+Default target: `http://127.0.0.1:8000/api/sensor-readings`
 
-```txt
-http://127.0.0.1:8000/api/sensor-readings
-```
+Trigger: Normal, Waspada, Kritis, Hujan, Random Data, Loop.
 
-Trigger tersedia:
+## Docs
 
-- Normal
-- Waspada
-- Kritis
-- Hujan
-- Random Data
-- Loop
+- `docs/proposal.md` — proposal web
+- `docs/proposal-iot.md` — proposal IoT
+- `docs/prd.md` — product requirements
+- `docs/architecture.md` — arsitektur & folder convention
+- `docs/domain-rules.md` — business rules & entities
+- `docs/operations.md` — deployment & ops
 
 ## Catatan
 
-IoT asli belum tersedia. Development web pakai simulator dulu. Semua fitur ikut `docs/prd.md`. Jangan tambah fitur di luar proposal tanpa approval client.
+IoT asli belum tersedia. Development web pakai simulator dulu. Semua fitur ikut `docs/prd.md`.
