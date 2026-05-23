@@ -17,9 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', fn() => redirect()->route('dashboard'));
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-// Sprayer
-Route::get('/sprayer/control', [App\Http\Controllers\SprayerController::class, 'index'])->name('sprayer.control');
-
 // History
 Route::get('/history/sensor', [App\Http\Controllers\HistoryController::class, 'sensor'])->name('history.sensor');
 Route::get('/history/spray', [App\Http\Controllers\HistoryController::class, 'spray'])->name('history.spray');

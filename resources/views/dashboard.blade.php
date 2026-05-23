@@ -94,16 +94,16 @@
             </div>
         </div>
 
-        {{-- 6. Control preview (span 2 cols desktop) --}}
+        {{-- 6. Control Panel (span 2 cols desktop) — functional --}}
         <div class="card sm:col-span-2">
             <div class="card-header">
                 Kontrol Penyemprotan
-                <a href="{{ route('sprayer.control') }}" class="ml-auto text-[#43c766] text-xs">Kelola →</a>
+                <span class="ml-auto text-[#999] text-xs">Aksi akan dikirim ke perangkat</span>
             </div>
             <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="bg-[#2b2b2b] rounded-lg p-5 text-center">
                     <div class="text-[#999] text-sm mb-2">Mode</div>
-                    <div class="w-[80px] h-[44px] mx-auto rounded-full relative transition-colors
+                    <div class="w-[80px] h-[44px] mx-auto rounded-full relative transition-colors cursor-pointer
                         {{ $device['mode'] === 'automatic' ? 'bg-[#43c766]' : 'bg-[#626866]' }}">
                         <div class="w-[32px] h-[32px] bg-white rounded-full absolute top-[6px]
                             {{ $device['mode'] === 'automatic' ? 'right-[6px]' : 'left-[6px]' }}">
@@ -112,6 +112,9 @@
                     <div class="text-lg font-extrabold mt-2 {{ $device['mode'] === 'automatic' ? 'text-[#43c766]' : 'text-[#c0c6c2]' }}">
                         {{ strtoupper($device['mode']) }}
                     </div>
+                    <button class="btn-secondary text-xs py-1 px-3 mt-2" onclick="alert('Ganti mode (backend)')">
+                        {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
+                    </button>
                 </div>
                 <div class="bg-[#2b2b2b] rounded-lg p-5 text-center">
                     <div class="text-[#999] text-sm mb-2">Pompa Sprayer</div>
@@ -123,6 +126,16 @@
                     </div>
                     <div class="text-lg font-extrabold mt-2 {{ $sensor['sprayer_status'] === 'on' ? 'text-[#43c766]' : 'text-[#c0c6c2]' }}">
                         {{ strtoupper($sensor['sprayer_status']) }}
+                    </div>
+                    <div class="flex gap-2 mt-2 justify-center">
+                        <button class="btn-primary text-xs py-1 px-3 {{ $sensor['sprayer_status'] === 'on' ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}"
+                                onclick="alert('Nyalakan sprayer (backend)')">
+                            Nyalakan
+                        </button>
+                        <button class="btn-secondary text-xs py-1 px-3 {{ $sensor['sprayer_status'] === 'off' ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}"
+                                onclick="alert('Matikan sprayer (backend)')">
+                            Matikan
+                        </button>
                     </div>
                 </div>
             </div>
@@ -207,98 +220,73 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
-    // Soil moisture gauge
-    const gaugeCanvas = document.getElementById('soilGauge');
-    const ctx = gaugeCanvas.getContext('2d');
-    const sm = {{ $sensor['soil_moisture'] }};
-    const angle = (sm / 100) * 180;
+    document.addEventListener('DOMContentLoaded', function () {
+        // Soil moisture gauge
+        try {
+            const gaugeCanvas = document.getElementById('soilGauge');
+            if (!gaugeCanvas) throw new Error('soilGauge canvas not found');
+            const ctx = gaugeCanvas.getContext('2d');
+            const sm = {{ $sensor['soil_moisture'] }};
+            const angle = (sm / 100) * 180;
+            const w = gaugeCanvas.width, h = gaugeCanvas.height;
+            const cx = w/2, cy = h * 0.65, r = 68;
 
-    function drawGauge() {
-        const w = gaugeCanvas.width, h = gaugeCanvas.height;
-        const cx = w/2, cy = h * 0.65, r = 68;
+            // Background arc
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
+            ctx.strokeStyle = '#3b3b3b';
+            ctx.lineWidth = 18;
+            ctx.lineCap = 'round';
+            ctx.stroke();
 
-        ctx.clearRect(0, 0, w, h);
-
-        // Background arc
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI, 2 * Math.PI);
-        ctx.strokeStyle = '#3b3b3b';
-        ctx.lineWidth = 18;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-
-        // Value arc
-        const endAngle = Math.PI + (angle * Math.PI / 180);
-        const gradient = ctx.createLinearGradient(0, cy-r, 0, cy+r);
-        if (sm < 40) {
-            gradient.addColorStop(0, '#f4b740');
-            gradient.addColorStop(1, '#ef4444');
-        } else {
-            gradient.addColorStop(0, '#43c766');
-            gradient.addColorStop(1, '#2d9650');
-        }
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, Math.PI, endAngle);
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 18;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-    }
-    drawGauge();
-
-    // Sensor chart
-    const chartCanvas = document.getElementById('sensorChart');
-    new Chart(chartCanvas, {
-        type: 'line',
-        data: {
-            labels: ['09:00', '09:15', '09:30', '09:45', '10:00'],
-            datasets: [
-                {
-                    label: 'Suhu (°C)',
-                    data: [30.1, 30.5, 30.8, 31.2, 31.5],
-                    borderColor: '#43c766',
-                    backgroundColor: 'transparent',
-                    tension: 0.3,
-                    pointRadius: 3,
-                },
-                {
-                    label: 'Kelemb. Udara (%)',
-                    data: [74, 73, 72, 71, 70],
-                    borderColor: '#e6f5ea',
-                    backgroundColor: 'transparent',
-                    tension: 0.3,
-                    pointRadius: 3,
-                },
-                {
-                    label: 'Kelemb. Tanah (%)',
-                    data: [48, 45, 42, 38, 35],
-                    borderColor: '#f4b740',
-                    backgroundColor: 'transparent',
-                    tension: 0.3,
-                    pointRadius: 3,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    labels: { color: '#999', font: { size: 12 } }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: { color: '#999', font: { size: 11 } },
-                    grid: { color: '#3b3b3b' }
-                },
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: { color: '#999', font: { size: 11 } },
-                    grid: { color: '#3b3b3b' }
-                }
+            // Value arc
+            const endAngle = Math.PI + (angle * Math.PI / 180);
+            const gradient = ctx.createLinearGradient(0, cy-r, 0, cy+r);
+            if (sm < 40) {
+                gradient.addColorStop(0, '#f4b740');
+                gradient.addColorStop(1, '#ef4444');
+            } else {
+                gradient.addColorStop(0, '#43c766');
+                gradient.addColorStop(1, '#2d9650');
             }
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, Math.PI, endAngle);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 18;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        } catch (e) {
+            console.warn('Gauge render skipped:', e.message);
+        }
+
+        // Sensor chart
+        try {
+            const chartCanvas = document.getElementById('sensorChart');
+            if (!chartCanvas || typeof Chart === 'undefined') throw new Error('Chart.js or canvas not available');
+            new Chart(chartCanvas, {
+                type: 'line',
+                data: {
+                    labels: ['09:00', '09:15', '09:30', '09:45', '10:00'],
+                    datasets: [
+                        { label: 'Suhu (°C)', data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: '#43c766', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70], borderColor: '#e6f5ea', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35], borderColor: '#f4b740', backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { labels: { color: '#999', font: { size: 12 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#999', font: { size: 11 } }, grid: { color: '#3b3b3b' } },
+                        y: { beginAtZero: true, max: 100, ticks: { color: '#999', font: { size: 11 } }, grid: { color: '#3b3b3b' } }
+                    }
+                }
+            });
+        } catch (e) {
+            console.warn('Chart render skipped:', e.message);
         }
     });
     </script>
