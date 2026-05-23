@@ -136,8 +136,8 @@ $isHistoryRoute = request()->routeIs('history.*');
 
     {{-- Footer --}}
     <footer class="text-center text-xs text-[color:var(--color-text-muted)] py-6 mt-8 border-t border-[color:var(--color-bg-surface)]">
-        <a href="{{ route('public.summary') }}" class="hover:text-[color:var(--color-brand)] transition-colors font-semibold">
-            Ringkasan Publik
+        <a href="{{ route('home') }}" class="hover:text-[color:var(--color-brand)] transition-colors font-semibold">
+            Beranda Publik
         </a>
         <span class="mx-3 text-[color:var(--color-border)]">/</span>
         <span>Smart Sprayer IoT — Bawang Merah Brebes</span>

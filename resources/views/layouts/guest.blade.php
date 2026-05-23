@@ -12,7 +12,7 @@
     <div class="w-full max-w-md">
 
         {{-- Brand --}}
-        <a href="{{ route('public.summary') }}" class="flex items-center justify-center gap-3 mb-8">
+        <a href="{{ route('home') }}" class="flex items-center justify-center gap-3 mb-8">
             <span class="w-10 h-10 rounded-full bg-[color:var(--color-brand)] grid place-items-center text-black font-black text-base">S</span>
             <span class="font-extrabold text-lg text-[color:var(--color-text)]">Smart Sprayer IoT</span>
         </a>

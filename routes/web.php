@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\PublicController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,8 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Home/Dashboard
-Route::get('/', fn() => redirect()->route('dashboard'));
+// Public landing
+Route::get('/', [LandingController::class, 'index'])->name('home');
+
+// Dashboard (authenticated app)
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
 // History
@@ -26,6 +28,3 @@ Route::get('/history/notification', [App\Http\Controllers\HistoryController::cla
 Route::get('/admin/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
 Route::get('/admin/devices', [App\Http\Controllers\Admin\DeviceController::class, 'index'])->name('admin.devices.index');
 Route::get('/admin/whatsapp', [App\Http\Controllers\Admin\WhatsappController::class, 'index'])->name('admin.whatsapp.index');
-
-// Public
-Route::get('/public', [PublicController::class, 'summary'])->name('public.summary');
