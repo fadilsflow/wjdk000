@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Models\Device;
 use App\Repositories\NotificationLogRepository;
-use App\Repositories\UserRepository;
+use App\Repositories\WhatsappSettingRepository;
 use Illuminate\Support\Facades\Http;
 use Throwable;
 
@@ -14,15 +14,17 @@ final class WhatsAppNotificationService
 {
     public function __construct(
         private readonly NotificationLogRepository $notificationLogRepository,
-        private readonly UserRepository $userRepository,
+        private readonly WhatsappSettingRepository $whatsappSettingRepository,
+        private readonly WhatsappSettingsService $whatsappSettingsService,
     ) {}
 
     /**
      * @param  array<string, mixed>  $context
      */
-    public function send(Device $device, string $type, string $message, array $context = []): void
+    public function send(Device $device, string $type, array $context = []): void
     {
         $recipient = $this->resolveRecipientPhone();
+        $message = $this->buildMessage($type, $context);
 
         if ($recipient === null) {
             $this->notificationLogRepository->create([
@@ -72,6 +74,31 @@ final class WhatsAppNotificationService
 
     private function resolveRecipientPhone(): ?string
     {
-        return $this->userRepository->findFirstAdminRecipientPhone();
+        return $this->whatsappSettingRepository->getSingleton()?->recipient_phone;
+    }
+
+    /**
+     * @param  array<string, mixed>  $context
+     */
+    private function buildMessage(string $type, array $context): string
+    {
+        $setting = $this->whatsappSettingRepository->getSingleton();
+        $templates = $this->whatsappSettingsService->defaultTemplates();
+
+        $template = match ($type) {
+            'critical_condition' => $setting?->critical_condition_template ?? $templates['critical_condition_template'],
+            'spray_start' => $setting?->spray_start_template ?? $templates['spray_start_template'],
+            'spray_stop' => $setting?->spray_stop_template ?? $templates['spray_stop_template'],
+            'rain_detected' => $setting?->rain_detected_template ?? $templates['rain_detected_template'],
+            default => '{{device_name}} notification',
+        };
+
+        $replacements = [];
+
+        foreach ($context as $key => $value) {
+            $replacements['{{'.$key.'}}'] = (string) $value;
+        }
+
+        return strtr($template, $replacements);
     }
 }

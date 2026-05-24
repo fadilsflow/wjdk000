@@ -18,6 +18,7 @@ final class SprayerControlService
         private readonly DeviceRepository $deviceRepository,
         private readonly SensorReadingRepository $sensorReadingRepository,
         private readonly SprayLogRepository $sprayLogRepository,
+        private readonly WhatsAppNotificationService $whatsAppNotificationService,
     ) {}
 
     /**
@@ -95,6 +96,12 @@ final class SprayerControlService
                     : 'Sprayer dimatikan manual dari website',
                 'created_by' => $userId,
             ]);
+
+            $this->whatsAppNotificationService->send(
+                $device,
+                $status === 'on' ? 'spray_start' : 'spray_stop',
+                $this->buildNotificationContext($device, $status),
+            );
         });
     }
 
@@ -180,5 +187,28 @@ final class SprayerControlService
                 ];
             })
             ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildNotificationContext(Device $device, string $status): array
+    {
+        $latestReading = $this->sensorReadingRepository->findLatestForDevice($device);
+
+        return [
+            'device_name' => $device->name,
+            'mode' => $device->mode,
+            'temperature' => (string) ($latestReading?->temperature ?? '-'),
+            'air_humidity' => (string) ($latestReading?->air_humidity ?? '-'),
+            'soil_moisture' => (string) ($latestReading?->soil_moisture ?? '-'),
+            'rain_status' => $latestReading?->rain_status ?? 'no_rain',
+            'sprayer_status' => $status,
+            'condition_status' => $latestReading?->condition_status ?? 'normal',
+            'recorded_at' => $latestReading?->recorded_at?->format('Y-m-d H:i:s') ?? '-',
+            'reason' => $status === 'on'
+                ? 'Sprayer dinyalakan manual dari website'
+                : 'Sprayer dimatikan manual dari website',
+        ];
     }
 }
