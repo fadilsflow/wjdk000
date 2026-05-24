@@ -24,6 +24,8 @@
 
     @php
         $cs = $sensor['condition_status'] ?? 'normal';
+        $recordedAt = $sensor['recorded_at'] ?? null;
+        $formattedRecordedAt = $recordedAt !== null ? \Carbon\Carbon::parse($recordedAt)->format('d M Y H:i') : 'Menunggu data';
         $pillClass = match($cs) {
             'kritis'  => 'status-pill-kritis',
             'waspada' => 'status-pill-waspada',
@@ -38,7 +40,7 @@
 
     {{-- NAV (overlay hero) — colors locked, theme-independent --}}
     <header class="absolute top-0 inset-x-0 z-20 px-4 sm:px-8 py-5 flex items-center gap-3">
-        <a href="/" class="flex items-center gap-2.5 mr-auto">
+        <a href="{{ route('public.summary') }}" class="flex items-center gap-2.5 mr-auto">
             <span class="font-extrabold text-xl text-black tracking-tight">Smart Sprayer</span>
         </a>
         <nav class="hidden md:flex items-center gap-1">
@@ -85,7 +87,7 @@
                     <span class="relative inline-flex w-2 h-2 rounded-full" style="background: #1ed760;"></span>
                 </span>
                 <span class="text-xs font-bold uppercase tracking-wider" style="color:#1ed760;">{{ $cs }}</span>
-                <span class="text-xs" style="color:#ffffff;">· diperbarui {{ \Carbon\Carbon::parse($sensor['recorded_at'])->format('d M Y H:i') }}</span>
+                <span class="text-xs" style="color:#ffffff;">· diperbarui {{ $formattedRecordedAt }}</span>
             </div>
 
             <h1 class="mt-6 text-5xl sm:text-6xl md:text-7xl font-black leading-[1.05] tracking-tight" style="color:#000;">
@@ -94,7 +96,7 @@
             </h1>
 
             <p class="mt-6 max-w-xl text-base sm:text-lg leading-relaxed" style="color:#ffffff;">
-                Sistem monitoring dan penyemprotan otomatis berbasis sensor lingkungan. Data publik diperbarui langsung dari perangkat IoT di lahan petani.
+                Sistem monitoring dan penyemprotan otomatis berbasis sensor lingkungan. Ringkasan publik menampilkan data terbaru dari {{ $public_summary['device_name'] }} di {{ $public_summary['location'] }} tanpa membuka kontrol alat atau data sensitif.
             </p>
 
             <div class="mt-8 flex flex-wrap gap-3">
@@ -125,7 +127,7 @@
             </div>
             <div class="text-xs text-[color:var(--color-text-muted)]">
                 <span class="uppercase tracking-wider font-bold">Diperbarui</span>
-                · {{ \Carbon\Carbon::parse($sensor['recorded_at'])->format('d M Y, H:i') }}
+                · {{ $formattedRecordedAt }}
             </div>
         </div>
 
@@ -151,21 +153,21 @@
             <div class="card p-5">
                 <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Suhu Udara</div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
-                    {{ $sensor['temperature'] }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">°C</span>
+                    {{ $sensor['temperature'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['temperature'] !== null ? '°C' : '' }}</span>
                 </div>
                 <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
             </div>
             <div class="card p-5">
                 <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Udara</div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
-                    {{ $sensor['air_humidity'] }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">%</span>
+                    {{ $sensor['air_humidity'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['air_humidity'] !== null ? '%' : '' }}</span>
                 </div>
                 <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
             </div>
             <div class="card p-5">
                 <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Tanah</div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
-                    {{ $sensor['soil_moisture'] }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">%</span>
+                    {{ $sensor['soil_moisture'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['soil_moisture'] !== null ? '%' : '' }}</span>
                 </div>
                 <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Soil moisture</div>
             </div>

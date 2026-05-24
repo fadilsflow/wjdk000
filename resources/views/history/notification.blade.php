@@ -20,23 +20,34 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($notifications as $n)
-                        <tr>
-                            <td class="text-xs">{{ $n['time'] }}</td>
-                            <td class="text-xs font-semibold">{{ $n['type'] }}</td>
-                            <td class="text-xs">{{ $n['phone'] }}</td>
-                            <td class="text-xs text-[color:var(--color-text-muted)] max-w-[200px] truncate">{{ $n['message'] }}</td>
-                            <td>
-                                <span class="badge badge-{{ $n['status'] === 'sent' ? 'sent' : 'failed' }}">
-                                    {{ $n['status'] === 'sent' ? 'Terkirim' : 'Gagal' }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
+                        @forelse($notifications as $n)
+                            <tr>
+                                <td class="text-xs">{{ $n['time'] }}</td>
+                                <td class="text-xs font-semibold">{{ $n['type_label'] }}</td>
+                                <td class="text-xs">{{ $n['phone'] }}</td>
+                                <td class="text-xs text-[color:var(--color-text-muted)] max-w-[200px] truncate">{{ $n['message'] }}</td>
+                                <td>
+                                    <span class="badge badge-{{ $n['status'] === 'sent' ? 'sent' : 'failed' }}">
+                                        {{ $n['status'] === 'sent' ? 'Terkirim' : 'Gagal' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
+                                    Belum ada log notifikasi.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            <x-pagination :currentPage="1" :lastPage="1" />
+            <x-pagination
+                :currentPage="$pagination['current_page']"
+                :lastPage="$pagination['last_page']"
+                :previousPageUrl="$pagination['previous_page_url']"
+                :nextPageUrl="$pagination['next_page_url']"
+            />
         </div>
     </div>
 </x-app-layout>
