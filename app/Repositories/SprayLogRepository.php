@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\Device;
 use App\Models\SprayLog;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 final class SprayLogRepository
@@ -32,5 +33,26 @@ final class SprayLogRepository
             ->latest()
             ->limit($limit)
             ->get();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function paginateHistoryForDevice(Device $device, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $query = SprayLog::query()
+            ->with('creator')
+            ->where('device_id', $device->id)
+            ->latest();
+
+        if (($filters['from_date'] ?? null) !== null) {
+            $query->whereDate('created_at', '>=', $filters['from_date']);
+        }
+
+        if (($filters['to_date'] ?? null) !== null) {
+            $query->whereDate('created_at', '<=', $filters['to_date']);
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 }

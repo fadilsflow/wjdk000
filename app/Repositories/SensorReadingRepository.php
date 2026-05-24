@@ -6,6 +6,7 @@ namespace App\Repositories;
 
 use App\Models\Device;
 use App\Models\SensorReading;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 final class SensorReadingRepository
@@ -43,5 +44,26 @@ final class SensorReadingRepository
             ->get()
             ->sortBy('recorded_at')
             ->values();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function paginateHistoryForDevice(Device $device, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $query = SensorReading::query()
+            ->where('device_id', $device->id)
+            ->orderByDesc('recorded_at')
+            ->orderByDesc('id');
+
+        if (($filters['from_date'] ?? null) !== null) {
+            $query->whereDate('recorded_at', '>=', $filters['from_date']);
+        }
+
+        if (($filters['to_date'] ?? null) !== null) {
+            $query->whereDate('recorded_at', '<=', $filters['to_date']);
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 }
