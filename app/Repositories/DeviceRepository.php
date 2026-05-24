@@ -8,6 +8,14 @@ use App\Models\Device;
 
 final class DeviceRepository
 {
+    public function findDashboardDevice(): ?Device
+    {
+        return Device::query()
+            ->with('thresholdSetting')
+            ->latest('id')
+            ->first();
+    }
+
     public function findByApiKey(string $apiKey): ?Device
     {
         return Device::query()
