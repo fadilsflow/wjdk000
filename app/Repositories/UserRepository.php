@@ -43,4 +43,12 @@ final class UserRepository
     {
         $user->delete();
     }
+
+    public function findFirstAdminRecipientPhone(): ?string
+    {
+        return User::query()
+            ->where('role', 'admin')
+            ->whereNotNull('phone_number')
+            ->value('phone_number');
+    }
 }
