@@ -23,23 +23,29 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($devices as $d)
-                        <tr>
-                            <td class="font-semibold">{{ $d['name'] }}</td>
-                            <td class="text-xs text-[color:var(--color-text-muted)]">{{ $d['location'] }}</td>
-                            <td class="text-xs font-mono text-[color:var(--color-text-muted)]">{{ substr($d['api_key'], 0, 8) }}...</td>
-                            <td>
-                                <span class="badge badge-{{ $d['mode'] === 'automatic' ? 'automatic' : 'manual' }}">
-                                    {{ ucfirst($d['mode']) }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge badge-{{ $d['sprayer_status'] === 'on' ? 'on' : 'off' }}">
-                                    {{ strtoupper($d['sprayer_status']) }}
-                                </span>
-                            </td>
-                        </tr>
-                        @endforeach
+                        @forelse($devices as $d)
+                            <tr>
+                                <td class="font-semibold">{{ $d['name'] }}</td>
+                                <td class="text-xs text-[color:var(--color-text-muted)]">{{ $d['location'] }}</td>
+                                <td class="text-xs font-mono text-[color:var(--color-text-muted)]">{{ substr($d['api_key'], 0, 8) }}...</td>
+                                <td>
+                                    <span class="badge badge-{{ $d['mode'] === 'automatic' ? 'automatic' : 'manual' }}">
+                                        {{ ucfirst($d['mode']) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ $d['sprayer_status'] === 'on' ? 'on' : 'off' }}">
+                                        {{ strtoupper($d['sprayer_status']) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
+                                    Belum ada perangkat IoT terdaftar.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -51,19 +57,19 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="form-label">Min. Kelembapan Tanah (%)</label>
-                    <input type="number" class="form-input" value="{{ $thresholds['min_soil_moisture'] }}">
+                    <input type="number" class="form-input" value="{{ $thresholds['min_soil_moisture'] }}" readonly>
                 </div>
                 <div>
                     <label class="form-label">Maks. Suhu (°C)</label>
-                    <input type="number" class="form-input" value="{{ $thresholds['max_temperature'] }}">
+                    <input type="number" class="form-input" value="{{ $thresholds['max_temperature'] }}" readonly>
                 </div>
                 <div>
                     <label class="form-label">Min. Kelembapan Udara (%)</label>
-                    <input type="number" class="form-input" value="{{ $thresholds['min_air_humidity'] }}">
+                    <input type="number" class="form-input" value="{{ $thresholds['min_air_humidity'] }}" readonly>
                 </div>
-                <button class="btn-primary w-full" onclick="alert('Simpan threshold (backend)')">
-                    Simpan Threshold
-                </button>
+                <p class="text-xs text-[color:var(--color-text-muted)]">
+                    Menampilkan threshold perangkat pertama yang terdaftar. Update backend threshold belum masuk scope perbaikan ini.
+                </p>
             </div>
         </div>
     </div>
