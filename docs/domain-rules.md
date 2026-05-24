@@ -38,6 +38,12 @@ Riwayat setiap upaya pengiriman notifikasi WhatsApp, termasuk yang gagal.
 - **type:** lihat Notification Types
 - **status:** `'sent'` | `'failed'`
 
+### WhatsappSetting
+Konfigurasi singleton untuk fitur WhatsApp yang bisa diubah Admin tanpa menyentuh file `.env`.
+- Menyimpan `recipient_phone`
+- Menyimpan template pesan untuk `critical_condition`, `spray_start`, `spray_stop`, `rain_detected`
+- Tidak menyimpan token sensitif gateway
+
 ---
 
 ## Notification Types
@@ -99,15 +105,17 @@ Cek rain_status
 
 6. **WhatsApp notification triggers** — Notifikasi dikirim untuk: kondisi kritis, sprayer mulai, sprayer berhenti, hujan terdeteksi (pada mode otomatis). Setiap pengiriman dicatat di `notification_logs` dengan status `sent` atau `failed`.
 
-7. **Public page restrictions** — Halaman publik (`/public/summary`) TIDAK boleh menampilkan:
+7. **WhatsApp config split** — Kredensial gateway (`gateway_url`, `gateway_token`, `sender_number`) tetap di env/config. Nomor penerima dan template pesan dikelola via `whatsapp_settings`.
+
+8. **Public page restrictions** — Halaman publik (`/public/summary`) TIDAK boleh menampilkan:
    - Tombol kontrol sprayer
    - Nomor WhatsApp pengguna
    - Data login / user
    - Konfigurasi alat / threshold
 
-8. **Access control** — Admin dapat mengakses semua fitur. Petani dapat mengakses dashboard, riwayat, dan kontrol sprayer. Halaman admin (manajemen user, konfigurasi device, threshold, WhatsApp) hanya untuk Admin.
+9. **Access control** — Admin dapat mengakses semua fitur. Petani dapat mengakses dashboard, riwayat, dan kontrol sprayer. Halaman admin (manajemen user, konfigurasi device, threshold, WhatsApp) hanya untuk Admin.
 
-9. **Sensor data immutable** — Data `sensor_readings` yang sudah tersimpan tidak boleh diedit atau dihapus melalui website (hanya sebagai riwayat historis).
+10. **Sensor data immutable** — Data `sensor_readings` yang sudah tersimpan tidak boleh diedit atau dihapus melalui website (hanya sebagai riwayat historis).
 
 ---
 

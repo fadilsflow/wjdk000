@@ -5,19 +5,28 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateWhatsappSettingsRequest;
+use App\Services\WhatsappSettingsService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class WhatsappController extends Controller
+final class WhatsappController extends Controller
 {
+    public function __construct(
+        private readonly WhatsappSettingsService $whatsappSettingsService,
+    ) {}
+
     public function index(): View
     {
-        $settings = [
-            'gateway_url' => 'https://wa-gateway.example.com/api/send',
-            'api_token' => 'wa_token_1234567890abcdef',
-            'recipient_phone' => '+628123456789',
-            'connection_status' => 'connected',
-        ];
+        return view('admin.whatsapp', $this->whatsappSettingsService->getSettingsPageData());
+    }
 
-        return view('admin.whatsapp', compact('settings'));
+    public function update(UpdateWhatsappSettingsRequest $request): RedirectResponse
+    {
+        $this->whatsappSettingsService->updateSettings($request->validated());
+
+        return redirect()
+            ->route('admin.whatsapp.index')
+            ->with('status', 'whatsapp-settings-updated');
     }
 }

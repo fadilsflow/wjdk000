@@ -1,17 +1,29 @@
 <x-app-layout>
+    @php
+        $cs = $sensor['condition_status'] ?? 'normal';
+        $soilMoisture = $sensor['soil_moisture'];
+        $temperature = $sensor['temperature'];
+        $airHumidity = $sensor['air_humidity'];
+        $recordedAt = $sensor['recorded_at'] ?? null;
+        $minSoilMoisture = $thresholds['min_soil_moisture'] ?? null;
+        $maxTemperature = $thresholds['max_temperature'] ?? null;
+        $soilThresholdLabel = $minSoilMoisture !== null ? rtrim(rtrim(number_format((float) $minSoilMoisture, 1, '.', ''), '0'), '.') : '-';
+        $temperatureThresholdLabel = $maxTemperature !== null ? rtrim(rtrim(number_format((float) $maxTemperature, 1, '.', ''), '0'), '.') : '-';
+        $soilValueLabel = $soilMoisture !== null ? rtrim(rtrim(number_format((float) $soilMoisture, 1, '.', ''), '0'), '.').'%' : '-';
+        $temperatureLabel = $temperature !== null ? rtrim(rtrim(number_format((float) $temperature, 1, '.', ''), '0'), '.').'°C' : '-';
+        $airHumidityLabel = $airHumidity !== null ? rtrim(rtrim(number_format((float) $airHumidity, 1, '.', ''), '0'), '.').'%' : '-';
+        $pillClass = match($cs) {
+            'kritis' => 'status-pill-kritis',
+            'waspada' => 'status-pill-waspada',
+            default => 'status-pill-normal',
+        };
+    @endphp
+
     <x-slot name="subbar">
         <div>
             <div class="text-2xl font-extrabold leading-tight">Dashboard</div>
             <div class="text-[color:var(--color-text-muted)] text-sm">{{ $device['name'] }} — Monitoring kondisi real-time</div>
         </div>
-        @php
-            $cs = $sensor['condition_status'] ?? 'normal';
-            $pillClass = match($cs) {
-                'kritis' => 'status-pill-kritis',
-                'waspada' => 'status-pill-waspada',
-                default => 'status-pill-normal',
-            };
-        @endphp
         <span class="ml-auto status-pill {{ $pillClass }}">{{ $cs }}</span>
     </x-slot>
 
@@ -25,11 +37,11 @@
 
                 <div class="text-center text-sm mt-2">
                     <div class="text-3xl font-extrabold text-[color:var(--color-text)]" id="soilValue">
-                        {{ $sensor['soil_moisture'] }}%
+                        {{ $soilValueLabel }}
                     </div>
                     <div class="text-[color:var(--color-text-muted)] text-xs mt-1">
-                        {{ $sensor['soil_moisture'] < 40 ? 'Tanah kering' : 'Tanah lembab' }}
-                        · threshold min. 40%
+                        {{ $soilMoisture === null ? 'Menunggu data sensor' : ($soilMoisture !== null && $minSoilMoisture !== null && $soilMoisture < $minSoilMoisture ? 'Tanah kering' : 'Tanah lembab') }}
+                        · threshold min. {{ $soilThresholdLabel }}%
                     </div>
                 </div>
             </div>
@@ -73,10 +85,10 @@
             <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
                 <div class="text-5xl font-extrabold mt-2"
-                     style="color: {{ $sensor['temperature'] > 32 ? 'var(--color-warning)' : 'var(--color-brand)' }};">
-                    {{ $sensor['temperature'] }}°C
+                     style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};">
+                    {{ $temperatureLabel }}
                 </div>
-                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Max threshold: 32°C</div>
+                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Max threshold: {{ $temperatureThresholdLabel }}°C</div>
             </div>
         </div>
 
@@ -86,7 +98,7 @@
             <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
                 <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]">
-                    {{ $sensor['air_humidity'] }}%
+                    {{ $airHumidityLabel }}
                 </div>
                 <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Normal untuk monitoring</div>
             </div>
@@ -163,30 +175,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-xs">{{ $sensor['recorded_at'] }}</td>
-                            <td>Sensor</td>
-                            <td><span class="badge badge-{{ $cs }}">{{ ucfirst($cs) }}</span></td>
-                            <td class="text-[color:var(--color-text-muted)] text-xs">Tanah kering, tidak hujan</td>
-                        </tr>
-                        <tr>
-                            <td class="text-xs">10:00</td>
-                            <td>Sprayer</td>
-                            <td><span class="badge badge-on">ON</span></td>
-                            <td class="text-[color:var(--color-text-muted)] text-xs">Aktif otomatis</td>
-                        </tr>
-                        <tr>
-                            <td class="text-xs">09:45</td>
-                            <td>WhatsApp</td>
-                            <td><span class="badge badge-sent">Sent</span></td>
-                            <td class="text-[color:var(--color-text-muted)] text-xs">Peringatan kondisi kritis</td>
-                        </tr>
-                        <tr>
-                            <td class="text-xs">09:30</td>
-                            <td>Sensor</td>
-                            <td><span class="badge badge-normal">Normal</span></td>
-                            <td class="text-[color:var(--color-text-muted)] text-xs">Monitoring berkala</td>
-                        </tr>
+                        @forelse($activities as $activity)
+                            <tr>
+                                <td class="text-xs">{{ $activity['time'] }}</td>
+                                <td>{{ $activity['type'] }}</td>
+                                <td><span class="badge badge-{{ $activity['status_key'] }}">{{ $activity['status'] }}</span></td>
+                                <td class="text-[color:var(--color-text-muted)] text-xs">{{ $activity['description'] }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
+                                    Belum ada data aktivitas perangkat.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -227,7 +229,7 @@
                 </div>
                 <div class="text-2xl font-extrabold" style="color: var(--color-brand)">Aktif</div>
                 <div class="text-[color:var(--color-text-muted)] text-xs">
-                    Peringatan kritis dan aktivitas sprayer disimpan ke log.
+                    {{ $recordedAt !== null ? 'Update sensor terakhir '.$recordedAt.'.' : 'Menunggu data sensor pertama masuk.' }}
                 </div>
             </div>
         </div>
@@ -245,7 +247,8 @@
             const gaugeCanvas = document.getElementById('soilGauge');
             if (!gaugeCanvas) return;
             const ctx = gaugeCanvas.getContext('2d');
-            const sm = {{ $sensor['soil_moisture'] }};
+            const sm = {{ (float) ($soilMoisture ?? 0) }};
+            const soilThreshold = {{ (float) ($minSoilMoisture ?? 0) }};
             const angle = (sm / 100) * 180;
             const w = gaugeCanvas.width;
             const h = gaugeCanvas.height;
@@ -265,7 +268,9 @@
             const endAngle = Math.PI + (angle * Math.PI / 180);
             ctx.beginPath();
             ctx.arc(cx, cy, r, Math.PI, endAngle);
-            ctx.strokeStyle = sm < 40 ? themeColor('--color-warning', '#ffa42b') : themeColor('--color-brand', '#1ed760');
+            ctx.strokeStyle = soilThreshold > 0 && sm < soilThreshold
+                ? themeColor('--color-warning', '#ffa42b')
+                : themeColor('--color-brand', '#1ed760');
             ctx.lineWidth = 18;
             ctx.lineCap = 'round';
             ctx.stroke();
@@ -281,11 +286,11 @@
             chartInstance = new Chart(chartCanvas, {
                 type: 'line',
                 data: {
-                    labels: ['09:00', '09:15', '09:30', '09:45', '10:00'],
+                    labels: @json($chart['labels']),
                     datasets: [
-                        { label: 'Suhu (°C)', data: [30.1, 30.5, 30.8, 31.2, 31.5], borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Udara (%)', data: [74, 73, 72, 71, 70], borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Tanah (%)', data: [48, 45, 42, 38, 35], borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Suhu (°C)', data: @json($chart['temperature']), borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Udara (%)', data: @json($chart['air_humidity']), borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Tanah (%)', data: @json($chart['soil_moisture']), borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                     ],
                 },
                 options: {

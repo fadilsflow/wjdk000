@@ -101,6 +101,7 @@ Request (HTTP / IoT)
 | ThresholdSetting     | `threshold_settings` | Konfigurasi threshold per device oleh Admin     |
 | SprayLog             | `spray_logs`         | Log aktivitas penyemprotan (manual/otomatis)    |
 | NotificationLog      | `notification_logs`  | Log pengiriman notifikasi WhatsApp              |
+| WhatsappSetting      | `whatsapp_settings`  | Nomor penerima dan template pesan WhatsApp      |
 
 ### Status Kondisi Lingkungan
 
@@ -119,8 +120,10 @@ sensor_data masuk
 3. **Mode otomatis** — Sprayer aktif HANYA jika: `soil_moisture < threshold.min_soil_moisture` DAN `rain_status = 'no_rain'`.
 4. **Log wajib dicatat** — Setiap perubahan status sprayer WAJIB membuat entri di `spray_logs`.
 5. **Notifikasi WhatsApp** — Dikirim untuk: kondisi kritis, sprayer mulai/berhenti, hujan terdeteksi (jika mode otomatis).
-6. **Halaman publik** — Tidak boleh menampilkan tombol kontrol, nomor WhatsApp, atau data login.
-7. **Kontrol manual** — Hanya Admin dan Petani yang login yang boleh mengontrol sprayer.
+6. **Konfigurasi gateway sensitif** — URL gateway, token, dan sender WhatsApp wajib dibaca dari `.env` / `config/services.php`, bukan dari database.
+7. **Recipient & template configurable** — Nomor penerima dan template pesan WhatsApp dikelola Admin di tabel `whatsapp_settings`.
+8. **Halaman publik** — Tidak boleh menampilkan tombol kontrol, nomor WhatsApp, atau data login.
+9. **Kontrol manual** — Hanya Admin dan Petani yang login yang boleh mengontrol sprayer.
 
 ### Role & Hak Akses
 

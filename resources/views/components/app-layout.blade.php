@@ -1,5 +1,6 @@
 @props(['title' => null, 'subbar' => null, 'navLinks' => null, 'userName' => null, 'userRole' => null, 'currentTime' => null])
 @php
+    $authUser = auth()->user();
 $navLinks = $navLinks ?? [
     ['route' => 'dashboard', 'label' => 'Dashboard'],
     ['route' => 'sprayer.control', 'label' => 'Kontrol Sprayer'],
@@ -14,8 +15,15 @@ $navLinks = $navLinks ?? [
         ['route' => 'admin.whatsapp.index', 'label' => 'WhatsApp'],
     ]],
 ];
-$userName = $userName ?? 'Petani Demo';
-$userRole = $userRole ?? 'Petani';
+$navLinks = array_values(array_filter($navLinks, static function (array $link) use ($authUser): bool {
+    if (($link['group'] ?? null) !== 'admin') {
+        return true;
+    }
+
+    return $authUser?->role === 'admin';
+}));
+$userName = $userName ?? ($authUser?->name ?? 'Petani Demo');
+$userRole = $userRole ?? ($authUser?->role !== null ? ucfirst($authUser->role) : 'Petani');
 $currentTime = $currentTime ?? now()->format('d M Y, H:i');
 $isHistoryRoute = request()->routeIs('history.*');
 $isAdminRoute = request()->routeIs('admin.*');

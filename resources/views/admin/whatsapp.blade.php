@@ -7,6 +7,17 @@
     </x-slot>
 
     <div class="p-6 max-w-2xl space-y-6 mx-auto">
+        @if (session('status') === 'whatsapp-settings-updated')
+            <div class="alert alert-success">
+                Pengaturan WhatsApp berhasil diperbarui.
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-error">
+                {{ $errors->first() }}
+            </div>
+        @endif
 
         {{-- Connection status --}}
         @php $connected = $settings['connection_status'] === 'connected'; @endphp
@@ -27,39 +38,75 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="form-label">Gateway URL</label>
-                    <input type="url" class="form-input" value="{{ $settings['gateway_url'] }}">
+                    <input type="url" class="form-input" value="{{ $settings['gateway_url'] }}" readonly>
                 </div>
                 <div>
                     <label class="form-label">API Token</label>
-                    <input type="password" class="form-input" value="{{ $settings['api_token'] }}">
+                    <input type="text" class="form-input" value="{{ $settings['gateway_token_masked'] !== '' ? $settings['gateway_token_masked'] : 'Belum dikonfigurasi di .env' }}" readonly>
                 </div>
-                <button class="btn-primary" onclick="alert('Simpan gateway (backend)')">Simpan</button>
-            </div>
-        </div>
-
-        {{-- Recipient --}}
-        <div class="card">
-            <div class="card-header">Penerima Notifikasi</div>
-            <div class="p-6 space-y-4">
                 <div>
-                    <label class="form-label">Nomor WhatsApp (dengan kode negara)</label>
-                    <input type="text" class="form-input" value="{{ $settings['recipient_phone'] }}">
-                    <p class="text-xs text-[color:var(--color-text-muted)] mt-1">Contoh: +628123456789</p>
+                    <label class="form-label">Sender Number</label>
+                    <input type="text" class="form-input" value="{{ $settings['sender_number'] !== '' ? $settings['sender_number'] : 'Belum dikonfigurasi di .env' }}" readonly>
                 </div>
-                <button class="btn-primary" onclick="alert('Simpan penerima (backend)')">Simpan</button>
+                <p class="text-xs text-[color:var(--color-text-muted)]">
+                    Gateway URL, token, dan sender dibaca dari file <span class="font-bold">.env</span> agar data sensitif tidak disimpan di database.
+                </p>
             </div>
         </div>
 
-        {{-- Test --}}
-        <div class="card">
-            <div class="card-header">Uji Kirim</div>
-            <div class="p-6">
-                <p class="text-sm text-[color:var(--color-text-muted)] mb-4">Kirim pesan uji coba untuk memverifikasi konfigurasi gateway.</p>
-                <button class="btn-outline" onclick="alert('Test WA (backend)')">
-                    Kirim Notifikasi Uji
-                </button>
+        <form method="POST" action="{{ route('admin.whatsapp.update') }}" class="space-y-6">
+            @csrf
+            @method('PUT')
+
+            {{-- Recipient --}}
+            <div class="card">
+                <div class="card-header">Penerima Notifikasi</div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Nomor WhatsApp (dengan kode negara)</label>
+                        <input
+                            type="text"
+                            name="recipient_phone"
+                            class="form-input"
+                            value="{{ old('recipient_phone', $settings['recipient_phone']) }}"
+                        >
+                        <p class="text-xs text-[color:var(--color-text-muted)] mt-1">Contoh: +628123456789</p>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <div class="card">
+                <div class="card-header">Template Pesan</div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label">Template Kondisi Kritis</label>
+                        <textarea name="critical_condition_template" rows="4" class="form-input">{{ old('critical_condition_template', $settings['critical_condition_template']) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">Template Sprayer Mulai</label>
+                        <textarea name="spray_start_template" rows="4" class="form-input">{{ old('spray_start_template', $settings['spray_start_template']) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">Template Sprayer Berhenti</label>
+                        <textarea name="spray_stop_template" rows="4" class="form-input">{{ old('spray_stop_template', $settings['spray_stop_template']) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">Template Hujan Terdeteksi</label>
+                        <textarea name="rain_detected_template" rows="4" class="form-input">{{ old('rain_detected_template', $settings['rain_detected_template']) }}</textarea>
+                    </div>
+                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-4">
+                        <div class="text-xs uppercase tracking-wider font-bold text-[color:var(--color-text-muted)] mb-2">Variabel Tersedia</div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($available_variables as $variable)
+                                <span class="badge badge-normal">{{ $variable }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" type="submit">Simpan Pengaturan</button>
+        </form>
 
     </div>
 </x-app-layout>
