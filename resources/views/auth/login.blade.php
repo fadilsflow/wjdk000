@@ -34,11 +34,6 @@
 
         <div class="flex items-center justify-between mt-4">
             <div class="flex items-center gap-4">
-                @if (Route::has('register'))
-                    <a class="underline text-sm text-[color:var(--color-text-muted)] hover:text-[color:var(--color-text)] rounded-md focus:outline-none" href="{{ route('register') }}">
-                        {{ __('Register') }}
-                    </a>
-                @endif
                 @if (Route::has('password.request'))
                     <a class="underline text-sm text-[color:var(--color-text-muted)] hover:text-[color:var(--color-text)] rounded-md focus:outline-none" href="{{ route('password.request') }}">
                         {{ __('Forgot your password?') }}
