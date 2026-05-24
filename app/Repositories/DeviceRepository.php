@@ -5,9 +5,21 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Device;
+use Illuminate\Support\Collection;
 
 final class DeviceRepository
 {
+    /**
+     * @return Collection<int, Device>
+     */
+    public function getAllWithThresholds(): Collection
+    {
+        return Device::query()
+            ->with('thresholdSetting')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function findDashboardDevice(): ?Device
     {
         return Device::query()
