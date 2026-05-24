@@ -121,6 +121,22 @@ php artisan optimize                     # cache untuk production
 
 Config sensitif dibaca dari `.env` via `config/services.php`. Semua nilai sensitif wajib dari env, tidak ada hardcode.
 
+### Self-Hosted WhatsApp Gateway (whatsapp-web.js)
+
+Project ini menyertakan gateway WhatsApp lokal mandiri di folder `/whatsapp-gateway` berbasis Node.js dan Puppeteer.
+
+**Cara Menjalankan Gateway:**
+1. Masuk ke folder: `cd whatsapp-gateway`
+2. Konfigurasi file `.env` di dalam folder tersebut (tentukan `PORT` dan `GATEWAY_SECRET_TOKEN`).
+3. Jalankan `npm install` untuk mengunduh package.
+4. Jalankan `npm start` atau `node server.js`.
+5. Pindai (scan) QR Code yang muncul di terminal menggunakan aplikasi WhatsApp di HP Anda.
+
+**Konfigurasi di Laravel (.env):**
+- `WHATSAPP_GATEWAY_URL` = `http://localhost:3000/send`
+- `WHATSAPP_GATEWAY_TOKEN` = `<GATEWAY_SECRET_TOKEN>`
+- `WHATSAPP_SENDER_NUMBER` = (kosongkan)
+
 Pengaturan non-sensitif yang dapat diubah Admin disimpan di tabel `whatsapp_settings`:
 - `recipient_phone`
 - template `critical_condition`

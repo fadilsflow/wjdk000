@@ -33,3 +33,10 @@ logs/
 # Compiled files
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep
+
+# WhatsApp Gateway self-hosted
+/whatsapp-gateway/node_modules/
+/whatsapp-gateway/.wwebjs_auth/
+/whatsapp-gateway/.wwebjs_cache/
+/whatsapp-gateway/.env
+
