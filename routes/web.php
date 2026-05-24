@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::get('/public/summary', [LandingController::class, 'index'])->name('public.summary');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -74,4 +75,5 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
     Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
+    Route::put('/whatsapp', [WhatsappController::class, 'update'])->name('whatsapp.update');
 });
