@@ -119,7 +119,14 @@ php artisan optimize                     # cache untuk production
 
 ## WhatsApp Integration
 
-Config dibaca dari `.env` via `config/whatsapp.php`. Semua nilai wajib dari env, tidak ada hardcode.
+Config sensitif dibaca dari `.env` via `config/services.php`. Semua nilai sensitif wajib dari env, tidak ada hardcode.
+
+Pengaturan non-sensitif yang dapat diubah Admin disimpan di tabel `whatsapp_settings`:
+- `recipient_phone`
+- template `critical_condition`
+- template `spray_start`
+- template `spray_stop`
+- template `rain_detected`
 
 **Notification types yang wajib dikirim:**
 
