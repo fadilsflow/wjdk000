@@ -14,11 +14,13 @@ APP_DEBUG=true
 APP_URL=http://localhost
 
 DB_CONNECTION=mysql
+DB_URL=
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=smart_sprayer
 DB_USERNAME=root
 DB_PASSWORD=
+MYSQL_ATTR_SSL_CA=
 
 QUEUE_CONNECTION=database
 CACHE_STORE=file
@@ -28,6 +30,12 @@ SESSION_DRIVER=file
 WHATSAPP_GATEWAY_URL=
 WHATSAPP_GATEWAY_TOKEN=
 WHATSAPP_SENDER_NUMBER=
+
+# Seed Admin
+ADMIN_SEED_NAME="Admin Smart Sprayer"
+ADMIN_SEED_EMAIL=admin@smartsprayer.test
+ADMIN_SEED_PASSWORD=change-me
+ADMIN_SEED_PHONE=
 ```
 
 > Variabel baru wajib ditambahkan ke `.env.example` segera setelah ditambahkan ke `.env`.
