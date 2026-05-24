@@ -45,7 +45,9 @@ Route::middleware('guest')->group(function (): void {
 
 Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/sprayer', [SprayerController::class, 'index'])->name('sprayer.control');
+    Route::get('/sprayer', [SprayerController::class, 'index'])->middleware('role:admin,petani')->name('sprayer.control');
+    Route::post('/sprayer/mode', [SprayerController::class, 'updateMode'])->middleware('role:admin,petani')->name('sprayer.mode.update');
+    Route::post('/sprayer/status', [SprayerController::class, 'updateStatus'])->middleware('role:admin,petani')->name('sprayer.status.update');
 
     Route::get('/history/sensor', [HistoryController::class, 'sensor'])->name('history.sensor');
     Route::get('/history/spray', [HistoryController::class, 'spray'])->name('history.spray');
