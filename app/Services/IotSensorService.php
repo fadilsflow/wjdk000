@@ -37,6 +37,7 @@ final class IotSensorService
 
         return DB::transaction(function () use ($device, $threshold, $data): array {
             $evaluation = $this->evaluate($device, $threshold, $data);
+            $previousSprayerStatus = $device->sprayer_status;
 
             $this->sensorReadingRepository->create([
                 'device_id' => $device->id,
@@ -49,7 +50,7 @@ final class IotSensorService
                 'recorded_at' => $data['recorded_at'],
             ]);
 
-            if ($device->sprayer_status !== $evaluation['sprayer_command']) {
+            if ($previousSprayerStatus !== $evaluation['sprayer_command']) {
                 $this->deviceRepository->update($device, [
                     'sprayer_status' => $evaluation['sprayer_command'],
                 ]);
@@ -63,7 +64,7 @@ final class IotSensorService
                 ]);
             }
 
-            $this->dispatchNotifications($device, $evaluation, $data);
+            $this->dispatchNotifications($device, $evaluation, $data, $previousSprayerStatus);
 
             return [
                 'success' => true,
@@ -119,27 +120,30 @@ final class IotSensorService
      * @param  array<string, string|int|float>  $evaluation
      * @param  array<string, mixed>  $data
      */
-    private function dispatchNotifications(Device $device, array $evaluation, array $data): void
+    private function dispatchNotifications(Device $device, array $evaluation, array $data, string $previousSprayerStatus): void
     {
-        $message = sprintf(
-            '%s | suhu %sC | udara %s%% | tanah %s%% | hujan %s | sprayer %s',
-            $device->name,
-            $data['temperature'],
-            $data['air_humidity'],
-            $data['soil_moisture'],
-            $data['rain_status'],
-            $evaluation['sprayer_command'],
-        );
+        $context = [
+            'device_name' => $device->name,
+            'temperature' => $data['temperature'],
+            'air_humidity' => $data['air_humidity'],
+            'soil_moisture' => $data['soil_moisture'],
+            'rain_status' => $data['rain_status'],
+            'sprayer_status' => $evaluation['sprayer_command'],
+            'condition_status' => $evaluation['condition_status'],
+            'recorded_at' => (string) $data['recorded_at'],
+            'reason' => $evaluation['reason'],
+            'mode' => $device->mode,
+        ];
 
         if ($evaluation['notification_type'] !== '') {
-            $this->whatsAppNotificationService->send($device, $evaluation['notification_type'], $message);
+            $this->whatsAppNotificationService->send($device, $evaluation['notification_type'], $context);
         }
 
-        if ($device->sprayer_status !== $evaluation['sprayer_command']) {
+        if ($previousSprayerStatus !== $evaluation['sprayer_command']) {
             $this->whatsAppNotificationService->send(
                 $device,
                 $evaluation['sprayer_command'] === 'on' ? 'spray_start' : 'spray_stop',
-                $message,
+                $context,
             );
         }
     }
