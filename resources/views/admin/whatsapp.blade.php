@@ -8,17 +8,57 @@
 
     <div class="p-6 max-w-2xl space-y-6 mx-auto">
         {{-- Connection status --}}
-        @php $connected = $settings['connection_status'] === 'connected'; @endphp
+        @php
+            $status = $settings['connection_status'];
+        @endphp
         <div class="card p-4 flex items-center gap-4">
-            <div class="w-2.5 h-2.5 rounded-full" style="background: {{ $connected ? 'var(--color-brand)' : 'var(--color-negative)' }};"></div>
-            <div>
-                <div class="font-extrabold">{{ $connected ? 'Terhubung' : 'Gagal' }}</div>
-                <div class="text-xs text-[color:var(--color-text-muted)]">Status koneksi gateway</div>
-            </div>
-            <span class="ml-auto status-pill {{ $connected ? 'status-pill-normal' : 'status-pill-kritis' }} text-xs">
-                {{ $connected ? 'Aktif' : 'Offline' }}
-            </span>
+            @if($status === 'connected')
+                <div class="w-2.5 h-2.5 rounded-full bg-[color:var(--color-brand)]"></div>
+                <div>
+                    <div class="font-extrabold text-[color:var(--color-brand)]">Terhubung</div>
+                    <div class="text-xs text-[color:var(--color-text-muted)]">Gateway aktif dan WhatsApp siap mengirim notifikasi</div>
+                </div>
+                <span class="ml-auto status-pill status-pill-normal text-xs">Aktif</span>
+            @elseif($status === 'qr_pending')
+                <div class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
+                <div>
+                    <div class="font-extrabold text-amber-500">Perlu Scan QR Code</div>
+                    <div class="text-xs text-[color:var(--color-text-muted)]">Gateway aktif, scan QR Code di bawah halaman ini</div>
+                </div>
+                <span class="ml-auto status-pill text-xs bg-amber-100 text-amber-800">Menunggu QR</span>
+            @elseif($status === 'offline')
+                <div class="w-2.5 h-2.5 rounded-full bg-[color:var(--color-negative)]"></div>
+                <div>
+                    <div class="font-extrabold text-[color:var(--color-negative)]">Server Offline</div>
+                    <div class="text-xs text-[color:var(--color-text-muted)]">Gagal terhubung ke WhatsApp Gateway server di port 3000</div>
+                </div>
+                <span class="ml-auto status-pill status-pill-kritis text-xs">Offline</span>
+            @else
+                <div class="w-2.5 h-2.5 rounded-full bg-gray-400"></div>
+                <div>
+                    <div class="font-extrabold text-gray-500">Belum Dikonfigurasi</div>
+                    <div class="text-xs text-[color:var(--color-text-muted)]">Konfigurasi token atau URL kosong pada berkas .env</div>
+                </div>
+                <span class="ml-auto status-pill text-xs bg-gray-100 text-gray-800">Belum Set</span>
+            @endif
         </div>
+
+        {{-- QR Code card (tampil hanya saat qr_pending & qr string tersedia) --}}
+        @if($status === 'qr_pending' && !empty($settings['qr_code_string']))
+            <div class="card p-6 flex flex-col items-center justify-center text-center gap-4">
+                <div class="text-base font-bold text-[color:var(--color-text)]">Scan QR Code untuk Menghubungkan</div>
+                <div class="text-sm text-[color:var(--color-text-muted)] max-w-sm">
+                    Buka WhatsApp &rarr; Menu &rarr; <strong>Perangkat Tertaut</strong> &rarr; <strong>Tautkan Perangkat</strong>, lalu arahkan kamera ke QR di bawah ini:
+                </div>
+                <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data={{ urlencode($settings['qr_code_string']) }}"
+                    alt="Scan QR Code WhatsApp"
+                    class="mx-auto rounded-lg shadow-md bg-white p-2 border border-[color:var(--color-border)]"
+                    width="240" height="240"
+                >
+                <p class="text-xs text-[color:var(--color-text-muted)] animate-pulse">Refresh halaman ini setelah scan untuk mengecek status koneksi.</p>
+            </div>
+        @endif
 
         {{-- Gateway config --}}
         <div class="card">
@@ -33,8 +73,19 @@
                     <input type="text" class="form-input" value="{{ $settings['gateway_token_masked'] !== '' ? $settings['gateway_token_masked'] : 'Belum dikonfigurasi di .env' }}" readonly>
                 </div>
                 <div>
-                    <label class="form-label">Sender Number</label>
-                    <input type="text" class="form-input" value="{{ $settings['sender_number'] !== '' ? $settings['sender_number'] : 'Belum dikonfigurasi di .env' }}" readonly>
+                    <label class="form-label">
+                        Sender Number
+                        @if($status === 'connected' && !empty($settings['sender_number']))
+                            <span class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-[color:var(--color-brand)] bg-[color:var(--color-brand-subtle,#d1fae5)] px-1.5 py-0.5 rounded">Terdeteksi Otomatis</span>
+                        @endif
+                    </label>
+                    <input
+                        type="text"
+                        class="form-input"
+                        value="{{ $settings['sender_number'] !== '' ? $settings['sender_number'] : ($status === 'connected' ? 'Terhubung (nomor tidak tersedia)' : 'Belum terhubung') }}"
+                        readonly
+                    >
+                    <p class="text-xs text-[color:var(--color-text-muted)] mt-1">Nomor dideteksi otomatis dari akun WhatsApp yang terhubung.</p>
                 </div>
                 <p class="text-xs text-[color:var(--color-text-muted)]">
                     Gateway URL, token, dan sender dibaca dari file <span class="font-bold">.env</span> agar data sensitif tidak disimpan di database.
