@@ -32,6 +32,7 @@
 skills-lock.json
 logs/
 .agents/
+.antigravitycli/
 # Compiled files
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep
