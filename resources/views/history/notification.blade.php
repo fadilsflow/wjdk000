@@ -9,14 +9,14 @@
     <div class="p-6">
         {{-- Filter --}}
         <div class="card mb-6">
-            <form method="GET" action="{{ route('history.notification') }}" class="p-4 flex flex-wrap items-end gap-4">
+            <form method="GET" action="{{ route('history.notification') }}" class="p-4 flex flex-wrap items-end gap-4" x-data>
                 <div>
                     <label class="form-label">Dari</label>
-                    <input type="date" name="from_date" class="form-input w-40" value="{{ $filters['from_date'] }}">
+                    <input type="date" name="from_date" class="form-input w-40" value="{{ $filters['from_date'] }}" @change="$el.closest('form').requestSubmit()">
                 </div>
                 <div>
                     <label class="form-label">Sampai</label>
-                    <input type="date" name="to_date" class="form-input w-40" value="{{ $filters['to_date'] }}">
+                    <input type="date" name="to_date" class="form-input w-40" value="{{ $filters['to_date'] }}" @change="$el.closest('form').requestSubmit()">
                 </div>
                 <button class="btn-primary" type="submit">Filter</button>
             </form>
