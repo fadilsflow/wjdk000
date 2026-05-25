@@ -18,6 +18,7 @@ DB_URL=
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=smart_sprayer
+DB_TEST_DATABASE=smart_sprayer_test
 DB_USERNAME=root
 DB_PASSWORD=
 MYSQL_ATTR_SSL_CA=
@@ -29,6 +30,7 @@ SESSION_DRIVER=file
 # WhatsApp Gateway/API
 WHATSAPP_GATEWAY_URL=
 WHATSAPP_GATEWAY_TOKEN=
+# Fallback saja — nomor pengirim aktif dideteksi otomatis dari gateway saat WhatsApp terhubung
 WHATSAPP_SENDER_NUMBER=
 
 # Seed Admin
@@ -39,6 +41,8 @@ ADMIN_SEED_PHONE=
 ```
 
 > Variabel baru wajib ditambahkan ke `.env.example` segera setelah ditambahkan ke `.env`.
+
+`DB_TEST_DATABASE` dipakai untuk suite automated test. Nilai ini harus menunjuk schema MySQL terpisah dari database aplikasi utama karena test harness menjalankan `migrate:fresh` pada schema test.
 
 ---
 
@@ -109,11 +113,40 @@ php artisan queue:work                    # jalankan worker
 # Testing
 php artisan test                          # semua test
 php artisan test --filter NamaTest        # test spesifik
+npm run test:e2e                          # semua browser E2E
+npm run test:e2e:public-auth             # Sprint 4 public + auth
+npm run test:e2e:sprayer                 # Sprint 6 kontrol sprayer
 
 # Cache
 php artisan optimize:clear               # bersihkan semua cache
 php artisan optimize                     # cache untuk production
 ```
+
+## Browser E2E
+
+Suite browser memakai Playwright dan dapat dijalankan berulang per skenario.
+
+Prasyarat:
+
+- database berisi seed user admin, petani, dan device
+- `ADMIN_SEED_PASSWORD` terisi
+- `DEVICE_SEED_API_KEY` terisi tetap agar skenario IoT bisa dipanggil ulang dengan konsisten
+- jalankan `npm install` setelah perubahan dependency frontend
+
+Command yang tersedia:
+
+```bash
+npm run test:e2e
+npm run test:e2e:public-auth
+npm run test:e2e:sprayer
+npm run test:e2e:headed
+```
+
+Catatan:
+
+- Playwright config otomatis menjalankan `php artisan serve --host=127.0.0.1 --port=8000` bila app belum aktif
+- browser suite memakai `requestSubmit()` pada form login dan sprayer agar stabil terhadap Turbo/Alpine behavior
+- hasil report HTML disimpan di folder `playwright-report/`
 
 ---
 
@@ -130,12 +163,14 @@ Project ini menyertakan gateway WhatsApp lokal mandiri di folder `/whatsapp-gate
 2. Konfigurasi file `.env` di dalam folder tersebut (tentukan `PORT` dan `GATEWAY_SECRET_TOKEN`).
 3. Jalankan `npm install` untuk mengunduh package.
 4. Jalankan `npm start` atau `node server.js`.
-5. Pindai (scan) QR Code yang muncul di terminal menggunakan aplikasi WhatsApp di HP Anda.
+5. **Scan QR Code langsung dari halaman admin** (`/admin/whatsapp`) — QR ditampilkan otomatis di UI jika gateway aktif tapi belum terhubung.
+   - QR juga tetap muncul di terminal sebagai alternatif.
+6. Tekan `Ctrl+C` untuk menghentikan gateway secara bersih (*graceful shutdown* otomatis menutup Chrome).
 
 **Konfigurasi di Laravel (.env):**
 - `WHATSAPP_GATEWAY_URL` = `http://localhost:3000/send`
 - `WHATSAPP_GATEWAY_TOKEN` = `<GATEWAY_SECRET_TOKEN>`
-- `WHATSAPP_SENDER_NUMBER` = (kosongkan)
+- `WHATSAPP_SENDER_NUMBER` = (opsional — fallback saja, nomor aktif dideteksi otomatis dari gateway)
 
 Pengaturan non-sensitif yang dapat diubah Admin disimpan di tabel `whatsapp_settings`:
 - `recipient_phone`
