@@ -46,6 +46,24 @@ php artisan serve
 # Terminal lain: bun run dev (untuk hot-reload CSS/JS)
 ```
 
+## Browser E2E
+
+Project ini sekarang punya suite Playwright yang bisa dijalankan ulang per skenario.
+
+Prasyarat:
+
+- `ADMIN_SEED_PASSWORD` terisi
+- `DEVICE_SEED_API_KEY` terisi tetap di `.env`
+- database sudah `migrate --seed`
+
+Command:
+
+```bash
+npm run test:e2e
+npm run test:e2e:public-auth
+npm run test:e2e:sprayer
+```
+
 Akses `http://localhost:8000`.
 
 ### Pakai MySQL

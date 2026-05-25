@@ -20,6 +20,8 @@
 /public/storage
 /.phpunit.cache
 /.phpunit.result.cache
+/playwright-report
+/test-results
 /.fleet
 /auth.json
 /.idea
@@ -30,13 +32,13 @@
 skills-lock.json
 logs/
 .agents/
+.antigravitycli/
 # Compiled files
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep
 
 # WhatsApp Gateway self-hosted
 /whatsapp-gateway/node_modules/
-/whatsapp-gateway/.wwebjs_auth/
+/whatsapp-gateway/.wwebjs_auth*/
 /whatsapp-gateway/.wwebjs_cache/
 /whatsapp-gateway/.env
-

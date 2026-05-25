@@ -7,6 +7,7 @@ namespace Database\Seeders;
 use App\Models\Device;
 use App\Models\ThresholdSetting;
 use App\Models\User;
+use App\Models\WhatsappSetting;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -36,7 +37,18 @@ final class DatabaseSeeder extends Seeder
             ],
         );
 
-        User::factory(2)->create();
+        User::query()->updateOrCreate(
+            ['email' => 'petani@smartsprayer.test'],
+            [
+                'name' => 'Petani Smart Sprayer',
+                'password' => Hash::make('password'),
+                'role' => 'petani',
+                'phone_number' => '+6281234567890',
+                'email_verified_at' => now(),
+            ],
+        );
+
+        User::factory()->count(2)->create();
 
         $device = Device::query()->firstOrCreate(
             ['name' => (string) env('DEVICE_SEED_NAME', 'Smart Sprayer Brebes')],
@@ -54,6 +66,17 @@ final class DatabaseSeeder extends Seeder
                 'min_soil_moisture' => 40.0,
                 'max_temperature' => 35.0,
                 'min_air_humidity' => 60.0,
+            ],
+        );
+
+        WhatsappSetting::query()->firstOrCreate(
+            ['id' => 1],
+            [
+                'recipient_phone' => '+628123456700',
+                'critical_condition_template' => 'Kritis {{device_name}} {{condition_status}} {{soil_moisture}}',
+                'spray_start_template' => 'Mulai {{device_name}} {{sprayer_status}} {{reason}}',
+                'spray_stop_template' => 'Stop {{device_name}} {{sprayer_status}} {{reason}}',
+                'rain_detected_template' => 'Hujan {{device_name}} {{rain_status}} {{sprayer_status}}',
             ],
         );
     }
