@@ -19,15 +19,17 @@ if (!SECRET_TOKEN) {
 
 // --- WhatsApp Client ---
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: "./.wwebjs_auth" }),
+    authStrategy: new LocalAuth({ dataPath: "./.wwebjs_auth_session" }),
     puppeteer: {
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
 });
 
 let isReady = false;
+let lastQr = null;
 
 client.on("qr", (qr) => {
+    lastQr = qr;
     console.log(
         "\n[WA GATEWAY] Scan QR Code ini dengan WhatsApp di HP Anda:\n",
     );
@@ -36,16 +38,19 @@ client.on("qr", (qr) => {
 
 client.on("ready", () => {
     isReady = true;
+    lastQr = null;
     console.log("[WA GATEWAY] WhatsApp siap! Gateway berjalan.");
 });
 
 client.on("auth_failure", (msg) => {
     isReady = false;
+    lastQr = null;
     console.error("[WA GATEWAY] Auth gagal:", msg);
 });
 
 client.on("disconnected", (reason) => {
     isReady = false;
+    lastQr = null;
     console.warn("[WA GATEWAY] WhatsApp terputus:", reason);
 });
 
@@ -80,12 +85,18 @@ function authMiddleware(req, res, next) {
 
 // --- Health Check Endpoint ---
 app.get("/health", (req, res) => {
+    const senderNumber = isReady && client.info ? client.info.wid.user : null;
+
     res.json({
         success: true,
         whatsapp_ready: isReady,
+        qr: lastQr,
+        sender_number: senderNumber,
         message: isReady
             ? "Gateway aktif dan WhatsApp terhubung."
-            : "Gateway aktif tapi WhatsApp belum scan QR.",
+            : lastQr
+                ? "Gateway aktif tapi WhatsApp belum scan QR."
+                : "Gateway aktif, sedang menginisialisasi...",
     });
 });
 
@@ -159,3 +170,22 @@ app.listen(PORT, () => {
     console.log(`[WA GATEWAY] Server berjalan di http://localhost:${PORT}`);
     console.log("[WA GATEWAY] Menginisialisasi WhatsApp client...");
 });
+
+// --- Graceful Shutdown ---
+const gracefulShutdown = async (signal) => {
+    console.log(`\n[WA GATEWAY] Menerima sinyal ${signal}. Menutup koneksi secara bersih...`);
+    try {
+        if (client) {
+            await client.destroy();
+            console.log("[WA GATEWAY] WhatsApp client berhasil ditutup.");
+        }
+    } catch (err) {
+        console.error("[WA GATEWAY] Gagal menutup WhatsApp client secara bersih:", err);
+    } finally {
+        process.exit(0);
+    }
+};
+
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+
