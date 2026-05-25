@@ -271,7 +271,28 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
+    window.smartSprayerDashboardState = window.smartSprayerDashboardState ?? {
+        chartInstance: null,
+        themeObserver: null,
+        listenersBound: false,
+    };
+
+    function cleanupDashboard() {
+        const state = window.smartSprayerDashboardState;
+
+        if (state.chartInstance) {
+            state.chartInstance.destroy();
+            state.chartInstance = null;
+        }
+
+        if (state.themeObserver) {
+            state.themeObserver.disconnect();
+            state.themeObserver = null;
+        }
+    }
+
     function initDashboard() {
+        const state = window.smartSprayerDashboardState;
         const themeColor = (name, fallback) =>
             (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
@@ -308,14 +329,14 @@
             ctx.stroke();
         }
 
-        let chartInstance = null;
         function renderChart() {
             const chartCanvas = document.getElementById('sensorChart');
             if (!chartCanvas || typeof Chart === 'undefined') return;
 
-            if (chartInstance) { chartInstance.destroy(); }
+            state.chartInstance?.destroy();
+            Chart.getChart(chartCanvas)?.destroy();
 
-            chartInstance = new Chart(chartCanvas, {
+            state.chartInstance = new Chart(chartCanvas, {
                 type: 'line',
                 data: {
                     labels: @json($chart['labels']),
@@ -356,14 +377,20 @@
         try { renderChart(); } catch (e) { console.warn('Chart render skipped:', e.message); }
 
         // Re-render canvases when the theme class on <html> changes.
-        new MutationObserver(function () {
+        state.themeObserver?.disconnect();
+        state.themeObserver = new MutationObserver(function () {
             try { renderGauge(); } catch (e) {}
             try { renderChart(); } catch (e) {}
-        }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+        });
+        state.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     }
 
-    document.addEventListener('turbo:load', initDashboard);
-    window.addEventListener('turbo:page-ready', initDashboard);
+    if (! window.smartSprayerDashboardState.listenersBound) {
+        document.addEventListener('turbo:load', initDashboard);
+        window.addEventListener('turbo:page-ready', initDashboard);
+        document.addEventListener('turbo:before-cache', cleanupDashboard);
+        window.smartSprayerDashboardState.listenersBound = true;
+    }
     </script>
     @endpush
 </x-app-layout>
