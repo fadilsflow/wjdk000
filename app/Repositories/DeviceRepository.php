@@ -20,6 +20,13 @@ final class DeviceRepository
             ->get();
     }
 
+    public function findById(int $id): Device
+    {
+        return Device::query()
+            ->with('thresholdSetting')
+            ->findOrFail($id);
+    }
+
     public function findDashboardDevice(): ?Device
     {
         return Device::query()
@@ -34,6 +41,14 @@ final class DeviceRepository
             ->with('thresholdSetting')
             ->where('api_key', $apiKey)
             ->first();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): Device
+    {
+        return Device::query()->create($data);
     }
 
     /**

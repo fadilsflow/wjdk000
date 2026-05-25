@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Device;
+use App\Models\SensorReading;
 use App\Models\ThresholdSetting;
 use App\Repositories\DeviceRepository;
 use App\Repositories\SensorReadingRepository;
@@ -38,6 +39,7 @@ final class IotSensorService
         return DB::transaction(function () use ($device, $threshold, $data): array {
             $evaluation = $this->evaluate($device, $threshold, $data);
             $previousSprayerStatus = $device->sprayer_status;
+            $previousReading = $this->sensorReadingRepository->findLatestForDevice($device);
 
             $this->sensorReadingRepository->create([
                 'device_id' => $device->id,
@@ -64,7 +66,7 @@ final class IotSensorService
                 ]);
             }
 
-            $this->dispatchNotifications($device, $evaluation, $data, $previousSprayerStatus);
+            $this->dispatchNotifications($device, $evaluation, $data, $previousSprayerStatus, $previousReading);
 
             return [
                 'success' => true,
@@ -120,8 +122,13 @@ final class IotSensorService
      * @param  array<string, string|int|float>  $evaluation
      * @param  array<string, mixed>  $data
      */
-    private function dispatchNotifications(Device $device, array $evaluation, array $data, string $previousSprayerStatus): void
-    {
+    private function dispatchNotifications(
+        Device $device,
+        array $evaluation,
+        array $data,
+        string $previousSprayerStatus,
+        ?SensorReading $previousReading,
+    ): void {
         $context = [
             'device_name' => $device->name,
             'temperature' => $data['temperature'],
@@ -135,8 +142,21 @@ final class IotSensorService
             'mode' => $device->mode,
         ];
 
-        if ($evaluation['notification_type'] !== '') {
-            $this->whatsAppNotificationService->send($device, $evaluation['notification_type'], $context);
+        $notificationType = (string) $evaluation['notification_type'];
+
+        if ($notificationType !== '') {
+            $previousCondition = $previousReading?->condition_status ?? 'normal';
+            $previousRain = $previousReading?->rain_status ?? 'no_rain';
+
+            $shouldSend = match ($notificationType) {
+                'critical_condition' => $previousCondition !== 'kritis',
+                'rain_detected'      => $previousRain !== 'rain',
+                default              => true,
+            };
+
+            if ($shouldSend) {
+                $this->whatsAppNotificationService->send($device, $notificationType, $context);
+            }
         }
 
         if ($previousSprayerStatus !== $evaluation['sprayer_command']) {
