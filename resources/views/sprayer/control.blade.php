@@ -19,23 +19,6 @@
     </x-slot>
 
     <div class=" p-6 space-y-6">
-        @if (session('status') === 'sprayer-mode-updated')
-            <div class="alert alert-success">
-                Mode sprayer berhasil diperbarui.
-            </div>
-        @endif
-
-        @if (session('status') === 'sprayer-status-updated')
-            <div class="alert alert-success">
-                Status sprayer berhasil diperbarui.
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-error">
-                {{ $errors->first() }}
-            </div>
-        @endif
 
         {{-- Rain warning --}}
         @if(($sensor['rain_status'] ?? '') === 'rain')
@@ -50,11 +33,11 @@
             {{-- Mode (1/3) --}}
             <div class="card lg:col-span-1">
                 <div class="card-header">Mode Operasi</div>
-                <div class="p-5 space-y-3">
-                    <form method="POST" action="{{ route('sprayer.mode.update') }}">
+                <div class="p-5 space-y-3" x-data="{ loading: false }">
+                    <form method="POST" action="{{ route('sprayer.mode.update') }}" @submit="loading = true">
                         @csrf
                         <input type="hidden" name="mode" value="automatic">
-                        <button type="submit"
+                        <button type="submit" :disabled="loading"
                                 class="w-full text-left p-4 rounded-lg border transition-colors
                                        {{ $isAuto ? 'border-[color:var(--color-brand)] bg-[rgba(30,215,96,0.08)]' : 'border-[color:var(--color-bg-elevated)] bg-[color:var(--color-bg-elevated)] hover:bg-[color:var(--color-bg-card-2)]' }}">
                             <div class="flex items-center gap-2">
@@ -66,10 +49,10 @@
                         </button>
                     </form>
 
-                    <form method="POST" action="{{ route('sprayer.mode.update') }}">
+                    <form method="POST" action="{{ route('sprayer.mode.update') }}" @submit="loading = true">
                         @csrf
                         <input type="hidden" name="mode" value="manual">
-                        <button type="submit"
+                        <button type="submit" :disabled="loading"
                                 class="w-full text-left p-4 rounded-lg border transition-colors
                                        {{ !$isAuto ? 'border-[color:var(--color-info)] bg-[rgba(83,157,245,0.08)]' : 'border-[color:var(--color-bg-elevated)] bg-[color:var(--color-bg-elevated)] hover:bg-[color:var(--color-bg-card-2)]' }}">
                             <div class="flex items-center gap-2">
@@ -80,6 +63,8 @@
                             <p class="text-xs text-[color:var(--color-text-muted)] mt-1.5 leading-relaxed">Petani menyalakan/matikan sprayer langsung dari tombol.</p>
                         </button>
                     </form>
+
+                    <p x-show="loading" x-cloak class="text-xs text-center text-[color:var(--color-text-muted)] animate-pulse">Mengubah mode…</p>
                 </div>
             </div>
 
@@ -113,19 +98,21 @@
                         {{ $on ? 'Sprayer sedang aktif' : 'Sprayer tidak aktif' }}
                     </div>
 
-                    <div class="flex gap-3 justify-center mt-6 flex-wrap">
-                        <form method="POST" action="{{ route('sprayer.status.update') }}">
+                    <div class="flex gap-3 justify-center mt-6 flex-wrap" x-data="{ loading: false }">
+                        <form method="POST" action="{{ route('sprayer.status.update') }}" @submit="loading = true">
                             @csrf
                             <input type="hidden" name="status" value="on">
-                            <button type="submit" class="btn-primary" {{ $on ? 'disabled' : '' }}>
-                                Nyalakan
+                            <button type="submit" class="btn-primary" :disabled="loading || {{ ($on || $isAuto) ? 'true' : 'false' }}">
+                                <span x-show="!loading">Nyalakan</span>
+                                <span x-show="loading" x-cloak>…</span>
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('sprayer.status.update') }}">
+                        <form method="POST" action="{{ route('sprayer.status.update') }}" @submit="loading = true">
                             @csrf
                             <input type="hidden" name="status" value="off">
-                            <button type="submit" class="btn-secondary" {{ !$on ? 'disabled' : '' }}>
-                                Matikan
+                            <button type="submit" class="btn-secondary" :disabled="loading || {{ (!$on || $isAuto) ? 'true' : 'false' }}">
+                                <span x-show="!loading">Matikan</span>
+                                <span x-show="loading" x-cloak>…</span>
                             </button>
                         </form>
                     </div>
