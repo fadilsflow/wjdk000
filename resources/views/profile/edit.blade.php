@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="subbar">
-        <div>
+            <div class="max-w-2xl w-full mx-auto">
             <div class="text-2xl font-extrabold leading-tight">Profil</div>
             <div class="text-[color:var(--color-text-muted)] text-sm">Kelola informasi akun kamu</div>
         </div>
