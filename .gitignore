@@ -20,6 +20,8 @@
 /public/storage
 /.phpunit.cache
 /.phpunit.result.cache
+/playwright-report
+/test-results
 /.fleet
 /auth.json
 /.idea
@@ -36,7 +38,6 @@ logs/
 
 # WhatsApp Gateway self-hosted
 /whatsapp-gateway/node_modules/
-/whatsapp-gateway/.wwebjs_auth/
+/whatsapp-gateway/.wwebjs_auth*/
 /whatsapp-gateway/.wwebjs_cache/
 /whatsapp-gateway/.env
-
