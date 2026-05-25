@@ -74,6 +74,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('/devices', [DeviceController::class, 'index'])->name('devices.index');
+    Route::post('/devices', [DeviceController::class, 'store'])->name('devices.store');
+    Route::put('/devices/{device}', [DeviceController::class, 'update'])->name('devices.update');
+    Route::put('/threshold', [DeviceController::class, 'updateThreshold'])->name('threshold.update');
     Route::get('/whatsapp', [WhatsappController::class, 'index'])->name('whatsapp.index');
     Route::put('/whatsapp', [WhatsappController::class, 'update'])->name('whatsapp.update');
 });

@@ -7,18 +7,6 @@
     </x-slot>
 
     <div class="p-6 max-w-2xl space-y-6 mx-auto">
-        @if (session('status') === 'whatsapp-settings-updated')
-            <div class="alert alert-success">
-                Pengaturan WhatsApp berhasil diperbarui.
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-error">
-                {{ $errors->first() }}
-            </div>
-        @endif
-
         {{-- Connection status --}}
         @php $connected = $settings['connection_status'] === 'connected'; @endphp
         <div class="card p-4 flex items-center gap-4">
@@ -54,7 +42,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.whatsapp.update') }}" class="space-y-6">
+        <form method="POST" action="{{ route('admin.whatsapp.update') }}" class="space-y-6" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             @method('PUT')
 
@@ -105,7 +93,10 @@
                 </div>
             </div>
 
-            <button class="btn-primary" type="submit">Simpan Pengaturan</button>
+            <button class="btn-primary" type="submit" :disabled="loading">
+                <span x-show="!loading">Simpan Pengaturan</span>
+                <span x-show="loading" x-cloak>Menyimpan…</span>
+            </button>
         </form>
 
     </div>

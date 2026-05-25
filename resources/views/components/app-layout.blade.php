@@ -251,6 +251,74 @@ $isAdminRoute = request()->routeIs('admin.*');
         <span>Smart Sprayer IoT — Bawang Merah Brebes</span>
     </footer>
 
+    {{-- Toast notifications --}}
+    @php
+        $flashStatus = session('status');
+        $flashMessages = [
+            'sprayer-mode-updated'        => ['msg' => 'Mode sprayer diperbarui.', 'type' => 'success'],
+            'sprayer-status-updated'      => ['msg' => 'Status sprayer diperbarui.', 'type' => 'success'],
+            'user-created'                => ['msg' => 'Pengguna baru berhasil dibuat.', 'type' => 'success'],
+            'user-updated'                => ['msg' => 'Data pengguna diperbarui.', 'type' => 'success'],
+            'user-deleted'                => ['msg' => 'Pengguna berhasil dihapus.', 'type' => 'success'],
+            'whatsapp-settings-updated'   => ['msg' => 'Pengaturan WhatsApp disimpan.', 'type' => 'success'],
+            'profile-updated'             => ['msg' => 'Profil diperbarui.', 'type' => 'success'],
+            'threshold-updated'           => ['msg' => 'Threshold sensor diperbarui.', 'type' => 'success'],
+            'device-updated'              => ['msg' => 'Data perangkat diperbarui.', 'type' => 'success'],
+            'device-created'              => ['msg' => 'Perangkat baru berhasil ditambahkan.', 'type' => 'success'],
+        ];
+        $flashData = $flashStatus ? ($flashMessages[$flashStatus] ?? null) : null;
+    @endphp
+    <div
+        x-data="{
+            toasts: [],
+            add(msg, type) {
+                const id = Date.now();
+                this.toasts.push({ id, msg, type, visible: false });
+                this.$nextTick(() => {
+                    const t = this.toasts.find(t => t.id === id);
+                    if (t) t.visible = true;
+                    setTimeout(() => this.remove(id), 3800);
+                });
+            },
+            remove(id) {
+                const t = this.toasts.find(t => t.id === id);
+                if (t) t.visible = false;
+                setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 400);
+            }
+        }"
+        x-init="
+            @if($flashData)
+                add('{{ $flashData['msg'] }}', '{{ $flashData['type'] }}');
+            @endif
+            @if($errors->any())
+                add('{{ $errors->first() }}', 'error');
+            @endif
+        "
+        @toast.window="add($event.detail.msg, $event.detail.type ?? 'success')"
+        class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2 pointer-events-none"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div
+                x-show="toast.visible"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-3"
+                x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 translate-y-0"
+                x-transition:leave-end="opacity-0 translate-y-3"
+                :class="toast.type === 'error' ? 'border-[color:var(--color-negative)]' : 'border-[color:var(--color-brand)]'"
+                class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-dialog border bg-[color:var(--color-bg-card-2)] text-sm font-semibold text-[color:var(--color-text)] min-w-[220px] max-w-xs"
+            >
+                <span
+                    :class="toast.type === 'error' ? 'bg-[color:var(--color-negative)]' : 'bg-[color:var(--color-brand)]'"
+                    class="w-2 h-2 rounded-full shrink-0"
+                ></span>
+                <span x-text="toast.msg" class="flex-1"></span>
+                <button @click="remove(toast.id)" class="text-[color:var(--color-text-muted)] hover:text-[color:var(--color-text)] transition-colors shrink-0">✕</button>
+            </div>
+        </template>
+    </div>
+
     @stack('scripts')
 </body>
 </html>

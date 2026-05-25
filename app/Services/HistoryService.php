@@ -72,6 +72,7 @@ final class HistoryService
                     'by' => $log->creator?->name ?? 'Sistem',
                 ])
                 ->all(),
+            'filters' => $this->normalizeFilters($filters),
             'pagination' => $this->buildPaginationData($paginator),
         ];
     }
@@ -98,6 +99,7 @@ final class HistoryService
                     'status' => $notification->status,
                 ])
                 ->all(),
+            'filters' => $this->normalizeFilters($filters),
             'pagination' => $this->buildPaginationData($paginator),
         ];
     }

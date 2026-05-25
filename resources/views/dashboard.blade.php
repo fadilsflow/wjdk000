@@ -119,7 +119,7 @@
         <div class="card sm:col-span-2">
             <div class="card-header">
                 Kontrol Penyemprotan
-                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs">Aksi dikirim ke perangkat</span>
+                <a href="{{ route('sprayer.control') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Detail</a>
             </div>
             <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
@@ -129,27 +129,59 @@
                          style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
                         {{ $device['mode'] }}
                     </div>
-                    <button class="btn-outline btn-sm" onclick="alert('Ganti mode (backend)')">
-                        Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
-                    </button>
+                    <form method="POST" action="{{ route('sprayer.mode.update') }}" class="inline" x-data="{ loading: false }" @submit="loading = true">
+                        @csrf
+                        <input type="hidden" name="mode" value="{{ $device['mode'] === 'automatic' ? 'manual' : 'automatic' }}">
+                        <button type="submit" class="btn-outline btn-sm" :disabled="loading">
+                            <span x-show="!loading">Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}</span>
+                            <span x-show="loading" x-cloak>…</span>
+                        </button>
+                    </form>
                 </div>
 
                 <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
                     <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Pompa Sprayer</div>
-                    <button class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
-                            onclick="alert('Toggle sprayer (backend)')"
-                            aria-label="Toggle sprayer">
-                        @if($sensor['sprayer_status'] === 'on')
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <rect x="6" y="5" width="4" height="14" rx="1"/>
-                                <rect x="14" y="5" width="4" height="14" rx="1"/>
-                            </svg>
-                        @else
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                        @endif
-                    </button>
+                    @if($device['mode'] === 'automatic')
+                        <div class="btn-circle btn-circle-lg mx-auto opacity-40 cursor-not-allowed {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}" aria-disabled="true">
+                            @if($sensor['sprayer_status'] === 'on')
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                    <rect x="14" y="5" width="4" height="14" rx="1"/>
+                                </svg>
+                            @else
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            @endif
+                        </div>
+                        <p class="text-xs text-[color:var(--color-text-muted)] mt-3">Mode otomatis aktif.<br>Ubah ke manual untuk kontrol langsung.</p>
+                    @else
+                        <form method="POST" action="{{ route('sprayer.status.update') }}" x-data="{ loading: false }" @submit="loading = true">
+                            @csrf
+                            <input type="hidden" name="status" value="{{ $sensor['sprayer_status'] === 'on' ? 'off' : 'on' }}">
+                            <button type="submit"
+                                    class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
+                                    :disabled="loading"
+                                    aria-label="Toggle sprayer">
+                                <template x-if="!loading">
+                                    @if($sensor['sprayer_status'] === 'on')
+                                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                            <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                            <rect x="14" y="5" width="4" height="14" rx="1"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z"/>
+                                        </svg>
+                                    @endif
+                                </template>
+                                <svg x-show="loading" x-cloak class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    @endif
                     <div class="text-lg font-extrabold uppercase mt-3"
                          style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
                         {{ $sensor['sprayer_status'] }}
@@ -239,7 +271,7 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    function initDashboard() {
         const themeColor = (name, fallback) =>
             (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
 
@@ -328,7 +360,10 @@
             try { renderGauge(); } catch (e) {}
             try { renderChart(); } catch (e) {}
         }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    });
+    }
+
+    document.addEventListener('turbo:load', initDashboard);
+    window.addEventListener('turbo:page-ready', initDashboard);
     </script>
     @endpush
 </x-app-layout>
