@@ -119,7 +119,7 @@
         <div class="card sm:col-span-2">
             <div class="card-header">
                 Kontrol Penyemprotan
-                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs">Aksi dikirim ke perangkat</span>
+                <a href="{{ route('sprayer.control') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Detail</a>
             </div>
             <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
 
@@ -129,27 +129,35 @@
                          style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
                         {{ $device['mode'] }}
                     </div>
-                    <button class="btn-outline btn-sm" onclick="alert('Ganti mode (backend)')">
-                        Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
-                    </button>
+                    <form method="POST" action="{{ route('sprayer.mode.update') }}" class="inline">
+                        @csrf
+                        <input type="hidden" name="mode" value="{{ $device['mode'] === 'automatic' ? 'manual' : 'automatic' }}">
+                        <button type="submit" class="btn-outline btn-sm">
+                            Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}
+                        </button>
+                    </form>
                 </div>
 
                 <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
                     <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Pompa Sprayer</div>
-                    <button class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
-                            onclick="alert('Toggle sprayer (backend)')"
-                            aria-label="Toggle sprayer">
-                        @if($sensor['sprayer_status'] === 'on')
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <rect x="6" y="5" width="4" height="14" rx="1"/>
-                                <rect x="14" y="5" width="4" height="14" rx="1"/>
-                            </svg>
-                        @else
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                        @endif
-                    </button>
+                    <form method="POST" action="{{ route('sprayer.status.update') }}">
+                        @csrf
+                        <input type="hidden" name="status" value="{{ $sensor['sprayer_status'] === 'on' ? 'off' : 'on' }}">
+                        <button type="submit"
+                                class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
+                                aria-label="Toggle sprayer">
+                            @if($sensor['sprayer_status'] === 'on')
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                    <rect x="14" y="5" width="4" height="14" rx="1"/>
+                                </svg>
+                            @else
+                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            @endif
+                        </button>
+                    </form>
                     <div class="text-lg font-extrabold uppercase mt-3"
                          style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
                         {{ $sensor['sprayer_status'] }}
