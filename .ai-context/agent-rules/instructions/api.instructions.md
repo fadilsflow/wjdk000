@@ -13,7 +13,9 @@ API layer menangani komunikasi antara **perangkat IoT (ESP32)** dan website. End
 ### POST /api/sensor-readings
 ESP32 mengirim data sensor. Response berisi perintah untuk sprayer.
 
-**Fields wajib di request:** `api_key`, `temperature`, `air_humidity`, `soil_moisture`, `rain_status`, `sprayer_status`, `recorded_at`
+**Fields wajib di request (format canonical):** `api_key` atau header `X-Api-Key`, `temperature`, `air_humidity`, `soil_moisture`, `rain_status`, `sprayer_status`, `recorded_at`
+
+**Payload ESP32 aktual juga diterima:** `temperature`, `humidity`, `soilPercent`, `raining`, `pumpOn`, `soilRaw`, `rainRaw`, `simulationMode` dengan auth header `X-Api-Key`. Backend memetakan `humidity` → `air_humidity`, `soilPercent` → `soil_moisture`, `soilRaw` → `soil_raw`, `raining` → `rain_status`, `rainRaw` → `rain_raw`, `pumpOn` → `sprayer_status`, `simulationMode` → `simulation_mode`, dan mengisi `recorded_at` dari waktu server jika tidak dikirim.
 
 **Response wajib:** `success`, `condition_status`, `mode`, `sprayer_command`
 
@@ -25,7 +27,7 @@ ESP32 polling perintah terbaru. Auth via header `X-Api-Key`.
 ## Autentikasi IoT
 
 - Semua IoT endpoint wajib diproteksi via middleware `AuthenticateDevice`
-- Middleware mengecek `api_key` dari request body (POST) atau header `X-Api-Key` (GET)
+- Middleware mengecek `api_key` dari request body atau header `X-Api-Key`
 - Jika `api_key` tidak valid → return 401 dengan pesan error standar
 - `api_key` tidak boleh hardcoded — disimpan di tabel `devices`
 
@@ -37,8 +39,8 @@ ESP32 polling perintah terbaru. Auth via header `X-Api-Key`.
 
 - `rain_status` — enum, hanya `'rain'` atau `'no_rain'`
 - `sprayer_status` — enum, hanya `'on'` atau `'off'`
-- Nilai sensor numerik — validasi range yang masuk akal (misal temperature: -50 s.d. 100)
-- `recorded_at` — format datetime valid
+- Nilai sensor numerik — validasi range yang masuk akal (misal temperature: -50 s.d. 100; raw analog ESP32: 0 s.d. 4095)
+- `recorded_at` — format datetime valid; boleh kosong untuk ESP32 aktual dan akan diisi waktu server
 
 ## Response Format
 

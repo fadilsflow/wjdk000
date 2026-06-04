@@ -5,6 +5,9 @@
         $temperature = $sensor['temperature'];
         $airHumidity = $sensor['air_humidity'];
         $recordedAt = $sensor['recorded_at'] ?? null;
+        $soilRaw = $sensor['soil_raw'] ?? null;
+        $rainRaw = $sensor['rain_raw'] ?? null;
+        $isSimulation = (bool) ($sensor['simulation_mode'] ?? false);
         $minSoilMoisture = $thresholds['min_soil_moisture'] ?? null;
         $maxTemperature = $thresholds['max_temperature'] ?? null;
         $soilThresholdLabel = $minSoilMoisture !== null ? rtrim(rtrim(number_format((float) $minSoilMoisture, 1, '.', ''), '0'), '.') : '-';
@@ -12,6 +15,9 @@
         $soilValueLabel = $soilMoisture !== null ? rtrim(rtrim(number_format((float) $soilMoisture, 1, '.', ''), '0'), '.').'%' : '-';
         $temperatureLabel = $temperature !== null ? rtrim(rtrim(number_format((float) $temperature, 1, '.', ''), '0'), '.').'°C' : '-';
         $airHumidityLabel = $airHumidity !== null ? rtrim(rtrim(number_format((float) $airHumidity, 1, '.', ''), '0'), '.').'%' : '-';
+        $soilRawLabel = $soilRaw !== null ? (string) $soilRaw : '-';
+        $rainRawLabel = $rainRaw !== null ? (string) $rainRaw : '-';
+        $sourceModeLabel = $isSimulation ? 'Simulasi ESP32' : 'Hardware real';
         $pillClass = match($cs) {
             'kritis' => 'status-pill-kritis',
             'waspada' => 'status-pill-waspada',
@@ -43,6 +49,34 @@
                         {{ $soilMoisture === null ? 'Menunggu data sensor' : ($soilMoisture !== null && $minSoilMoisture !== null && $soilMoisture < $minSoilMoisture ? 'Tanah kering' : 'Tanah lembab') }}
                         · threshold min. {{ $soilThresholdLabel }}%
                     </div>
+                    <div class="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 text-[11px] font-bold text-[color:var(--color-text-muted)]">
+                        Raw ADC tanah: <span class="font-mono text-[color:var(--color-text)]">{{ $soilRawLabel }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ESP32 Raw Data --}}
+        <div class="card sm:col-span-2 xl:col-span-2">
+            <div class="card-header">
+                Data Perangkat ESP32
+                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs font-bold uppercase tracking-wider">Raw sensor</span>
+            </div>
+            <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Soil Raw</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $soilRawLabel }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
+                </div>
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Rain Raw</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
+                </div>
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Sumber Data</div>
+                    <div class="mt-2 text-lg font-black uppercase" style="color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};">{{ $sourceModeLabel }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">Dari payload ESP32</div>
                 </div>
             </div>
         </div>
@@ -238,6 +272,9 @@
                     </div>
                     <div class="text-2xl font-extrabold" style="color: var(--color-info)">Hujan</div>
                     <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis tidak dijalankan.</div>
+                    <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
+                        Rain raw: <span class="font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</span>
+                    </div>
                 @else
                     <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
                         <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-text-near)">
@@ -246,6 +283,9 @@
                     </div>
                     <div class="text-2xl font-extrabold text-[color:var(--color-text)]">Tidak Hujan</div>
                     <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis diizinkan bila tanah kering.</div>
+                    <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
+                        Rain raw: <span class="font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</span>
+                    </div>
                 @endif
             </div>
         </div>

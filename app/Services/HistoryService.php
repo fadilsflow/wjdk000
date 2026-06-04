@@ -41,8 +41,11 @@ final class HistoryService
                     'temp' => $reading->temperature,
                     'hum' => $reading->air_humidity,
                     'soil' => $reading->soil_moisture,
+                    'soil_raw' => $reading->soil_raw,
                     'rain' => $reading->rain_status,
+                    'rain_raw' => $reading->rain_raw,
                     'sprayer' => $reading->sprayer_status,
+                    'simulation_mode' => $reading->simulation_mode,
                     'condition' => $reading->condition_status,
                 ])
                 ->all(),

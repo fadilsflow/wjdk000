@@ -4,17 +4,17 @@ Website monitoring + kendali Smart Sprayer IoT untuk pengendalian hama kutu pada
 
 ## Tech Stack
 
-| Layer               | Teknologi                                     |
-|---------------------|-----------------------------------------------|
-| Framework           | Laravel 13 (PHP 8.2+)                         |
-| Database            | SQLite (default) / MySQL                      |
-| ORM                 | Eloquent ORM                                  |
-| Auth                | Laravel Breeze (session-based) + role middleware |
-| Frontend            | Blade + Alpine.js                             |
-| Styling             | Tailwind CSS v4 (via `@tailwindcss/vite`)     |
-| Charts              | Chart.js                                      |
-| Notifications       | WhatsApp Gateway/API (via HTTP client)        |
-| API                 | REST API                                      |
+| Layer         | Teknologi                                        |
+| ------------- | ------------------------------------------------ | --- |
+| Framework     | Laravel 13 (PHP 8.2+)                            |
+| Database      | SQLite (default) / MySQL                         |
+| ORM           | Eloquent ORM                                     |
+| Auth          | Laravel Breeze (session-based) + role middleware |
+| Frontend      | Blade + Alpine.js                                |
+| Styling       | Tailwind CSS v4 (via `@tailwindcss/vite`)        |
+| Charts        | Chart.js                                         | vel |
+| Notifications | WhatsApp Gateway/API (via HTTP client)           |
+| API           | REST API                                         |
 
 ## Quick Start
 
@@ -87,8 +87,8 @@ php artisan migrate
 
 ## User Role
 
-| Role   | Akses                                                   |
-|--------|----------------------------------------------------------|
+| Role   | Akses                                                    |
+| ------ | -------------------------------------------------------- |
 | Admin  | Semua fitur: manajemen user, konfigurasi alat, threshold |
 | Petani | Dashboard, riwayat, kontrol sprayer, notifikasi          |
 | Publik | Halaman ringkasan publik (tanpa login)                   |

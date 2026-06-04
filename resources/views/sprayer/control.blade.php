@@ -8,6 +8,9 @@
         };
         $isAuto = $device['mode'] === 'automatic';
         $on = $sensor['sprayer_status'] === 'on';
+        $soilRaw = $sensor['soil_raw'] ?? null;
+        $rainRaw = $sensor['rain_raw'] ?? null;
+        $isSimulation = (bool) ($sensor['simulation_mode'] ?? false);
     @endphp
 
     <x-slot name="subbar">
@@ -120,6 +123,30 @@
                     <p class="text-xs text-[color:var(--color-text-muted)] mt-6 max-w-md mx-auto leading-relaxed">
                         Pada mode <span class="font-bold">otomatis</span>, kontrol manual dikunci. Ubah ke mode manual untuk menyalakan atau mematikan sprayer dari web.
                     </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Data Raw ESP32
+                <span class="ml-auto text-xs text-[color:var(--color-text-muted)]">Debug sensor perangkat</span>
+            </div>
+            <div class="p-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Soil Raw</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $soilRaw ?? '-' }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC tanah 0–4095</div>
+                </div>
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Rain Raw</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $rainRaw ?? '-' }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC hujan 0–4095</div>
+                </div>
+                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Sumber Data</div>
+                    <div class="mt-2 text-lg font-black uppercase" style="color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};">{{ $isSimulation ? 'Simulasi' : 'Hardware real' }}</div>
+                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">Dikirim dari ESP32</div>
                 </div>
             </div>
         </div>

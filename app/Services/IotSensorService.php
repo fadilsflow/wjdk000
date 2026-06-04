@@ -46,8 +46,11 @@ final class IotSensorService
                 'temperature' => $data['temperature'],
                 'air_humidity' => $data['air_humidity'],
                 'soil_moisture' => $data['soil_moisture'],
+                'soil_raw' => $data['soil_raw'] ?? null,
                 'rain_status' => $data['rain_status'],
+                'rain_raw' => $data['rain_raw'] ?? null,
                 'sprayer_status' => $data['sprayer_status'],
+                'simulation_mode' => $data['simulation_mode'] ?? false,
                 'condition_status' => $evaluation['condition_status'],
                 'recorded_at' => $data['recorded_at'],
             ]);
@@ -150,8 +153,8 @@ final class IotSensorService
 
             $shouldSend = match ($notificationType) {
                 'critical_condition' => $previousCondition !== 'kritis',
-                'rain_detected'      => $previousRain !== 'rain',
-                default              => true,
+                'rain_detected' => $previousRain !== 'rain',
+                default => true,
             };
 
             if ($shouldSend) {

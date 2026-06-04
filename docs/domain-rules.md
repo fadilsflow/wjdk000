@@ -17,10 +17,11 @@ Perangkat IoT (ESP32) yang terdaftar di sistem. Setiap device punya `api_key` un
 
 ### SensorReading
 Data pembacaan sensor dari perangkat, disimpan setiap kali ESP32 mengirim data. **Immutable** — tidak boleh diedit/dihapus setelah tersimpan.
-- Sensor fields: `temperature`, `air_humidity`, `soil_moisture`, `rain_status`, `sprayer_status`
+- Sensor fields: `temperature`, `air_humidity`, `soil_moisture`, `soil_raw`, `rain_status`, `rain_raw`, `sprayer_status`, `simulation_mode`
+- Payload ESP32 aktual boleh memakai alias: `humidity`, `soilPercent`, `soilRaw`, `raining`, `rainRaw`, `pumpOn`, `simulationMode`; backend memetakan alias ke field domain di atas.
 - **rain_status:** `'rain'` | `'no_rain'`
 - **condition_status:** `'normal'` | `'waspada'` | `'kritis'` (dihitung saat data masuk)
-- **recorded_at:** waktu pembacaan di perangkat (bukan waktu server)
+- **recorded_at:** waktu pembacaan di perangkat; jika ESP32 tidak mengirim waktu, backend memakai waktu server
 
 ### ThresholdSetting
 Konfigurasi batas nilai sensor per device, diatur oleh Admin. Satu device = satu konfigurasi threshold.

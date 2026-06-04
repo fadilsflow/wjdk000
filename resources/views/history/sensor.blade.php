@@ -33,7 +33,10 @@
                             <th>Suhu</th>
                             <th>Kelemb. Udara</th>
                             <th>Kelemb. Tanah</th>
+                            <th>Raw Tanah</th>
                             <th>Hujan</th>
+                            <th>Raw Hujan</th>
+                            <th>Mode Data</th>
                             <th>Sprayer</th>
                             <th>Kondisi</th>
                         </tr>
@@ -45,9 +48,16 @@
                                 <td>{{ $r['temp'] }}°C</td>
                                 <td>{{ $r['hum'] }}%</td>
                                 <td>{{ $r['soil'] }}%</td>
+                                <td class="font-mono text-xs">{{ $r['soil_raw'] ?? '-' }}</td>
                                 <td>
                                     <span class="badge {{ $r['rain'] === 'rain' ? 'badge-off' : 'badge-on' }}">
                                         {{ $r['rain'] === 'rain' ? 'Hujan' : 'Tdk Hujan' }}
+                                    </span>
+                                </td>
+                                <td class="font-mono text-xs">{{ $r['rain_raw'] ?? '-' }}</td>
+                                <td>
+                                    <span class="badge {{ $r['simulation_mode'] ? 'badge-waspada' : 'badge-on' }}">
+                                        {{ $r['simulation_mode'] ? 'Simulasi' : 'Real' }}
                                     </span>
                                 </td>
                                 <td>
@@ -63,7 +73,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
+                                <td colspan="10" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
                                     Belum ada data riwayat sensor.
                                 </td>
                             </tr>

@@ -25,6 +25,9 @@
     @php
         $cs = $sensor['condition_status'] ?? 'normal';
         $recordedAt = $sensor['recorded_at'] ?? null;
+        $soilRaw = $sensor['soil_raw'] ?? null;
+        $rainRaw = $sensor['rain_raw'] ?? null;
+        $isSimulation = (bool) ($sensor['simulation_mode'] ?? false);
         $formattedRecordedAt = $recordedAt !== null ? \Carbon\Carbon::parse($recordedAt)->format('d M Y H:i') : 'Menunggu data';
         $pillClass = match($cs) {
             'kritis'  => 'status-pill-kritis',
@@ -169,15 +172,22 @@
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
                     {{ $sensor['soil_moisture'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['soil_moisture'] !== null ? '%' : '' }}</span>
                 </div>
-                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Soil moisture</div>
+                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Soil moisture · raw {{ $soilRaw ?? '-' }}</div>
             </div>
             <div class="card p-5">
                 <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Hujan</div>
                 <div class="mt-2 text-2xl font-black" style="color: var(--color-info);">
                     {{ ($sensor['rain_status'] ?? '') === 'rain' ? 'Hujan' : 'Cerah' }}
                 </div>
-                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor hujan</div>
+                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor hujan · raw {{ $rainRaw ?? '-' }}</div>
             </div>
+        </div>
+
+        <div class="mt-4 card p-4 flex flex-wrap items-center justify-center gap-3 text-xs text-[color:var(--color-text-muted)]">
+            <span class="font-bold uppercase tracking-widest">Status ESP32</span>
+            <span class="rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 font-mono">Soil raw: {{ $soilRaw ?? '-' }}</span>
+            <span class="rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 font-mono">Rain raw: {{ $rainRaw ?? '-' }}</span>
+            <span class="rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 font-bold">{{ $isSimulation ? 'Simulasi' : 'Hardware real' }}</span>
         </div>
 
         <p class="mt-6 text-xs text-[color:var(--color-text-muted)]">

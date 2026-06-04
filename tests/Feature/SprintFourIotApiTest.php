@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Device;
-use App\Models\SensorReading;
 use App\Models\ThresholdSetting;
 use Illuminate\Support\Facades\Config;
 use Tests\Concerns\UsesMysqlTestDatabase;
@@ -78,6 +77,41 @@ final class SprintFourIotApiTest extends TestCase
         $this->assertDatabaseHas('notification_logs', [
             'device_id' => $device->id,
             'type' => 'critical_condition',
+        ]);
+    }
+
+    public function test_sensor_endpoint_accepts_actual_esp32_payload_aliases(): void
+    {
+        $device = $this->makeDeviceWithThreshold(mode: 'automatic', sprayerStatus: 'off');
+
+        $response = $this->postJson('/api/sensor-readings', [
+            'temperature' => 29.4,
+            'humidity' => 72.5,
+            'soilPercent' => 33,
+            'raining' => false,
+            'pumpOn' => false,
+            'soilRaw' => 2450,
+            'rainRaw' => 3500,
+            'simulationMode' => false,
+        ], [
+            'X-Api-Key' => $device->getAttributes()['api_key'],
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('condition_status', 'kritis')
+            ->assertJsonPath('sprayer_command', 'on');
+
+        $this->assertDatabaseHas('sensor_readings', [
+            'device_id' => $device->id,
+            'air_humidity' => 72.50,
+            'soil_moisture' => 33.00,
+            'soil_raw' => 2450,
+            'rain_status' => 'no_rain',
+            'rain_raw' => 3500,
+            'sprayer_status' => 'off',
+            'simulation_mode' => false,
+            'condition_status' => 'kritis',
         ]);
     }
 

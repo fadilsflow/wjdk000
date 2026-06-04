@@ -11,7 +11,28 @@
             showCreate: false,
             showEdit: false,
             editDevice: { id: null, name: '', location: '' },
-            openEdit(device) { this.editDevice = { ...device }; this.showEdit = true; }
+            openEdit(device) { this.editDevice = { ...device }; this.showEdit = true; },
+            async copyApiKey(apiKey) {
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(apiKey);
+                    } else {
+                        const textarea = document.createElement('textarea');
+                        textarea.value = apiKey;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.focus();
+                        textarea.select();
+                        document.execCommand('copy');
+                        textarea.remove();
+                    }
+
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { msg: 'API key perangkat berhasil disalin.', type: 'success' } }));
+                } catch (error) {
+                    window.dispatchEvent(new CustomEvent('toast', { detail: { msg: 'Gagal menyalin API key.', type: 'error' } }));
+                }
+            }
         }"
         @keydown.escape.window="showCreate = false; showEdit = false"
     >
@@ -41,7 +62,17 @@
                             <tr>
                                 <td class="font-semibold">{{ $d['name'] }}</td>
                                 <td class="text-xs text-[color:var(--color-text-muted)]">{{ $d['location'] }}</td>
-                                <td class="text-xs font-mono text-[color:var(--color-text-muted)]">{{ substr($d['api_key'], 0, 8) }}…</td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono text-[color:var(--color-text-muted)]">{{ substr($d['api_key'], 0, 8) }}…</span>
+                                        <button
+                                            type="button"
+                                            class="btn-outline btn-sm !px-2 !py-1 text-[11px]"
+                                            title="Salin API key lengkap"
+                                            @click="copyApiKey({{ Js::from($d['api_key']) }})"
+                                        >Copy</button>
+                                    </div>
+                                </td>
                                 <td>
                                     <span class="badge badge-{{ $d['mode'] === 'automatic' ? 'automatic' : 'manual' }}">
                                         {{ ucfirst($d['mode']) }}
