@@ -138,6 +138,7 @@ Trigger: Normal, Waspada, Kritis, Hujan, Random Data, Loop.
 - `docs/architecture.md` — arsitektur & folder convention
 - `docs/domain-rules.md` — business rules & entities
 - `docs/operations.md` — deployment & ops
+- `docs/flash-esp32-laravel.md` — tutorial flash ESP32 & server Laravel
 
 ## Catatan
 

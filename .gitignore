@@ -33,6 +33,7 @@ skills-lock.json
 logs/
 .agents/
 .antigravitycli/
+/iot/.pio/
 # Compiled files
 /bootstrap/cache/*
 !/bootstrap/cache/.gitkeep

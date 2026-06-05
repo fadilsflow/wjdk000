@@ -30,7 +30,7 @@
             <div class="text-2xl font-extrabold leading-tight">Dashboard</div>
             <div class="text-[color:var(--color-text-muted)] text-sm">{{ $device['name'] }} — Monitoring kondisi real-time</div>
         </div>
-        <span class="ml-auto status-pill {{ $pillClass }}">{{ $cs }}</span>
+        <span class="ml-auto status-pill {{ $pillClass }}" data-realtime="condition-pill">{{ $cs }}</span>
     </x-slot>
 
     <div class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -50,7 +50,7 @@
                         · threshold min. {{ $soilThresholdLabel }}%
                     </div>
                     <div class="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 text-[11px] font-bold text-[color:var(--color-text-muted)]">
-                        Raw ADC tanah: <span class="font-mono text-[color:var(--color-text)]">{{ $soilRawLabel }}</span>
+                        Raw ADC tanah: <span class="font-mono text-[color:var(--color-text)]" data-realtime="soil-raw">{{ $soilRawLabel }}</span>
                     </div>
                 </div>
             </div>
@@ -65,17 +65,17 @@
             <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
                     <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Soil Raw</div>
-                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $soilRawLabel }}</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]" data-realtime="soil-raw">{{ $soilRawLabel }}</div>
                     <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
                 </div>
                 <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
                     <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Rain Raw</div>
-                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</div>
+                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</div>
                     <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
                 </div>
                 <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
                     <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Sumber Data</div>
-                    <div class="mt-2 text-lg font-black uppercase" style="color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};">{{ $sourceModeLabel }}</div>
+                    <div class="mt-2 text-lg font-black uppercase" style="color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};" data-realtime="source-mode">{{ $sourceModeLabel }}</div>
                     <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">Dari payload ESP32</div>
                 </div>
             </div>
@@ -89,7 +89,8 @@
                      style="background: {{ $cs === 'kritis' ? 'rgba(243,114,127,0.12)' : ($cs === 'waspada' ? 'rgba(255,164,43,0.12)' : 'rgba(30,215,96,0.12)') }};">
                     <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Saat ini</div>
                     <div class="text-4xl font-black mt-2 uppercase"
-                         style="color: {{ $cs === 'kritis' ? 'var(--color-negative)' : ($cs === 'waspada' ? 'var(--color-warning)' : 'var(--color-brand)') }};">
+                         style="color: {{ $cs === 'kritis' ? 'var(--color-negative)' : ($cs === 'waspada' ? 'var(--color-warning)' : 'var(--color-brand)') }};"
+                         data-realtime="condition-status">
                         {{ $cs }}
                     </div>
                 </div>
@@ -97,7 +98,7 @@
                 <div class="grid grid-cols-2 gap-3 mt-3">
                     <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
                         <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Mode</div>
-                        <div class="text-base font-extrabold text-[color:var(--color-text)] uppercase mt-1">
+                        <div class="text-base font-extrabold text-[color:var(--color-text)] uppercase mt-1" data-realtime="device-mode">
                             {{ $device['mode'] }}
                         </div>
                     </div>
@@ -105,7 +106,8 @@
                     <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
                         <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sprayer</div>
                         <div class="text-base font-extrabold uppercase mt-1"
-                             style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-border-light)' }};">
+                             style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-border-light)' }};"
+                             data-realtime="sprayer-status">
                             {{ $sensor['sprayer_status'] }}
                         </div>
                     </div>
@@ -119,7 +121,8 @@
             <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
                 <div class="text-5xl font-extrabold mt-2"
-                     style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};">
+                     style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};"
+                     data-realtime="temperature">
                     {{ $temperatureLabel }}
                 </div>
                 <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Max threshold: {{ $temperatureThresholdLabel }}°C</div>
@@ -131,7 +134,7 @@
             <div class="card-header shrink-0">Kelembapan Udara</div>
             <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
                 <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
-                <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]">
+                <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]" data-realtime="air-humidity">
                     {{ $airHumidityLabel }}
                 </div>
                 <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Normal untuk monitoring</div>
@@ -160,7 +163,8 @@
                 <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
                     <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Mode</div>
                     <div class="text-lg font-extrabold uppercase mb-3"
-                         style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
+                         style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
+                         data-realtime="device-mode">
                         {{ $device['mode'] }}
                     </div>
                     <form method="POST" action="{{ route('sprayer.mode.update') }}" class="inline" x-data="{ loading: false }" @submit="loading = true">
@@ -217,7 +221,8 @@
                         </form>
                     @endif
                     <div class="text-lg font-extrabold uppercase mt-3"
-                         style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};">
+                         style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
+                         data-realtime="sprayer-status">
                         {{ $sensor['sprayer_status'] }}
                     </div>
                 </div>
@@ -270,10 +275,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5zM8 19l-1 3M12 19l-1 3M16 19l-1 3"/>
                         </svg>
                     </div>
-                    <div class="text-2xl font-extrabold" style="color: var(--color-info)">Hujan</div>
-                    <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis tidak dijalankan.</div>
+                    <div class="text-2xl font-extrabold" style="color: var(--color-info)" data-realtime="rain-title">Hujan</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs" data-realtime="rain-description">Penyemprotan otomatis tidak dijalankan.</div>
                     <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
-                        Rain raw: <span class="font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</span>
+                        Rain raw: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span>
                     </div>
                 @else
                     <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
@@ -281,10 +286,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5z"/>
                         </svg>
                     </div>
-                    <div class="text-2xl font-extrabold text-[color:var(--color-text)]">Tidak Hujan</div>
-                    <div class="text-[color:var(--color-text-muted)] text-xs">Penyemprotan otomatis diizinkan bila tanah kering.</div>
+                    <div class="text-2xl font-extrabold text-[color:var(--color-text)]" data-realtime="rain-title">Tidak Hujan</div>
+                    <div class="text-[color:var(--color-text-muted)] text-xs" data-realtime="rain-description">Penyemprotan otomatis diizinkan bila tanah kering.</div>
                     <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
-                        Rain raw: <span class="font-mono text-[color:var(--color-text)]">{{ $rainRawLabel }}</span>
+                        Rain raw: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span>
                     </div>
                 @endif
             </div>
@@ -301,7 +306,7 @@
                 </div>
                 <div class="text-2xl font-extrabold" style="color: var(--color-brand)">Aktif</div>
                 <div class="text-[color:var(--color-text-muted)] text-xs">
-                    {{ $recordedAt !== null ? 'Update sensor terakhir '.$recordedAt.'.' : 'Menunggu data sensor pertama masuk.' }}
+                    <span data-realtime="last-update">{{ $recordedAt !== null ? 'Update sensor terakhir '.$recordedAt.'.' : 'Menunggu data sensor pertama masuk.' }}</span>
                 </div>
             </div>
         </div>
@@ -314,7 +319,12 @@
     window.smartSprayerDashboardState = window.smartSprayerDashboardState ?? {
         chartInstance: null,
         themeObserver: null,
+        pollingInterval: null,
         listenersBound: false,
+        sensor: @json($sensor),
+        thresholds: @json($thresholds),
+        chart: @json($chart),
+        latestEndpoint: @json(route('dashboard.latest')),
     };
 
     function cleanupDashboard() {
@@ -329,19 +339,34 @@
             state.themeObserver.disconnect();
             state.themeObserver = null;
         }
+
+        if (state.pollingInterval) {
+            clearInterval(state.pollingInterval);
+            state.pollingInterval = null;
+        }
     }
 
     function initDashboard() {
         const state = window.smartSprayerDashboardState;
+        state.sensor = state.sensor ?? @json($sensor);
+        state.thresholds = state.thresholds ?? @json($thresholds);
+        state.chart = state.chart ?? @json($chart);
+
         const themeColor = (name, fallback) =>
             (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback);
+        const formatNumber = (value, suffix = '') => {
+            if (value === null || value === undefined || value === '') return '-';
+            const number = Number(value);
+            return Number.isInteger(number) ? `${number}${suffix}` : `${number.toFixed(1).replace(/\.0$/, '')}${suffix}`;
+        };
+        const setText = (selector, value) => document.querySelectorAll(selector).forEach((el) => { el.textContent = value; });
 
         function renderGauge() {
             const gaugeCanvas = document.getElementById('soilGauge');
             if (!gaugeCanvas) return;
             const ctx = gaugeCanvas.getContext('2d');
-            const sm = {{ (float) ($soilMoisture ?? 0) }};
-            const soilThreshold = {{ (float) ($minSoilMoisture ?? 0) }};
+            const sm = Number(state.sensor?.soil_moisture ?? 0);
+            const soilThreshold = Number(state.thresholds?.min_soil_moisture ?? 0);
             const angle = (sm / 100) * 180;
             const w = gaugeCanvas.width;
             const h = gaugeCanvas.height;
@@ -379,16 +404,17 @@
             state.chartInstance = new Chart(chartCanvas, {
                 type: 'line',
                 data: {
-                    labels: @json($chart['labels']),
+                    labels: state.chart?.labels ?? [],
                     datasets: [
-                        { label: 'Suhu (°C)', data: @json($chart['temperature']), borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Udara (%)', data: @json($chart['air_humidity']), borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Tanah (%)', data: @json($chart['soil_moisture']), borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Suhu (°C)', data: state.chart?.temperature ?? [], borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Udara (%)', data: state.chart?.air_humidity ?? [], borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
+                        { label: 'Kelemb. Tanah (%)', data: state.chart?.soil_moisture ?? [], borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                     ],
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    animation: false,
                     plugins: {
                         legend: {
                             labels: {
@@ -413,8 +439,60 @@
             });
         }
 
+        function updateChart() {
+            if (!state.chartInstance) return;
+            state.chartInstance.data.labels = state.chart?.labels ?? [];
+            state.chartInstance.data.datasets[0].data = state.chart?.temperature ?? [];
+            state.chartInstance.data.datasets[1].data = state.chart?.air_humidity ?? [];
+            state.chartInstance.data.datasets[2].data = state.chart?.soil_moisture ?? [];
+            state.chartInstance.update('none');
+        }
+
+        function updateRealtimeView(payload) {
+            state.sensor = payload.sensor ?? state.sensor;
+            state.thresholds = payload.thresholds ?? state.thresholds;
+            state.chart = payload.chart ?? state.chart;
+
+            const sensor = state.sensor ?? {};
+            const device = payload.device ?? {};
+            const rainStatus = sensor.rain_status === 'rain';
+            const sourceMode = sensor.simulation_mode ? 'Simulasi ESP32' : 'Hardware real';
+
+            setText('#soilValue', formatNumber(sensor.soil_moisture, '%'));
+            setText('[data-realtime="soil-raw"]', sensor.soil_raw ?? '-');
+            setText('[data-realtime="rain-raw"]', sensor.rain_raw ?? '-');
+            setText('[data-realtime="source-mode"]', sourceMode);
+            setText('[data-realtime="condition-status"]', (sensor.condition_status ?? 'normal').toUpperCase());
+            setText('[data-realtime="condition-pill"]', sensor.condition_status ?? 'normal');
+            setText('[data-realtime="device-mode"]', device.mode ?? '-');
+            setText('[data-realtime="sprayer-status"]', sensor.sprayer_status ?? '-');
+            setText('[data-realtime="temperature"]', formatNumber(sensor.temperature, '°C'));
+            setText('[data-realtime="air-humidity"]', formatNumber(sensor.air_humidity, '%'));
+            setText('[data-realtime="rain-title"]', rainStatus ? 'Hujan' : 'Tidak Hujan');
+            setText('[data-realtime="rain-description"]', rainStatus ? 'Penyemprotan otomatis tidak dijalankan.' : 'Penyemprotan otomatis diizinkan bila tanah kering.');
+            setText('[data-realtime="last-update"]', sensor.recorded_at ? `Update sensor terakhir ${sensor.recorded_at}.` : 'Menunggu data sensor pertama masuk.');
+
+            renderGauge();
+            updateChart();
+        }
+
+        function pollLatestData() {
+            fetch(state.latestEndpoint, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            })
+                .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
+                .then(updateRealtimeView)
+                .catch((error) => console.warn('Realtime dashboard polling failed:', error.message));
+        }
+
         try { renderGauge(); } catch (e) { console.warn('Gauge render skipped:', e.message); }
         try { renderChart(); } catch (e) { console.warn('Chart render skipped:', e.message); }
+
+        if (!state.pollingInterval) {
+            state.pollingInterval = setInterval(pollLatestData, 2000);
+            pollLatestData();
+        }
 
         // Re-render canvases when the theme class on <html> changes.
         state.themeObserver?.disconnect();
@@ -430,6 +508,12 @@
         window.addEventListener('turbo:page-ready', initDashboard);
         document.addEventListener('turbo:before-cache', cleanupDashboard);
         window.smartSprayerDashboardState.listenersBound = true;
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDashboard, { once: true });
+    } else {
+        initDashboard();
     }
     </script>
     @endpush

@@ -32,11 +32,11 @@ const char *AP_PASSWORD = "12345678"; // Minimum 8 characters
 // =====================================================
 const char *STA_SSID = "iPhone 15 Pro Max";
 const char *STA_PASSWORD = "digimon123";
-const char *BACKEND_SENSOR_URL = "http://192.168.1.10:8000/api/sensor-readings";
+const char *BACKEND_SENSOR_URL = "http://192.168.1.8:8000/api/sensor-readings";
 const char *DEVICE_API_KEY = "HtfEoED9PhayKSg46lydZxa2QAkUfTas";
 
 bool backendControlMode = true;
-const unsigned long BACKEND_SYNC_INTERVAL_MS = 10000;
+const unsigned long BACKEND_SYNC_INTERVAL_MS = 2000;
 
 // =====================================================
 // CONFIGURABLE PARAMETERS
@@ -687,25 +687,28 @@ String htmlPage()
   </main>
 
 <script>
-async function refreshStatus() {
-  const response = await fetch('/status');
-  const data = await response.json();
+var refreshStatus = function() {
+  fetch('/status')
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+      document.getElementById('mode').textContent = data.simulationMode ? 'SIMULATION' : 'REAL HARDWARE';
+      document.getElementById('pump').textContent = data.pumpOn ? 'ON' : 'OFF';
+      document.getElementById('soil').textContent = data.soilPercent + '% (raw ' + data.soilRaw + ')';
+      document.getElementById('rain').textContent = data.raining ? 'YES (raw ' + data.rainRaw + ')' : 'NO (raw ' + data.rainRaw + ')';
+      document.getElementById('temperature').textContent = data.temperature + ' °C';
+      document.getElementById('humidity').textContent = data.humidity + ' %';
+    });
+};
 
-  document.getElementById('mode').textContent = data.simulationMode ? 'SIMULATION' : 'REAL HARDWARE';
-  document.getElementById('pump').textContent = data.pumpOn ? 'ON' : 'OFF';
-  document.getElementById('soil').textContent = data.soilPercent + '% (raw ' + data.soilRaw + ')';
-  document.getElementById('rain').textContent = data.raining ? 'YES (raw ' + data.rainRaw + ')' : 'NO (raw ' + data.rainRaw + ')';
-  document.getElementById('temperature').textContent = data.temperature + ' °C';
-  document.getElementById('humidity').textContent = data.humidity + ' %';
-}
-
-async function refreshLogs() {
-  const response = await fetch('/logs');
-  const text = await response.text();
-  const box = document.getElementById('logs');
-  box.textContent = text;
-  box.scrollTop = box.scrollHeight;
-}
+var refreshLogs = function() {
+  fetch('/logs')
+    .then(function(response) { return response.text(); })
+    .then(function(text) {
+      const box = document.getElementById('logs');
+      box.textContent = text;
+      box.scrollTop = box.scrollHeight;
+    });
+};
 
 setInterval(refreshStatus, 2000);
 setInterval(refreshLogs, 1000);
