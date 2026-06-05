@@ -139,6 +139,7 @@ Trigger: Normal, Waspada, Kritis, Hujan, Random Data, Loop.
 - `docs/domain-rules.md` — business rules & entities
 - `docs/operations.md` — deployment & ops
 - `docs/flash-esp32-laravel.md` — tutorial flash ESP32 & server Laravel
+- `docs/flash-tutorial.md` — tutorial flash ESP32 dari laptop lain
 
 ## Catatan
 
