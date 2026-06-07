@@ -272,7 +272,7 @@ $isAdminRoute = request()->routeIs('admin.*');
         x-data="{
             toasts: [],
             add(msg, type) {
-                const id = Date.now();
+                const id = Date.now() + Math.random();
                 this.toasts.push({ id, msg, type, visible: false });
                 this.$nextTick(() => {
                     const t = this.toasts.find(t => t.id === id);
@@ -286,14 +286,6 @@ $isAdminRoute = request()->routeIs('admin.*');
                 setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 400);
             }
         }"
-        x-init="
-            @if($flashData)
-                add('{{ $flashData['msg'] }}', '{{ $flashData['type'] }}');
-            @endif
-            @if($errors->any())
-                add('{{ $errors->first() }}', 'error');
-            @endif
-        "
         @toast.window="add($event.detail.msg, $event.detail.type ?? 'success')"
         class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2 pointer-events-none"
     >
@@ -318,6 +310,31 @@ $isAdminRoute = request()->routeIs('admin.*');
             </div>
         </template>
     </div>
+
+    {{-- Fire flash toasts on every (Turbo) page load. x-init alone tidak jalan ulang saat navigasi Turbo. --}}
+    @php
+        $flashToast = $flashData ? ['msg' => $flashData['msg'], 'type' => $flashData['type']] : null;
+        $errorToast = $errors->any() ? ['msg' => $errors->first(), 'type' => 'error'] : null;
+    @endphp
+    <script>
+        (function () {
+            const queued = [
+                @if($flashToast) { msg: @json($flashToast['msg']), type: @json($flashToast['type']) }, @endif
+                @if($errorToast) { msg: @json($errorToast['msg']), type: @json($errorToast['type']) }, @endif
+            ];
+            function fireFlashToasts() {
+                queued.forEach((t) => window.dispatchEvent(new CustomEvent('toast', { detail: t })));
+            }
+            if (queued.length) {
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', fireFlashToasts, { once: true });
+                } else {
+                    // Beri Alpine satu tick untuk memasang listener @toast.window.
+                    requestAnimationFrame(fireFlashToasts);
+                }
+            }
+        })();
+    </script>
 
     @stack('scripts')
 </body>

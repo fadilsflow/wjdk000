@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Sprayer\UpdateSprayerModeRequest;
 use App\Http\Requests\Sprayer\UpdateSprayerStatusRequest;
 use App\Services\SprayerControlService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -21,6 +22,11 @@ final class SprayerController extends Controller
         return view('sprayer.control', $this->sprayerControlService->getControlPageData());
     }
 
+    public function latest(): JsonResponse
+    {
+        return response()->json($this->sprayerControlService->getControlPageData());
+    }
+
     public function updateMode(UpdateSprayerModeRequest $request): RedirectResponse
     {
         $this->sprayerControlService->updateMode(
@@ -28,9 +34,7 @@ final class SprayerController extends Controller
             (int) $request->user()->id,
         );
 
-        return redirect()
-            ->route('sprayer.control')
-            ->with('status', 'sprayer-mode-updated');
+        return back(fallback: route('sprayer.control'))->with('status', 'sprayer-mode-updated');
     }
 
     public function updateStatus(UpdateSprayerStatusRequest $request): RedirectResponse
@@ -40,8 +44,6 @@ final class SprayerController extends Controller
             (int) $request->user()->id,
         );
 
-        return redirect()
-            ->route('sprayer.control')
-            ->with('status', 'sprayer-status-updated');
+        return back(fallback: route('sprayer.control'))->with('status', 'sprayer-status-updated');
     }
 }

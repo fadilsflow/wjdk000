@@ -89,7 +89,9 @@ final class IotSensorService
         if ($data['rain_status'] === 'rain') {
             return [
                 'condition_status' => 'normal',
-                'sprayer_command' => 'off',
+                // Rule 2 (rain blocks automatic spray) hanya berlaku untuk mode otomatis.
+                // Rule 4: pada mode manual status sprayer hanya berubah lewat aksi user.
+                'sprayer_command' => $device->mode === 'automatic' ? 'off' : $device->sprayer_status,
                 'reason' => 'Hujan terdeteksi',
                 'notification_type' => 'rain_detected',
             ];
@@ -153,7 +155,8 @@ final class IotSensorService
 
             $shouldSend = match ($notificationType) {
                 'critical_condition' => $previousCondition !== 'kritis',
-                'rain_detected' => $previousRain !== 'rain',
+                // Rule 6: notifikasi hujan hanya pada mode otomatis.
+                'rain_detected' => $device->mode === 'automatic' && $previousRain !== 'rain',
                 default => true,
             };
 

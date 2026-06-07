@@ -41,6 +41,9 @@ final class SprayerControlService
                 'sprayer_status' => $device->sprayer_status,
             ],
             'sensor' => $this->buildSensorSummary($device, $latestReading),
+            'thresholds' => [
+                'min_soil_moisture' => $device->thresholdSetting?->min_soil_moisture,
+            ],
             'logs' => $this->buildRecentLogs($device),
         ];
     }
@@ -140,6 +143,9 @@ final class SprayerControlService
                 'simulation_mode' => false,
                 'condition_status' => 'normal',
                 'recorded_at' => null,
+            ],
+            'thresholds' => [
+                'min_soil_moisture' => null,
             ],
             'logs' => [],
         ];

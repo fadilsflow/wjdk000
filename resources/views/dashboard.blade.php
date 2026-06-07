@@ -18,6 +18,9 @@
         $soilRawLabel = $soilRaw !== null ? (string) $soilRaw : '-';
         $rainRawLabel = $rainRaw !== null ? (string) $rainRaw : '-';
         $sourceModeLabel = $isSimulation ? 'Simulasi ESP32' : 'Hardware real';
+        $soilConditionLabel = $soilMoisture === null
+            ? 'Menunggu data'
+            : ($minSoilMoisture !== null && $soilMoisture < $minSoilMoisture ? 'Kering' : 'Cukup Lembab');
         $pillClass = match($cs) {
             'kritis' => 'status-pill-kritis',
             'waspada' => 'status-pill-waspada',
@@ -30,208 +33,219 @@
             <div class="text-2xl font-extrabold leading-tight">Dashboard</div>
             <div class="text-[color:var(--color-text-muted)] text-sm">{{ $device['name'] }} — Monitoring kondisi real-time</div>
         </div>
-        <span class="ml-auto status-pill {{ $pillClass }}" data-realtime="condition-pill">{{ $cs }}</span>
+        <div class="ml-auto flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider"
+                  style="background: {{ $isSimulation ? 'rgba(255,164,43,0.14)' : 'rgba(30,215,96,0.14)' }}; color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};"
+                  data-realtime="source-mode">{{ $sourceModeLabel }}</span>
+            <span class="status-pill {{ $pillClass }}" data-realtime="condition-pill">{{ $cs }}</span>
+        </div>
     </x-slot>
 
-    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="p-4 space-y-3">
 
-        {{-- 1. Soil Moisture Gauge --}}
-        <div class="card">
-            <div class="card-header">Kelembapan Tanah</div>
-            <div class="p-4 flex flex-col items-center justify-center min-h-[260px] text-center">
-                <canvas id="soilGauge" width="150" height="150" class="mx-auto"></canvas>
+        {{-- ROW 1: Key metric tiles --}}
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
 
-                <div class="text-center text-sm mt-2">
-                    <div class="text-3xl font-extrabold text-[color:var(--color-text)]" id="soilValue">
-                        {{ $soilValueLabel }}
+            {{-- Status Kondisi --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Status Kondisi</div>
+                <div class="p-3 flex-1 flex flex-col justify-center gap-2">
+                    <div class="rounded-lg py-3 text-center"
+                         style="background: {{ $cs === 'kritis' ? 'rgba(243,114,127,0.12)' : ($cs === 'waspada' ? 'rgba(255,164,43,0.12)' : 'rgba(30,215,96,0.12)') }};">
+                        <div class="text-3xl font-black uppercase leading-none"
+                             style="color: {{ $cs === 'kritis' ? 'var(--color-negative)' : ($cs === 'waspada' ? 'var(--color-warning)' : 'var(--color-brand)') }};"
+                             data-realtime="condition-status">
+                            {{ $cs }}
+                            </div>
                     </div>
-                    <div class="text-[color:var(--color-text-muted)] text-xs mt-1">
-                        {{ $soilMoisture === null ? 'Menunggu data sensor' : ($soilMoisture !== null && $minSoilMoisture !== null && $soilMoisture < $minSoilMoisture ? 'Tanah kering' : 'Tanah lembab') }}
-                        · threshold min. {{ $soilThresholdLabel }}%
-                    </div>
-                    <div class="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 text-[11px] font-bold text-[color:var(--color-text-muted)]">
-                        Raw ADC tanah: <span class="font-mono text-[color:var(--color-text)]" data-realtime="soil-raw">{{ $soilRawLabel }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ESP32 Raw Data --}}
-        <div class="card sm:col-span-2 xl:col-span-2">
-            <div class="card-header">
-                Data Perangkat ESP32
-                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs font-bold uppercase tracking-wider">Raw sensor</span>
-            </div>
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
-                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Soil Raw</div>
-                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]" data-realtime="soil-raw">{{ $soilRawLabel }}</div>
-                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
-                </div>
-                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
-                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Rain Raw</div>
-                    <div class="mt-2 text-2xl font-black font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</div>
-                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">ADC 0–4095</div>
-                </div>
-                <div class="rounded-xl bg-[color:var(--color-bg-elevated)] p-4">
-                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Sumber Data</div>
-                    <div class="mt-2 text-lg font-black uppercase" style="color: {{ $isSimulation ? 'var(--color-warning)' : 'var(--color-brand)' }};" data-realtime="source-mode">{{ $sourceModeLabel }}</div>
-                    <div class="mt-1 text-xs text-[color:var(--color-text-muted)]">Dari payload ESP32</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- 2. Condition Status --}}
-        <div class="card">
-            <div class="card-header">Status Kondisi</div>
-            <div class="p-4 flex flex-col justify-center min-h-[260px]">
-                <div class="rounded-xl p-5 text-center"
-                     style="background: {{ $cs === 'kritis' ? 'rgba(243,114,127,0.12)' : ($cs === 'waspada' ? 'rgba(255,164,43,0.12)' : 'rgba(30,215,96,0.12)') }};">
-                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Saat ini</div>
-                    <div class="text-4xl font-black mt-2 uppercase"
-                         style="color: {{ $cs === 'kritis' ? 'var(--color-negative)' : ($cs === 'waspada' ? 'var(--color-warning)' : 'var(--color-brand)') }};"
-                         data-realtime="condition-status">
-                        {{ $cs }}
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 mt-3">
-                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
-                        <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Mode</div>
-                        <div class="text-base font-extrabold text-[color:var(--color-text)] uppercase mt-1" data-realtime="device-mode">
-                            {{ $device['mode'] }}
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-[color:var(--color-bg-elevated)] rounded-lg px-2 py-2 text-center">
+                            <div class="text-[10px] uppercase tracking-wider font-bold text-[color:var(--color-text-muted)]">Mode</div>
+                            <div class="text-sm font-extrabold uppercase mt-0.5 text-[color:var(--color-text)]" data-realtime="device-mode">{{ $device['mode'] }}</div>
                         </div>
-                    </div>
-
-                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-3 text-center">
-                        <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sprayer</div>
-                        <div class="text-base font-extrabold uppercase mt-1"
-                             style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-border-light)' }};"
-                             data-realtime="sprayer-status">
-                            {{ $sensor['sprayer_status'] }}
+                        <div class="bg-[color:var(--color-bg-elevated)] rounded-lg px-2 py-2 text-center">
+                            <div class="text-[10px] uppercase tracking-wider font-bold text-[color:var(--color-text-muted)]">Sprayer</div>
+                            <div class="text-sm font-extrabold uppercase mt-0.5"
+                                 style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-border-light)' }};"
+                                 data-realtime="sprayer-status">{{ $sensor['sprayer_status'] }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        {{-- 3. Temperature --}}
-        <div class="card flex flex-col">
-            <div class="card-header shrink-0">Suhu Udara</div>
-            <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
-                <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
-                <div class="text-5xl font-extrabold mt-2"
-                     style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};"
-                     data-realtime="temperature">
-                    {{ $temperatureLabel }}
-                </div>
-                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Max threshold: {{ $temperatureThresholdLabel }}°C</div>
-            </div>
-        </div>
-
-        {{-- 4. Humidity --}}
-        <div class="card flex flex-col">
-            <div class="card-header shrink-0">Kelembapan Udara</div>
-            <div class="p-4 flex flex-col items-center justify-center flex-1 text-center">
-                <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold">Sensor BME280</div>
-                <div class="text-5xl font-extrabold mt-2 text-[color:var(--color-brand)]" data-realtime="air-humidity">
-                    {{ $airHumidityLabel }}
-                </div>
-                <div class="text-[color:var(--color-text-muted)] text-xs mt-2">Normal untuk monitoring</div>
-            </div>
-        </div>
-
-        {{-- 5. Chart --}}
-        <div class="card sm:col-span-2">
-            <div class="card-header">
-                Grafik Sensor Real-Time
-                <span class="ml-auto text-[color:var(--color-text-muted)] text-xs font-bold uppercase tracking-wider">60 Menit Terakhir</span>
-            </div>
-            <div class="p-4">
-                <canvas id="sensorChart" height="200" class="w-full"></canvas>
-            </div>
-        </div>
-
-        {{-- 6. Control Panel --}}
-        <div class="card sm:col-span-2">
-            <div class="card-header">
-                Kontrol Penyemprotan
-                <a href="{{ route('sprayer.control') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Detail</a>
-            </div>
-            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-
-                <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
-                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Mode</div>
-                    <div class="text-lg font-extrabold uppercase mb-3"
-                         style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
-                         data-realtime="device-mode">
-                        {{ $device['mode'] }}
+            {{-- Kelembapan Tanah (gauge) --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Kelembapan Tanah</div>
+                <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
+                    <canvas id="soilGauge" width="150" height="100" class="mx-auto"></canvas>
+                    <div class="text-2xl font-extrabold text-[color:var(--color-text)] -mt-2" id="soilValue">{{ $soilValueLabel }}</div>
+                    <div class="text-[color:var(--color-text-muted)] text-[11px] mt-0.5" data-realtime="soil-condition">
+                        {{ $soilConditionLabel }} · min. {{ $soilThresholdLabel }}%
                     </div>
-                    <form method="POST" action="{{ route('sprayer.mode.update') }}" class="inline" x-data="{ loading: false }" @submit="loading = true">
-                        @csrf
-                        <input type="hidden" name="mode" value="{{ $device['mode'] === 'automatic' ? 'manual' : 'automatic' }}">
-                        <button type="submit" class="btn-outline btn-sm" :disabled="loading">
-                            <span x-show="!loading">Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}</span>
-                            <span x-show="loading" x-cloak>…</span>
-                        </button>
-                    </form>
+                    <div class="text-[10px] text-[color:var(--color-text-muted)] mt-0.5">ADC tanah: <span class="font-mono" data-realtime="soil-raw">{{ $soilRawLabel }}</span></div>
                 </div>
+            </div>
 
-                <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-5 text-center">
-                    <div class="text-[color:var(--color-text-muted)] text-xs uppercase tracking-wider font-bold mb-3">Pompa Sprayer</div>
-                    @if($device['mode'] === 'automatic')
-                        <div class="btn-circle btn-circle-lg mx-auto opacity-40 cursor-not-allowed {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}" aria-disabled="true">
-                            @if($sensor['sprayer_status'] === 'on')
-                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <rect x="6" y="5" width="4" height="14" rx="1"/>
-                                    <rect x="14" y="5" width="4" height="14" rx="1"/>
-                                </svg>
-                            @else
-                                <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            @endif
+            {{-- Suhu Udara --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Suhu Udara</div>
+                <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
+                    <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold">Sensor BME280</div>
+                    <div class="text-4xl font-extrabold mt-1"
+                         style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};"
+                         data-realtime="temperature">{{ $temperatureLabel }}</div>
+                    <div class="text-[color:var(--color-text-muted)] text-[11px] mt-1">Max threshold: {{ $temperatureThresholdLabel }}°C</div>
+                </div>
+            </div>
+
+            {{-- Kelembapan Udara --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Kelembapan Udara</div>
+                <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
+                    <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold">Sensor BME280</div>
+                    <div class="text-4xl font-extrabold mt-1 text-[color:var(--color-brand)]" data-realtime="air-humidity">{{ $airHumidityLabel }}</div>
+                    <div class="text-[color:var(--color-text-muted)] text-[11px] mt-1">Normal untuk monitoring</div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ROW 2: Rain + Notification --}}
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+
+            {{-- Rain Status --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Status Hujan</div>
+                <div class="p-3 flex-1 flex items-center gap-3">
+                    @php($isRain = ($sensor['rain_status'] ?? '') === 'rain')
+                    <div class="w-12 h-12 shrink-0 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ $isRain ? 'var(--color-info)' : 'var(--color-text-near)' }}">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $isRain ? 'M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5zM8 19l-1 3M12 19l-1 3M16 19l-1 3' : 'M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5z' }}"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-lg font-extrabold leading-tight" style="color: {{ $isRain ? 'var(--color-info)' : 'var(--color-text)' }}" data-realtime="rain-title">{{ $isRain ? 'Hujan' : 'Tidak Hujan' }}</div>
+                        <div class="text-[color:var(--color-text-muted)] text-[11px] leading-snug" data-realtime="rain-description">{{ $isRain ? 'Penyemprotan otomatis tidak dijalankan.' : 'Penyemprotan diizinkan bila tanah kering.' }}</div>
+                        <div class="mt-1 text-[10px] font-bold text-[color:var(--color-text-muted)]">ADC hujan: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Notification Status --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">Notifikasi WhatsApp</div>
+                <div class="p-3 flex-1 flex items-center gap-3">
+                    <div class="w-12 h-12 shrink-0 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-brand)">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-lg font-extrabold leading-tight" style="color: var(--color-brand)">Aktif</div>
+                        <div class="text-[color:var(--color-text-muted)] text-[11px] leading-snug">
+                            <span data-realtime="last-update">{{ $recordedAt !== null ? 'Update sensor terakhir '.$recordedAt.'.' : 'Menunggu data sensor pertama masuk.' }}</span>
                         </div>
-                        <p class="text-xs text-[color:var(--color-text-muted)] mt-3">Mode otomatis aktif.<br>Ubah ke manual untuk kontrol langsung.</p>
-                    @else
-                        <form method="POST" action="{{ route('sprayer.status.update') }}" x-data="{ loading: false }" @submit="loading = true">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ROW 3: Chart + Control Panel --}}
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+
+            {{-- Chart --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">
+                    Grafik Sensor Real-Time
+                    <span class="ml-auto text-[color:var(--color-text-muted)] text-xs font-bold uppercase tracking-wider">60 Menit Terakhir</span>
+                </div>
+                <div class="p-3 flex-1">
+                    <canvas id="sensorChart" height="200" class="w-full"></canvas>
+                </div>
+            </div>
+
+            {{-- Control Panel --}}
+            <div class="card flex flex-col">
+                <div class="card-header py-2">
+                    Kontrol Penyemprotan
+                    <a href="{{ route('sprayer.control') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Detail</a>
+                </div>
+                <div class="p-3 flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                        <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold mb-2">Mode</div>
+                        <div class="text-base font-extrabold uppercase mb-3"
+                             style="color: {{ $device['mode'] === 'automatic' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
+                             data-realtime="device-mode">{{ $device['mode'] }}</div>
+                        <form method="POST" action="{{ route('sprayer.mode.update') }}" class="inline" x-data="{ loading: false }" @submit="loading = true">
                             @csrf
-                            <input type="hidden" name="status" value="{{ $sensor['sprayer_status'] === 'on' ? 'off' : 'on' }}">
-                            <button type="submit"
-                                    class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
-                                    :disabled="loading"
-                                    aria-label="Toggle sprayer">
-                                <template x-if="!loading">
-                                    @if($sensor['sprayer_status'] === 'on')
-                                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                            <rect x="6" y="5" width="4" height="14" rx="1"/>
-                                            <rect x="14" y="5" width="4" height="14" rx="1"/>
-                                        </svg>
-                                    @else
-                                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M8 5v14l11-7z"/>
-                                        </svg>
-                                    @endif
-                                </template>
-                                <svg x-show="loading" x-cloak class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                </svg>
+                            <input type="hidden" name="mode" value="{{ $device['mode'] === 'automatic' ? 'manual' : 'automatic' }}">
+                            <button type="submit" class="btn-outline btn-sm" :disabled="loading">
+                                <span x-show="!loading">Ganti ke {{ $device['mode'] === 'automatic' ? 'Manual' : 'Otomatis' }}</span>
+                                <span x-show="loading" x-cloak class="inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                    </svg>
+                                    Loading...
+                                </span>
                             </button>
                         </form>
-                    @endif
-                    <div class="text-lg font-extrabold uppercase mt-3"
-                         style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
-                         data-realtime="sprayer-status">
-                        {{ $sensor['sprayer_status'] }}
+                    </div>
+
+                    <div class="bg-[color:var(--color-bg-elevated)] rounded-lg p-4 flex flex-col items-center justify-center text-center">
+                        <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold mb-2">Pompa Sprayer</div>
+                        @if($device['mode'] === 'automatic')
+                            <div class="btn-circle btn-circle-lg mx-auto opacity-40 cursor-not-allowed {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}" aria-disabled="true">
+                                @if($sensor['sprayer_status'] === 'on')
+                                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                        <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                        <rect x="14" y="5" width="4" height="14" rx="1"/>
+                                    </svg>
+                                @else
+                                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                @endif
+                            </div>
+                            <p class="text-[11px] text-[color:var(--color-text-muted)] mt-2">Mode otomatis aktif.<br>Ubah ke manual untuk kontrol langsung.</p>
+                        @else
+                            <form method="POST" action="{{ route('sprayer.status.update') }}" x-data="{ loading: false }" @submit="loading = true">
+                                @csrf
+                                <input type="hidden" name="status" value="{{ $sensor['sprayer_status'] === 'on' ? 'off' : 'on' }}">
+                                <button type="submit"
+                                        class="btn-circle btn-circle-lg mx-auto {{ $sensor['sprayer_status'] === 'on' ? 'is-active' : '' }}"
+                                        :disabled="loading"
+                                        aria-label="Toggle sprayer">
+                                    <template x-if="!loading">
+                                        @if($sensor['sprayer_status'] === 'on')
+                                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                                <rect x="6" y="5" width="4" height="14" rx="1"/>
+                                                <rect x="14" y="5" width="4" height="14" rx="1"/>
+                                            </svg>
+                                        @else
+                                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z"/>
+                                            </svg>
+                                        @endif
+                                    </template>
+                                    <svg x-show="loading" x-cloak class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        @endif
+                        <div class="text-base font-extrabold uppercase mt-2"
+                             style="color: {{ $sensor['sprayer_status'] === 'on' ? 'var(--color-brand)' : 'var(--color-text-near)' }};"
+                             data-realtime="sprayer-status">{{ $sensor['sprayer_status'] }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- 7. Recent Activity --}}
-        <div class="card sm:col-span-2">
-            <div class="card-header">
+        {{-- ROW 4: Recent Activity --}}
+        <div class="card">
+            <div class="card-header py-2">
                 Riwayat Aktivitas
                 <a href="{{ route('history.sensor') }}" class="ml-auto text-xs font-bold uppercase tracking-wider text-[color:var(--color-brand)] hover:underline">Lihat Semua</a>
             </div>
@@ -262,52 +276,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        {{-- 8. Rain Status --}}
-        <div class="card">
-            <div class="card-header">Status Hujan</div>
-            <div class="p-4 flex flex-col items-center justify-center h-[200px] text-center gap-3">
-                @if(($sensor['rain_status'] ?? '') === 'rain')
-                    <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-info)">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5zM8 19l-1 3M12 19l-1 3M16 19l-1 3"/>
-                        </svg>
-                    </div>
-                    <div class="text-2xl font-extrabold" style="color: var(--color-info)" data-realtime="rain-title">Hujan</div>
-                    <div class="text-[color:var(--color-text-muted)] text-xs" data-realtime="rain-description">Penyemprotan otomatis tidak dijalankan.</div>
-                    <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
-                        Rain raw: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span>
-                    </div>
-                @else
-                    <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
-                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-text-near)">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5z"/>
-                        </svg>
-                    </div>
-                    <div class="text-2xl font-extrabold text-[color:var(--color-text)]" data-realtime="rain-title">Tidak Hujan</div>
-                    <div class="text-[color:var(--color-text-muted)] text-xs" data-realtime="rain-description">Penyemprotan otomatis diizinkan bila tanah kering.</div>
-                    <div class="text-[11px] font-bold text-[color:var(--color-text-muted)] rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1">
-                        Rain raw: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-        {{-- 9. Notification Status --}}
-        <div class="card">
-            <div class="card-header">Notifikasi WhatsApp</div>
-            <div class="p-4 flex flex-col items-center justify-center h-[200px] text-center gap-3">
-                <div class="w-14 h-14 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-brand)">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <div class="text-2xl font-extrabold" style="color: var(--color-brand)">Aktif</div>
-                <div class="text-[color:var(--color-text-muted)] text-xs">
-                    <span data-realtime="last-update">{{ $recordedAt !== null ? 'Update sensor terakhir '.$recordedAt.'.' : 'Menunggu data sensor pertama masuk.' }}</span>
-                </div>
             </div>
         </div>
 
@@ -371,8 +339,8 @@
             const w = gaugeCanvas.width;
             const h = gaugeCanvas.height;
             const cx = w / 2;
-            const cy = h * 0.68;
-            const r = 55;
+            const cy = h - 10;
+            const r = 52;
 
             ctx.clearRect(0, 0, w, h);
 
@@ -457,10 +425,17 @@
             const device = payload.device ?? {};
             const rainStatus = sensor.rain_status === 'rain';
             const sourceMode = sensor.simulation_mode ? 'Simulasi ESP32' : 'Hardware real';
+            const soilThreshold = Number(state.thresholds?.min_soil_moisture ?? 0);
+            const soilThresholdLabel = soilThreshold > 0 ? String(soilThreshold).replace(/\.0$/, '') : '-';
+            const soilMoistureVal = sensor.soil_moisture;
+            const soilCondition = (soilMoistureVal === null || soilMoistureVal === undefined)
+                ? 'Menunggu data'
+                : (soilThreshold > 0 && Number(soilMoistureVal) < soilThreshold ? 'Kering' : 'Cukup Lembab');
 
             setText('#soilValue', formatNumber(sensor.soil_moisture, '%'));
             setText('[data-realtime="soil-raw"]', sensor.soil_raw ?? '-');
             setText('[data-realtime="rain-raw"]', sensor.rain_raw ?? '-');
+            setText('[data-realtime="soil-condition"]', `${soilCondition} · min. ${soilThresholdLabel}%`);
             setText('[data-realtime="source-mode"]', sourceMode);
             setText('[data-realtime="condition-status"]', (sensor.condition_status ?? 'normal').toUpperCase());
             setText('[data-realtime="condition-pill"]', sensor.condition_status ?? 'normal');
