@@ -1,0 +1,45 @@
+services:
+  app:
+    image: ${APP_IMAGE:-ghcr.io/fadilsflow/wjdk000:latest}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    environment:
+      APP_NAME: "${APP_NAME:-Smart Sprayer IoT}"
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_KEY: ${APP_KEY:-}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      DB_CONNECTION: ${DB_CONNECTION:-sqlite}
+      DB_DATABASE: ${DB_DATABASE:-/var/www/html/storage/database/database.sqlite}
+
+      CACHE_STORE: ${CACHE_STORE:-file}
+      SESSION_DRIVER: ${SESSION_DRIVER:-file}
+      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-database}
+
+      GATEWAY_PORT: ${GATEWAY_PORT:-3000}
+      WHATSAPP_GATEWAY_URL: ${WHATSAPP_GATEWAY_URL:-}
+      WHATSAPP_GATEWAY_TOKEN: ${WHATSAPP_GATEWAY_TOKEN:-}
+      GATEWAY_SECRET_TOKEN: ${GATEWAY_SECRET_TOKEN:-}
+      WHATSAPP_AUTH_DATA_PATH: ${WHATSAPP_AUTH_DATA_PATH:-/var/www/html/storage/app/whatsapp-auth}
+
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      RUN_SEEDERS_ONCE: ${RUN_SEEDERS_ONCE:-true}
+      RUN_QUEUE_WORKER: ${RUN_QUEUE_WORKER:-true}
+      RUN_SCHEDULER: ${RUN_SCHEDULER:-true}
+
+      ADMIN_SEED_NAME: ${ADMIN_SEED_NAME:-Admin Smart Sprayer}
+      ADMIN_SEED_EMAIL: ${ADMIN_SEED_EMAIL:-admin@smartsprayer.test}
+      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD:-change-me}
+      ADMIN_SEED_PHONE: ${ADMIN_SEED_PHONE:-}
+      DEVICE_SEED_NAME: ${DEVICE_SEED_NAME:-Smart Sprayer Brebes}
+      DEVICE_SEED_LOCATION: ${DEVICE_SEED_LOCATION:-Brebes, Jawa Tengah}
+      DEVICE_SEED_API_KEY: ${DEVICE_SEED_API_KEY:-smartsprayer-iot-key}
+    volumes:
+      - app-storage:/var/www/html/storage
+
+volumes:
+  app-storage:

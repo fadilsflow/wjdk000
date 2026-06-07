@@ -1,14 +1,18 @@
 require("dotenv").config();
 
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.GATEWAY_PORT || process.env.PORT || 3000;
 const SECRET_TOKEN = process.env.GATEWAY_SECRET_TOKEN;
+const AUTH_DATA_PATH = process.env.WHATSAPP_AUTH_DATA_PATH || "./.wwebjs_auth_session";
+const PUPPETEER_EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH;
 
 if (!SECRET_TOKEN) {
     console.error(
@@ -17,10 +21,32 @@ if (!SECRET_TOKEN) {
     process.exit(1);
 }
 
+function removeStaleChromiumLocks(directory) {
+    if (!fs.existsSync(directory)) {
+        return;
+    }
+
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        const entryPath = path.join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+            removeStaleChromiumLocks(entryPath);
+            continue;
+        }
+
+        if (["SingletonCookie", "SingletonLock", "SingletonSocket"].includes(entry.name)) {
+            fs.rmSync(entryPath, { force: true });
+        }
+    }
+}
+
+removeStaleChromiumLocks(AUTH_DATA_PATH);
+
 // --- WhatsApp Client ---
 const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: "./.wwebjs_auth_session" }),
+    authStrategy: new LocalAuth({ dataPath: AUTH_DATA_PATH }),
     puppeteer: {
+        executablePath: PUPPETEER_EXECUTABLE_PATH || undefined,
         args: ["--no-sandbox", "--disable-setuid-sandbox"],
     },
 });

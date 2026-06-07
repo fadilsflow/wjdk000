@@ -8,6 +8,7 @@ use App\Models\Device;
 use App\Models\ThresholdSetting;
 use App\Models\User;
 use App\Models\WhatsappSetting;
+use Faker\Factory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -48,7 +49,9 @@ final class DatabaseSeeder extends Seeder
             ],
         );
 
-        User::factory()->count(2)->create();
+        if (class_exists(Factory::class)) {
+            User::factory()->count(2)->create();
+        }
 
         $device = Device::query()->firstOrCreate(
             ['name' => (string) env('DEVICE_SEED_NAME', 'Smart Sprayer Brebes')],

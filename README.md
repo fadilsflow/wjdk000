@@ -46,6 +46,17 @@ php artisan serve
 # Terminal lain: bun run dev (untuk hot-reload CSS/JS)
 ```
 
+## Docker / GHCR
+
+Image production berisi Laravel + self-hosted WhatsApp Gateway dalam satu container.
+
+```bash
+# Setelah image dipublish workflow GitHub Actions ke GHCR
+docker compose -f compose.ghcr.yml up -d
+```
+
+Default compose berjalan di `http://localhost:8080` dengan SQLite persisten di volume. Untuk production, set env `APP_KEY`, `APP_URL`, kredensial MySQL, dan token WhatsApp sebelum menjalankan compose. Detail lengkap ada di `docs/operations.md`.
+
 ## Browser E2E
 
 Project ini sekarang punya suite Playwright yang bisa dijalankan ulang per skenario.

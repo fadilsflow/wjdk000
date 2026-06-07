@@ -30,8 +30,21 @@ SESSION_DRIVER=file
 # WhatsApp Gateway/API
 WHATSAPP_GATEWAY_URL=
 WHATSAPP_GATEWAY_TOKEN=
+# Token untuk self-hosted gateway Node.js; pada Docker boleh isi salah satu dari token ini atau WHATSAPP_GATEWAY_TOKEN.
+GATEWAY_PORT=3000
+GATEWAY_SECRET_TOKEN=
+WHATSAPP_AUTH_DATA_PATH=
 # Fallback saja — nomor pengirim aktif dideteksi otomatis dari gateway saat WhatsApp terhubung
 WHATSAPP_SENDER_NUMBER=
+
+# Docker runtime toggles
+RUN_MIGRATIONS=false
+RUN_SEEDERS=false
+RUN_SEEDERS_ONCE=false
+RUN_QUEUE_WORKER=true
+RUN_SCHEDULER=true
+RUN_OPTIMIZE=true
+MIGRATION_RETRIES=30
 
 # Seed Admin
 ADMIN_SEED_NAME="Admin Smart Sprayer"
@@ -198,7 +211,44 @@ Setiap pengiriman, apapun hasilnya (`sent` atau `failed`), wajib dicatat ke `not
 - Set `APP_ENV=production` dan `APP_DEBUG=false` di server
 - Jalankan `php artisan optimize` sebelum deploy
 - Pastikan `storage/` dan `bootstrap/cache/` writable
-- Setup cron untuk Laravel Scheduler:
+- Setup cron untuk Laravel Scheduler jika deploy tanpa Docker:
   ```
   * * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
   ```
+
+## Docker + GHCR Deployment
+
+Image production dibangun dari `Dockerfile` dan berisi Laravel, Apache/PHP, queue worker, scheduler, Chromium, dan self-hosted `whatsapp-gateway` dalam satu container. Workflow `.github/workflows/docker-ghcr.yml` otomatis publish ke GitHub Container Registry (`ghcr.io/fadilsflow/wjdk000`) saat push ke branch default atau tag `v*.*.*`. Jika package GHCR masih private, ubah visibility package menjadi public di GitHub Packages atau login dulu dengan `docker login ghcr.io`.
+
+### Jalankan dari GHCR (1 container)
+
+```bash
+docker compose -f compose.ghcr.yml up -d
+```
+
+Default compose memakai SQLite di volume `app-storage` agar bisa langsung dicoba satu container. Untuk production MySQL, override env berikut saat menjalankan compose:
+
+```dotenv
+APP_IMAGE=ghcr.io/fadilsflow/wjdk000:latest
+APP_URL=https://domain-anda.example
+APP_KEY=base64:isi-dengan-key-production
+DB_CONNECTION=mysql
+DB_HOST=host-mysql
+DB_PORT=3306
+DB_DATABASE=smart_sprayer
+DB_USERNAME=smart_sprayer
+DB_PASSWORD=password-kuat
+RUN_MIGRATIONS=true
+RUN_SEEDERS_ONCE=false
+WHATSAPP_GATEWAY_TOKEN=token-kuat-yang-sama-dengan-gateway
+GATEWAY_SECRET_TOKEN=token-kuat-yang-sama-dengan-gateway
+```
+
+> Buat `APP_KEY` production dengan `php artisan key:generate --show` atau set secret dari panel hosting. Jika `APP_KEY` atau token gateway kosong, entrypoint membuat nilai sementara untuk booting, tetapi nilai tersebut berubah saat container dibuat ulang.
+
+### WhatsApp Gateway dalam Container
+
+- Laravel default memanggil gateway internal lewat `http://127.0.0.1:3000/send`.
+- QR WhatsApp tetap dilihat dari halaman Admin `/admin/whatsapp`.
+- Session WhatsApp disimpan di `storage/app/whatsapp-auth`; pada compose file, path ini ikut persisten di volume `app-storage`.
+- Queue worker dan scheduler aktif otomatis via Supervisor. Matikan dengan `RUN_QUEUE_WORKER=false` atau `RUN_SCHEDULER=false`.
