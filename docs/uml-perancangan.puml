@@ -1,0 +1,158 @@
+' Perancangan Sistem Smart Sprayer IoT (UML - PlantUML)
+' Render di https://plantuml.com/ atau editor yang mendukung PlantUML.
+' File berisi 4 diagram: Use Case, Activity, Sequence, Class.
+
+' =====================================================================
+' 1. USE CASE DIAGRAM
+' =====================================================================
+@startuml UseCase
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Publik" as Publik
+actor "Petani" as Petani
+actor "Admin" as Admin
+actor "Perangkat IoT" as Alat
+
+rectangle "Sistem Smart Sprayer" {
+    usecase "Lihat Ringkasan Publik" as UC1
+    usecase "Login" as UC2
+    usecase "Lihat Dashboard Monitoring" as UC3
+    usecase "Kontrol Penyemprotan" as UC4
+    usecase "Lihat Riwayat & Notifikasi" as UC5
+    usecase "Kelola Pengguna & Alat" as UC6
+    usecase "Atur Notifikasi WhatsApp" as UC7
+    usecase "Kirim Data Sensor" as UC8
+}
+
+Publik --> UC1
+
+Petani --> UC2
+Petani --> UC3
+Petani --> UC4
+Petani --> UC5
+
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+Admin --> UC5
+Admin --> UC6
+Admin --> UC7
+
+Alat --> UC8
+@enduml
+
+
+' =====================================================================
+' 2. ACTIVITY DIAGRAM - Login & Kontrol Sprayer
+' =====================================================================
+@startuml Activity
+start
+:Pengguna membuka website;
+:Masuk halaman Login;
+:Memasukkan email & kata sandi;
+if (Data login benar?) then (Tidak)
+    :Kembali ke halaman Login;
+    stop
+else (Ya)
+    :Sistem membuka sesi login;
+endif
+:Membuka menu Kontrol Sprayer;
+:Menekan tombol nyalakan/matikan;
+:Sistem memvalidasi permintaan;
+if (Boleh dijalankan?) then (Tidak)
+    :Tampilkan pesan penolakan;
+    stop
+else (Ya)
+    :Memperbarui status alat di basis data;
+    :Mencatat riwayat penyemprotan;
+    :Mengirim notifikasi WhatsApp;
+    :Menampilkan status berhasil ke layar;
+endif
+stop
+@enduml
+
+
+' =====================================================================
+' 3. SEQUENCE DIAGRAM - Dashboard Monitoring
+' =====================================================================
+@startuml Sequence
+actor "Pengguna (Browser)" as User
+participant "Halaman Web" as Web
+participant "Server (Backend)" as Server
+database "Basis Data MySQL" as DB
+
+User -> Server : Membuka halaman Dashboard
+Server -> DB : Mengambil data sensor terbaru
+DB --> Server : Mengembalikan data
+Server --> User : Menampilkan halaman + grafik
+
+loop Pembaruan berkala
+    User -> Server : Meminta data terbaru
+    Server -> DB : Mengambil data sensor
+    DB --> Server : Data sensor
+    Server --> User : Mengirim data (JSON)
+    User -> Web : Memperbarui grafik & status
+end
+@enduml
+
+
+' =====================================================================
+' 4. CLASS DIAGRAM - Struktur data utama
+' =====================================================================
+@startuml Class
+class Pengguna {
+    +nama
+    +email
+    +kata_sandi
+    +peran
+}
+
+class Alat {
+    +nama
+    +lokasi
+    +mode
+    +status_sprayer
+}
+
+class Threshold {
+    +batas_kelembapan_tanah
+    +batas_suhu
+    +batas_kelembapan_udara
+}
+
+class DataSensor {
+    +suhu
+    +kelembapan_udara
+    +kelembapan_tanah
+    +status_hujan
+    +kondisi
+    +waktu
+}
+
+class RiwayatPenyemprotan {
+    +jenis_pemicu
+    +status
+    +alasan
+    +waktu
+}
+
+class RiwayatNotifikasi {
+    +jenis
+    +nomor_penerima
+    +isi_pesan
+    +status_kirim
+    +waktu
+}
+
+class PengaturanWhatsApp {
+    +nomor_penerima
+    +template_pesan
+}
+
+Alat "1" --> "1" Threshold
+Alat "1" --> "*" DataSensor
+Alat "1" --> "*" RiwayatPenyemprotan
+Alat "1" --> "*" RiwayatNotifikasi
+Pengguna "1" --> "*" RiwayatPenyemprotan
+@enduml
