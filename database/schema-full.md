@@ -293,9 +293,9 @@ erDiagram
         varchar queue
         longtext payload
         tinyint attempts
-        int unsigned reserved_at
-        int unsigned available_at
-        int unsigned created_at
+        int reserved_at
+        int available_at
+        int created_at
     }
 
     job_batches {
