@@ -18,6 +18,8 @@
     </script>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700,800&display=swap" rel="stylesheet" />
+    {{-- Chart.js loaded in <head> so it persists across Turbo visits --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased">
@@ -39,6 +41,38 @@
             'waspada' => 'var(--color-warning)',
             default   => 'var(--color-brand)',
         };
+
+        // --- Trend helpers for charts & deltas ---
+        $trend = $trend ?? ['labels' => [], 'temperature' => [], 'air_humidity' => [], 'soil_moisture' => [], 'count' => 0];
+        $hasTrend = ($trend['count'] ?? 0) >= 2;
+
+        $delta = function (array $series) {
+            $vals = array_values(array_filter($series, fn ($v) => $v !== null));
+            if (count($vals) < 2) return null;
+            return round($vals[count($vals) - 1] - $vals[0], 1);
+        };
+        $avg = function (array $series) {
+            $vals = array_values(array_filter($series, fn ($v) => $v !== null));
+            if (count($vals) === 0) return null;
+            return round(array_sum($vals) / count($vals), 1);
+        };
+
+        $tempDelta  = $delta($trend['temperature'] ?? []);
+        $humDelta   = $delta($trend['air_humidity'] ?? []);
+        $soilDelta  = $delta($trend['soil_moisture'] ?? []);
+        $soilAvg    = $avg($trend['soil_moisture'] ?? []);
+        $soilNow    = $sensor['soil_moisture'];
+        $soilGauge  = $soilNow !== null ? max(0, min(100, (float) $soilNow)) : null;
+
+        $deltaBadge = function (?float $d, string $unit = '') {
+            if ($d === null) return ['—', 'var(--color-text-muted)'];
+            $arrow = $d > 0 ? '▲' : ($d < 0 ? '▼' : '•');
+            $color = $d > 0 ? 'var(--color-brand)' : ($d < 0 ? 'var(--color-info)' : 'var(--color-text-muted)');
+            return [$arrow.' '.($d > 0 ? '+' : '').$d.$unit, $color];
+        };
+        [$tempBadge, $tempBadgeColor] = $deltaBadge($tempDelta, '°');
+        [$humBadge, $humBadgeColor]   = $deltaBadge($humDelta, '%');
+        [$soilBadge, $soilBadgeColor] = $deltaBadge($soilDelta, '%');
     @endphp
 
     {{-- NAV (overlay hero) — colors locked, theme-independent --}}
@@ -134,41 +168,96 @@
             </div>
         </div>
 
-        {{-- Hero status card --}}
-        <div class="card p-8 mb-6 text-center">
-            <div class="text-xs uppercase tracking-widest font-bold text-[color:var(--color-text-muted)] mb-4">
-                Status Lingkungan
+        {{-- Top: status spotlight + soil gauge --}}
+        <div class="grid lg:grid-cols-3 gap-4 mb-4">
+            <div class="card lg:col-span-2 p-6 sm:p-8 relative overflow-hidden">
+                <div class="absolute inset-0 pointer-events-none" aria-hidden="true"
+                     style="background: linear-gradient(135deg, color-mix(in srgb, {{ $dotColor }} 18%, transparent) 0%, color-mix(in srgb, {{ $dotColor }} 4%, transparent) 32%, transparent 62%);"></div>
+                <span class="absolute left-0 inset-y-0 w-[3px]" style="background: {{ $dotColor }};" aria-hidden="true"></span>
+                <div class="relative">
+                    <div class="flex items-center gap-2 text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">
+                        <span class="relative flex w-2 h-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style="background: {{ $dotColor }};"></span>
+                            <span class="relative inline-flex w-2 h-2 rounded-full" style="background: {{ $dotColor }};"></span>
+                        </span>
+                        Status Lingkungan
+                    </div>
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <span class="status-pill {{ $pillClass }} text-base px-6 py-3">{{ $cs }}</span>
+                        <span class="badge {{ $isSimulation ? 'badge-manual' : 'badge-on' }}">{{ $isSimulation ? 'Mode Simulasi' : 'Hardware Real' }}</span>
+                        <span class="badge {{ ($sensor['rain_status'] ?? '') === 'rain' ? 'badge-manual' : 'badge-off' }}">{{ ($sensor['rain_status'] ?? '') === 'rain' ? 'Hujan' : 'Cerah' }}</span>
+                    </div>
+                    <p class="mt-4 text-sm text-[color:var(--color-text-muted)] max-w-md">
+                        @if($cs === 'kritis')
+                            Tanah kering, kondisi memenuhi aturan penyemprotan otomatis.
+                        @elseif($cs === 'waspada')
+                            Kondisi lingkungan perlu diperhatikan.
+                        @else
+                            Kondisi lingkungan dalam batas aman.
+                        @endif
+                    </p>
+                    <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xl font-black text-[color:var(--color-text)]">{{ $trend['count'] ?? 0 }}</span>
+                            <span class="text-xs text-[color:var(--color-text-muted)] font-semibold uppercase tracking-wider">pembacaan</span>
+                        </div>
+                        <span class="w-px h-5 bg-[color:var(--color-border)]" aria-hidden="true"></span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xs text-[color:var(--color-text-muted)] font-semibold uppercase tracking-wider">Suhu</span>
+                            <span class="text-lg font-black" style="color: {{ $tempBadgeColor }};">{{ $tempBadge }}</span>
+                        </div>
+                        <span class="w-px h-5 bg-[color:var(--color-border)]" aria-hidden="true"></span>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-xs text-[color:var(--color-text-muted)] font-semibold uppercase tracking-wider">Update</span>
+                            <span class="text-lg font-black text-[color:var(--color-text)]">{{ $recordedAt !== null ? \Carbon\Carbon::parse($recordedAt)->format('H:i') : '—' }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <span class="status-pill {{ $pillClass }} text-base px-6 py-3">{{ $cs }}</span>
-            <p class="mt-4 text-sm text-[color:var(--color-text-muted)] max-w-md mx-auto">
-                @if($cs === 'kritis')
-                    Tanah kering, kondisi memenuhi aturan penyemprotan otomatis.
-                @elseif($cs === 'waspada')
-                    Kondisi lingkungan perlu diperhatikan.
-                @else
-                    Kondisi lingkungan dalam batas aman.
-                @endif
-            </p>
+
+            {{-- Soil moisture gauge --}}
+            <div class="card p-6 flex flex-col items-center justify-center text-center">
+                <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelembapan Tanah</div>
+                <div class="relative mt-3 w-40 h-40">
+                    @if($soilGauge !== null)
+                        <canvas id="soilGauge"></canvas>
+                    @endif
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div class="text-4xl font-black text-[color:var(--color-text)]">{{ $soilNow ?? '—' }}<span class="text-lg text-[color:var(--color-text-muted)] font-bold">{{ $soilNow !== null ? '%' : '' }}</span></div>
+                        <div class="text-[10px] uppercase tracking-widest font-bold mt-1" style="color: {{ $soilBadgeColor }};">{{ $soilBadge }}</div>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-[color:var(--color-text-muted)]">Rata-rata {{ $soilAvg ?? '—' }}{{ $soilAvg !== null ? '%' : '' }} · raw {{ $soilRaw ?? '-' }}</div>
+            </div>
         </div>
 
-        {{-- 4 sensor cards --}}
+        {{-- 4 sensor cards with trend deltas --}}
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="card p-5">
-                <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Suhu Udara</div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Suhu Udara</div>
+                    <span class="text-[10px] font-bold whitespace-nowrap" style="color: {{ $tempBadgeColor }};">{{ $tempBadge }}</span>
+                </div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
                     {{ $sensor['temperature'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['temperature'] !== null ? '°C' : '' }}</span>
                 </div>
                 <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
             </div>
             <div class="card p-5">
-                <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Udara</div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Udara</div>
+                    <span class="text-[10px] font-bold whitespace-nowrap" style="color: {{ $humBadgeColor }};">{{ $humBadge }}</span>
+                </div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
                     {{ $sensor['air_humidity'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['air_humidity'] !== null ? '%' : '' }}</span>
                 </div>
                 <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
             </div>
             <div class="card p-5">
-                <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Tanah</div>
+                <div class="flex items-start justify-between gap-2">
+                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Tanah</div>
+                    <span class="text-[10px] font-bold whitespace-nowrap" style="color: {{ $soilBadgeColor }};">{{ $soilBadge }}</span>
+                </div>
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
                     {{ $sensor['soil_moisture'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['soil_moisture'] !== null ? '%' : '' }}</span>
                 </div>
@@ -183,6 +272,35 @@
             </div>
         </div>
 
+        {{-- Charts --}}
+        <div class="grid lg:grid-cols-3 gap-4 mt-4">
+            <div class="card p-5 lg:col-span-2">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-extrabold text-[color:var(--color-text)]">Tren Suhu &amp; Kelembapan Udara</h3>
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">{{ $trend['count'] ?? 0 }} terakhir</span>
+                </div>
+                <div class="relative h-64 sm:h-72">
+                    @if($hasTrend)
+                        <canvas id="envChart"></canvas>
+                    @else
+                        <div class="absolute inset-0 grid place-items-center text-sm text-[color:var(--color-text-muted)]">Belum cukup data untuk grafik.</div>
+                    @endif
+                </div>
+            </div>
+            <div class="card p-5">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-extrabold text-[color:var(--color-text)]">Tren Kelembapan Tanah</h3>
+                </div>
+                <div class="relative h-64 sm:h-72">
+                    @if($hasTrend)
+                        <canvas id="soilChart"></canvas>
+                    @else
+                        <div class="absolute inset-0 grid place-items-center text-sm text-[color:var(--color-text-muted)]">Belum cukup data.</div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
         <div class="mt-4 card p-4 flex flex-wrap items-center justify-center gap-3 text-xs text-[color:var(--color-text-muted)]">
             <span class="font-bold uppercase tracking-widest">Status ESP32</span>
             <span class="rounded-full bg-[color:var(--color-bg-elevated)] px-3 py-1 font-mono">Soil raw: {{ $soilRaw ?? '-' }}</span>
@@ -193,6 +311,8 @@
         <p class="mt-6 text-xs text-[color:var(--color-text-muted)]">
             Data bersifat informatif. Untuk kontrol alat, silakan login.
         </p>
+
+        <script id="dash-data" type="application/json">@json(['trend' => $trend, 'soil' => $soilGauge])</script>
     </section>
 
     {{-- TENTANG SECTION --}}
@@ -248,6 +368,130 @@
             </div>
         </div>
     </footer>
+
+    <script>
+    (function () {
+        let charts = [];
+
+        function cssVar(name, fallback) {
+            const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return v || fallback;
+        }
+
+        function destroyCharts() {
+            charts.forEach(function (c) { try { c.destroy(); } catch (e) {} });
+            charts = [];
+        }
+
+        function gradient(color) {
+            return function (ctx) {
+                const chart = ctx.chart;
+                const area = chart.chartArea;
+                if (!area) return color + '22';
+                const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+                g.addColorStop(0, color + '59');
+                g.addColorStop(1, color + '00');
+                return g;
+            };
+        }
+
+        function buildCharts() {
+            if (typeof Chart === 'undefined') return;
+            const el = document.getElementById('dash-data');
+            if (!el) return;
+            let data;
+            try { data = JSON.parse(el.textContent); } catch (e) { return; }
+
+            destroyCharts();
+
+            const t = (data && data.trend) || {};
+            const labels = t.labels || [];
+
+            const text    = cssVar('--color-text', '#fff');
+            const muted   = cssVar('--color-text-muted', '#b3b3b3');
+            const grid    = 'rgba(127,127,127,0.14)';
+            const brand   = cssVar('--color-brand', '#1ed760');
+            const info    = cssVar('--color-info', '#539df5');
+            const warning = cssVar('--color-warning', '#ffa42b');
+            const negative= cssVar('--color-negative', '#f3727f');
+            const elevated= cssVar('--color-bg-elevated', '#1f1f1f');
+
+            Chart.defaults.font.family = "'Manrope', sans-serif";
+            Chart.defaults.color = muted;
+
+            const line = { tension: 0.4, borderWidth: 2.5, pointRadius: 0, pointHoverRadius: 5, fill: true };
+
+            function baseOptions(showLegend) {
+                return {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: showLegend
+                            ? { display: true, labels: { usePointStyle: true, boxWidth: 8, padding: 16, color: muted, font: { weight: 600 } } }
+                            : { display: false },
+                        tooltip: {
+                            backgroundColor: elevated, titleColor: text, bodyColor: text,
+                            borderColor: grid, borderWidth: 1, padding: 10, cornerRadius: 8, usePointStyle: true,
+                        },
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: muted, maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
+                        y: { grid: { color: grid }, ticks: { color: muted }, border: { display: false } },
+                    },
+                };
+            }
+
+            const envEl = document.getElementById('envChart');
+            if (envEl && labels.length >= 2) {
+                charts.push(new Chart(envEl, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [
+                        { label: 'Suhu (°C)', data: t.temperature || [], borderColor: warning, backgroundColor: gradient(warning), ...line },
+                        { label: 'Kelemb. Udara (%)', data: t.air_humidity || [], borderColor: info, backgroundColor: gradient(info), ...line },
+                    ]},
+                    options: baseOptions(true),
+                }));
+            }
+
+            const soilEl = document.getElementById('soilChart');
+            if (soilEl && labels.length >= 2) {
+                charts.push(new Chart(soilEl, {
+                    type: 'line',
+                    data: { labels: labels, datasets: [
+                        { label: 'Kelemb. Tanah (%)', data: t.soil_moisture || [], borderColor: brand, backgroundColor: gradient(brand), ...line },
+                    ]},
+                    options: baseOptions(false),
+                }));
+            }
+
+            const gaugeEl = document.getElementById('soilGauge');
+            if (gaugeEl && data && data.soil !== null && data.soil !== undefined) {
+                const v = Math.max(0, Math.min(100, Number(data.soil)));
+                const col = v < 30 ? negative : (v < 55 ? warning : brand);
+                charts.push(new Chart(gaugeEl, {
+                    type: 'doughnut',
+                    data: { datasets: [{ data: [v, 100 - v], backgroundColor: [col, grid], borderWidth: 0 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        cutout: '78%', rotation: 225, circumference: 270,
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    },
+                }));
+            }
+        }
+
+        function init() {
+            if (typeof Chart === 'undefined') { return setTimeout(init, 60); }
+            buildCharts();
+        }
+
+        document.addEventListener('turbo:load', init);
+        window.addEventListener('load', init);
+        document.addEventListener('turbo:before-cache', destroyCharts);
+        new MutationObserver(buildCharts).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    })();
+    </script>
 
 </body>
 </html>

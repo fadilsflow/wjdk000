@@ -31,6 +31,7 @@ final class PublicSummaryService
 
         return [
             'sensor' => $this->buildSensorSummary($latestReading),
+            'trend' => $this->buildTrend($device),
             'public_summary' => [
                 'device_name' => $device->name,
                 'location' => $device->location,
@@ -56,11 +57,46 @@ final class PublicSummaryService
                 'condition_status' => 'normal',
                 'recorded_at' => null,
             ],
+            'trend' => [
+                'labels' => [],
+                'temperature' => [],
+                'air_humidity' => [],
+                'soil_moisture' => [],
+                'count' => 0,
+            ],
             'public_summary' => [
                 'device_name' => 'Belum ada perangkat',
                 'location' => 'Brebes',
                 'updated_at' => null,
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildTrend(Device $device): array
+    {
+        $recent = $this->sensorReadingRepository->getRecentForDevice($device, 24);
+
+        $labels = [];
+        $temperature = [];
+        $airHumidity = [];
+        $soilMoisture = [];
+
+        foreach ($recent as $reading) {
+            $labels[] = $reading->recorded_at?->format('H:i') ?? '';
+            $temperature[] = $reading->temperature;
+            $airHumidity[] = $reading->air_humidity;
+            $soilMoisture[] = $reading->soil_moisture;
+        }
+
+        return [
+            'labels' => $labels,
+            'temperature' => $temperature,
+            'air_humidity' => $airHumidity,
+            'soil_moisture' => $soilMoisture,
+            'count' => $recent->count(),
         ];
     }
 
