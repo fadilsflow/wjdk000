@@ -32,7 +32,8 @@ const char *AP_PASSWORD = "12345678"; // Minimum 8 characters
 // =====================================================
 const char *STA_SSID = "iPhone 15 Pro Max";
 const char *STA_PASSWORD = "digimon123";
-const char *BACKEND_SENSOR_URL = "http://192.168.1.8:8000/api/sensor-readings";
+// const char *BACKEND_SENSOR_URL = "http://192.168.1.8:8000/api/sensor-readings";
+const char *BACKEND_SENSOR_URL = "https://ssp.kreeasi.web.id/api/sensor-readings";
 const char *DEVICE_API_KEY = "HtfEoED9PhayKSg46lydZxa2QAkUfTas";
 
 bool backendControlMode = true;
