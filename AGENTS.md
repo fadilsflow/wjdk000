@@ -276,3 +276,10 @@ Sebuah task dianggap **selesai** jika semua kondisi berikut terpenuhi:
 - `docs/prd.md` — Product Requirements Document
 - `docs/proposal.md` — Proposal website
 - `docs/proposal-iot.md` — Proposal perangkat IoT
+
+<!-- lean-ctx -->
+## lean-ctx
+
+Prefer lean-ctx MCP tools over native equivalents for token savings.
+Full rules: @LEAN-CTX.md
+<!-- /lean-ctx -->
