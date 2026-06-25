@@ -48,7 +48,7 @@ final class SprayerControlService
         ];
     }
 
-    public function updateMode(string $mode, int $userId): void
+    public function updateMode(string $mode): void
     {
         $device = $this->requireDevice();
 
@@ -56,7 +56,7 @@ final class SprayerControlService
             return;
         }
 
-        DB::transaction(function () use ($device, $mode, $userId): void {
+        DB::transaction(function () use ($device, $mode): void {
             $this->deviceRepository->update($device, [
                 'mode' => $mode,
             ]);
@@ -66,12 +66,12 @@ final class SprayerControlService
                 'trigger_type' => 'manual',
                 'status' => $device->sprayer_status,
                 'reason' => sprintf('Mode diubah ke %s', $mode),
-                'created_by' => $userId,
+                'created_by' => null,
             ]);
         });
     }
 
-    public function updateStatus(string $status, int $userId): void
+    public function updateStatus(string $status): void
     {
         $device = $this->requireDevice();
 
@@ -85,7 +85,7 @@ final class SprayerControlService
             return;
         }
 
-        DB::transaction(function () use ($device, $status, $userId): void {
+        DB::transaction(function () use ($device, $status): void {
             $this->deviceRepository->update($device, [
                 'sprayer_status' => $status,
             ]);
@@ -97,7 +97,7 @@ final class SprayerControlService
                 'reason' => $status === 'on'
                     ? 'Sprayer dinyalakan manual dari website'
                     : 'Sprayer dimatikan manual dari website',
-                'created_by' => $userId,
+                'created_by' => null,
             ]);
 
             $this->whatsAppNotificationService->send(

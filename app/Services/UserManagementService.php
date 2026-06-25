@@ -9,7 +9,6 @@ use App\Repositories\UserRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 
 final class UserManagementService
 {
@@ -60,14 +59,8 @@ final class UserManagementService
         });
     }
 
-    public function deleteUser(User $user, int $currentUserId): void
+    public function deleteUser(User $user): void
     {
-        if ($user->id === $currentUserId) {
-            throw ValidationException::withMessages([
-                'user' => 'Admin tidak dapat menghapus akun sendiri.',
-            ]);
-        }
-
         DB::transaction(function () use ($user): void {
             $this->userRepository->delete($user);
         });

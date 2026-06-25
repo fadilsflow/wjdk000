@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Device;
 use App\Models\ThresholdSetting;
-use App\Models\User;
 use Tests\Concerns\UsesMysqlTestDatabase;
 use Tests\TestCase;
 
@@ -28,7 +27,6 @@ final class AdminDeviceConfigurationTest extends TestCase
 
     public function test_admin_device_page_renders_registered_devices_from_database(): void
     {
-        $admin = User::factory()->admin()->create();
         $device = Device::query()->create([
             'name' => 'Sprayer Admin A',
             'location' => 'Brebes Barat',
@@ -44,8 +42,7 @@ final class AdminDeviceConfigurationTest extends TestCase
             'min_air_humidity' => 60,
         ]);
 
-        $this->actingAs($admin)
-            ->get('/admin/devices')
+        $this->get('/admin/devices')
             ->assertOk()
             ->assertSeeText('Sprayer Admin A')
             ->assertSeeText('Brebes Barat')

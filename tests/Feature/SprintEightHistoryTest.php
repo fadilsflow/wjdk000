@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\Device;
-use App\Models\NotificationLog;
 use App\Models\SensorReading;
 use App\Models\SprayLog;
 use App\Models\ThresholdSetting;
@@ -33,7 +32,6 @@ final class SprintEightHistoryTest extends TestCase
 
     public function test_sensor_history_page_renders_database_rows_and_date_filter(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice();
 
         SensorReading::query()->create([
@@ -58,8 +56,7 @@ final class SprintEightHistoryTest extends TestCase
             'recorded_at' => Carbon::parse('2026-05-24 10:00:00'),
         ]);
 
-        $this->actingAs($user)
-            ->get('/history/sensor?from_date=2026-05-24&to_date=2026-05-24')
+        $this->get('/history/sensor?from_date=2026-05-24&to_date=2026-05-24')
             ->assertOk()
             ->assertSeeText('31.5°C')
             ->assertSeeText('70%')
@@ -70,7 +67,6 @@ final class SprintEightHistoryTest extends TestCase
 
     public function test_spray_history_page_renders_database_logs(): void
     {
-        $user = User::factory()->create();
         $actor = User::factory()->create([
             'name' => 'Petani Log',
         ]);
@@ -84,47 +80,12 @@ final class SprintEightHistoryTest extends TestCase
             'created_by' => $actor->id,
         ]);
 
-        $this->actingAs($user)
-            ->get('/history/spray')
+        $this->get('/history/spray')
             ->assertOk()
             ->assertSeeText('Manual')
             ->assertSeeText('ON')
             ->assertSeeText('Sprayer dinyalakan manual dari website')
             ->assertSeeText('Petani Log');
-    }
-
-    public function test_notification_history_page_renders_database_notifications(): void
-    {
-        $user = User::factory()->create();
-        $device = $this->makeDevice();
-
-        NotificationLog::query()->create([
-            'device_id' => $device->id,
-            'type' => 'critical_condition',
-            'recipient_phone' => '+628123456700',
-            'message' => 'Kritis Sprayer A',
-            'status' => 'sent',
-            'sent_at' => Carbon::parse('2026-05-24 09:45:00'),
-        ]);
-
-        NotificationLog::query()->create([
-            'device_id' => $device->id,
-            'type' => 'spray_stop',
-            'recipient_phone' => '+628123456700',
-            'message' => 'Stop Sprayer A',
-            'status' => 'failed',
-            'sent_at' => Carbon::parse('2026-05-24 09:50:00'),
-        ]);
-
-        $this->actingAs($user)
-            ->get('/history/notification')
-            ->assertOk()
-            ->assertSeeText('Kondisi Kritis')
-            ->assertSeeText('Penyemprotan Berhenti')
-            ->assertSeeText('+628123456700')
-            ->assertSeeText('Kritis Sprayer A')
-            ->assertSeeText('Stop Sprayer A')
-            ->assertSeeText('Gagal');
     }
 
     private function makeDevice(): Device

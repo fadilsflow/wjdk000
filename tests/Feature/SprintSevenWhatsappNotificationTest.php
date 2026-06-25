@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Device;
 use App\Models\ThresholdSetting;
-use App\Models\User;
 use App\Models\WhatsappSetting;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -37,10 +36,7 @@ final class SprintSevenWhatsappNotificationTest extends TestCase
 
     public function test_admin_can_update_whatsapp_recipient_and_templates(): void
     {
-        $admin = User::factory()->admin()->create();
-
-        $this->actingAs($admin)
-            ->put('/admin/whatsapp', [
+        $this->put('/admin/whatsapp', [
                 'recipient_phone' => '+628123456700',
                 'critical_condition_template' => 'Kritis {{device_name}} {{condition_status}}',
                 'spray_start_template' => 'Mulai {{device_name}} {{sprayer_status}}',
@@ -116,18 +112,15 @@ final class SprintSevenWhatsappNotificationTest extends TestCase
 
     public function test_manual_sprayer_control_sends_start_and_stop_notifications(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDeviceWithThreshold(mode: 'manual', sprayerStatus: 'off');
         $this->makeWhatsappSetting();
 
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
+        $this->post('/sprayer/status', [
                 'status' => 'on',
             ])
             ->assertRedirect('/sprayer');
 
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
+        $this->post('/sprayer/status', [
                 'status' => 'off',
             ])
             ->assertRedirect('/sprayer');

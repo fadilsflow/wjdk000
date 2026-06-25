@@ -23,9 +23,4 @@ final class HistoryController extends Controller
     {
         return view('history.spray', $this->historyService->getSprayHistoryData($request->validated()));
     }
-
-    public function notification(HistoryFilterRequest $request): View
-    {
-        return view('history.notification', $this->historyService->getNotificationHistoryData($request->validated()));
-    }
 }

@@ -27,7 +27,7 @@ final class SprintNinePublicSummaryTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_public_summary_page_is_accessible_without_login_and_renders_latest_sensor_data(): void
+    public function test_public_landing_page_is_accessible_without_login_and_renders_latest_sensor_data(): void
     {
         $device = $this->makeDevice();
 
@@ -42,7 +42,7 @@ final class SprintNinePublicSummaryTest extends TestCase
             'recorded_at' => now(),
         ]);
 
-        $this->get('/public/summary')
+        $this->get('/')
             ->assertOk()
             ->assertSeeText('Smart Sprayer')
             ->assertSeeText('31.5')
@@ -53,7 +53,7 @@ final class SprintNinePublicSummaryTest extends TestCase
             ->assertSeeText('Data Publik');
     }
 
-    public function test_public_summary_hides_control_and_sensitive_information(): void
+    public function test_public_landing_hides_control_and_sensitive_information(): void
     {
         $device = $this->makeDevice();
         $user = User::factory()->create([

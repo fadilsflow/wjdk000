@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Device;
 use App\Models\ThresholdSetting;
-use App\Models\User;
 use Tests\Concerns\UsesMysqlTestDatabase;
 use Tests\TestCase;
 
@@ -73,11 +72,9 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
 
     public function test_invalid_sprayer_mode_is_rejected_by_validation(): void
     {
-        $user = User::factory()->create();
         $this->makeDevice(name: 'Sprayer Mode');
 
-        $this->actingAs($user)
-            ->from('/sprayer')
+        $this->from('/sprayer')
             ->post('/sprayer/mode', [
                 'mode' => 'auto',
             ])
@@ -87,11 +84,9 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
 
     public function test_admin_can_update_threshold_configuration(): void
     {
-        $admin = User::factory()->admin()->create();
         $device = $this->makeDevice(name: 'Sprayer Threshold');
 
-        $this->actingAs($admin)
-            ->put('/admin/threshold', [
+        $this->put('/admin/threshold', [
                 'device_id' => $device->id,
                 'min_soil_moisture' => 33,
                 'max_temperature' => 30,
@@ -110,10 +105,7 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
 
     public function test_admin_device_creation_requires_name_and_location(): void
     {
-        $admin = User::factory()->admin()->create();
-
-        $this->actingAs($admin)
-            ->from('/admin/devices')
+        $this->from('/admin/devices')
             ->post('/admin/devices', [
                 'name' => '',
                 'location' => '',

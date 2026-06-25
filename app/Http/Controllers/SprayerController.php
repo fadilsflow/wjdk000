@@ -29,20 +29,14 @@ final class SprayerController extends Controller
 
     public function updateMode(UpdateSprayerModeRequest $request): RedirectResponse
     {
-        $this->sprayerControlService->updateMode(
-            $request->validated()['mode'],
-            (int) $request->user()->id,
-        );
+        $this->sprayerControlService->updateMode($request->validated()['mode']);
 
         return back(fallback: route('sprayer.control'))->with('status', 'sprayer-mode-updated');
     }
 
     public function updateStatus(UpdateSprayerStatusRequest $request): RedirectResponse
     {
-        $this->sprayerControlService->updateStatus(
-            $request->validated()['status'],
-            (int) $request->user()->id,
-        );
+        $this->sprayerControlService->updateStatus($request->validated()['status']);
 
         return back(fallback: route('sprayer.control'))->with('status', 'sprayer-status-updated');
     }

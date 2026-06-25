@@ -7,7 +7,6 @@ namespace Tests\Feature;
 use App\Models\Device;
 use App\Models\SensorReading;
 use App\Models\ThresholdSetting;
-use App\Models\User;
 use Tests\Concerns\UsesMysqlTestDatabase;
 use Tests\TestCase;
 
@@ -29,7 +28,6 @@ final class SprintSixSprayerControlTest extends TestCase
 
     public function test_sprayer_control_page_renders_real_device_sensor_and_logs(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'off');
 
         SensorReading::query()->create([
@@ -43,29 +41,24 @@ final class SprintSixSprayerControlTest extends TestCase
             'recorded_at' => now(),
         ]);
 
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
-                'status' => 'on',
-            ]);
+        $this->post('/sprayer/status', [
+            'status' => 'on',
+        ]);
 
-        $this->actingAs($user)
-            ->get('/sprayer')
+        $this->get('/sprayer')
             ->assertOk()
             ->assertSeeText('Sprayer Lahan Kontrol')
             ->assertSeeText('kritis')
-            ->assertSeeText('Sprayer dinyalakan manual dari website')
-            ->assertSeeText($user->name);
+            ->assertSeeText('Sprayer dinyalakan manual dari website');
     }
 
-    public function test_petani_can_switch_device_mode(): void
+    public function test_device_mode_can_be_switched(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'automatic', sprayerStatus: 'off');
 
-        $this->actingAs($user)
-            ->post('/sprayer/mode', [
-                'mode' => 'manual',
-            ])
+        $this->post('/sprayer/mode', [
+            'mode' => 'manual',
+        ])
             ->assertRedirect('/sprayer')
             ->assertSessionHas('status', 'sprayer-mode-updated');
 
@@ -79,19 +72,17 @@ final class SprintSixSprayerControlTest extends TestCase
             'trigger_type' => 'manual',
             'status' => 'off',
             'reason' => 'Mode diubah ke manual',
-            'created_by' => $user->id,
+            'created_by' => null,
         ]);
     }
 
-    public function test_petani_can_turn_sprayer_on_in_manual_mode_and_log_it(): void
+    public function test_sprayer_can_be_turned_on_in_manual_mode_and_log_it(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'off');
 
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
-                'status' => 'on',
-            ])
+        $this->post('/sprayer/status', [
+            'status' => 'on',
+        ])
             ->assertRedirect('/sprayer')
             ->assertSessionHas('status', 'sprayer-status-updated');
 
@@ -105,19 +96,17 @@ final class SprintSixSprayerControlTest extends TestCase
             'trigger_type' => 'manual',
             'status' => 'on',
             'reason' => 'Sprayer dinyalakan manual dari website',
-            'created_by' => $user->id,
+            'created_by' => null,
         ]);
     }
 
-    public function test_petani_can_turn_sprayer_off_in_manual_mode_and_log_it(): void
+    public function test_sprayer_can_be_turned_off_in_manual_mode_and_log_it(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'on');
 
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
-                'status' => 'off',
-            ])
+        $this->post('/sprayer/status', [
+            'status' => 'off',
+        ])
             ->assertRedirect('/sprayer')
             ->assertSessionHas('status', 'sprayer-status-updated');
 
@@ -131,17 +120,15 @@ final class SprintSixSprayerControlTest extends TestCase
             'trigger_type' => 'manual',
             'status' => 'off',
             'reason' => 'Sprayer dimatikan manual dari website',
-            'created_by' => $user->id,
+            'created_by' => null,
         ]);
     }
 
     public function test_manual_status_change_is_rejected_when_device_still_automatic(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'automatic', sprayerStatus: 'off');
 
-        $this->actingAs($user)
-            ->from('/sprayer')
+        $this->from('/sprayer')
             ->post('/sprayer/status', [
                 'status' => 'on',
             ])
@@ -157,7 +144,6 @@ final class SprintSixSprayerControlTest extends TestCase
             'device_id' => $device->id,
             'trigger_type' => 'manual',
             'status' => 'on',
-            'created_by' => $user->id,
         ]);
     }
 

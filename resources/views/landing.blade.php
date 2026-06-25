@@ -77,7 +77,7 @@
 
     {{-- NAV (overlay hero) — colors locked, theme-independent --}}
     <header class="absolute top-0 inset-x-0 z-20 px-4 sm:px-8 py-5 flex items-center gap-3">
-        <a href="{{ route('public.summary') }}" class="flex items-center gap-2.5 mr-auto">
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5 mr-auto">
             <span class="font-extrabold text-xl text-black tracking-tight">Smart Sprayer</span>
         </a>
         <nav class="hidden md:flex items-center gap-1">
@@ -101,11 +101,7 @@
             </svg>
         </button>
 
-        @if(\Illuminate\Support\Facades\Route::has('login'))
-            <a href="{{ route('login') }}" class="btn-primary" style="background:#1ed760;color:#000;">Login</a>
-        @else
-            <a href="{{ route('dashboard') }}" class="btn-primary" style="background:#1ed760;color:#000;">Login</a>
-        @endif
+        <a href="{{ route('dashboard') }}" class="btn-primary" style="background:#1ed760;color:#000;">Dashboard</a>
     </header>
 
     {{-- HERO — colors locked, theme-independent --}}
@@ -138,11 +134,7 @@
 
             <div class="mt-8 flex flex-wrap gap-3">
                 <a href="#data" class="btn-primary" style="background:#1ed760;color:#000;">Lihat Data Publik</a>
-                @if(\Illuminate\Support\Facades\Route::has('login'))
-                    <a href="{{ route('login') }}" class="btn-outline" style="color:#ffffff;border-color:#7c7c7c;">Login Petani</a>
-                @else
-                    <a href="{{ route('dashboard') }}" class="btn-outline" style="color:#ffffff;border-color:#7c7c7c;">Buka Dashboard</a>
-                @endif
+                <a href="{{ route('dashboard') }}" class="btn-outline" style="color:#ffffff;border-color:#7c7c7c;">Buka Dashboard</a>
             </div>
         </div>
 
@@ -309,7 +301,7 @@
         </div>
 
         <p class="mt-6 text-xs text-[color:var(--color-text-muted)]">
-            Data bersifat informatif. Untuk kontrol alat, silakan login.
+            Data bersifat informatif. Untuk kontrol alat, buka halaman dashboard.
         </p>
 
         <script id="dash-data" type="application/json">@json(['trend' => $trend, 'soil' => $soilGauge])</script>

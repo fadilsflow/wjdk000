@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Device;
-use App\Models\NotificationLog;
 use App\Models\SensorReading;
 use App\Models\SprayLog;
 use App\Repositories\DeviceRepository;
-use App\Repositories\NotificationLogRepository;
 use App\Repositories\SensorReadingRepository;
 use App\Repositories\SprayLogRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -20,7 +18,6 @@ final class HistoryService
         private readonly DeviceRepository $deviceRepository,
         private readonly SensorReadingRepository $sensorReadingRepository,
         private readonly SprayLogRepository $sprayLogRepository,
-        private readonly NotificationLogRepository $notificationLogRepository,
     ) {}
 
     /**
@@ -82,33 +79,6 @@ final class HistoryService
 
     /**
      * @param  array<string, mixed>  $filters
-     * @return array<string, mixed>
-     */
-    public function getNotificationHistoryData(array $filters): array
-    {
-        $device = $this->deviceRepository->findDashboardDevice();
-        $paginator = $device instanceof Device
-            ? $this->notificationLogRepository->paginateHistoryForDevice($device, $filters)
-            : $this->emptyPaginator();
-
-        return [
-            'notifications' => $paginator->getCollection()
-                ->map(static fn (NotificationLog $notification): array => [
-                    'time' => $notification->sent_at?->format('Y-m-d H:i:s') ?? '-',
-                    'type' => $notification->type,
-                    'type_label' => self::notificationTypeLabel($notification->type),
-                    'phone' => $notification->recipient_phone,
-                    'message' => $notification->message,
-                    'status' => $notification->status,
-                ])
-                ->all(),
-            'filters' => $this->normalizeFilters($filters),
-            'pagination' => $this->buildPaginationData($paginator),
-        ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $filters
      * @return array<string, string|null>
      */
     private function normalizeFilters(array $filters): array
@@ -138,16 +108,5 @@ final class HistoryService
             'path' => request()->url(),
             'pageName' => 'page',
         ]);
-    }
-
-    private static function notificationTypeLabel(string $type): string
-    {
-        return match ($type) {
-            'critical_condition' => 'Kondisi Kritis',
-            'spray_start' => 'Penyemprotan Dimulai',
-            'spray_stop' => 'Penyemprotan Berhenti',
-            'rain_detected' => 'Hujan Terdeteksi',
-            default => ucfirst(str_replace('_', ' ', $type)),
-        };
     }
 }

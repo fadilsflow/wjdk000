@@ -24,58 +24,16 @@ final class SprintTwoAuthUserManagementTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_valid_user_can_login_and_logout(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'admin-login@example.com',
-            'password' => 'password',
-            'role' => 'admin',
-        ]);
-
-        $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
-        ])->assertRedirect('/dashboard');
-
-        $this->assertAuthenticatedAs($user);
-
-        $this->post('/logout')
-            ->assertRedirect('/');
-
-        $this->assertGuest();
-    }
-
-    public function test_invalid_user_login_is_rejected(): void
-    {
-        User::factory()->create([
-            'email' => 'petani-login@example.com',
-            'password' => 'password',
-        ]);
-
-        $this->from('/login')
-            ->post('/login', [
-                'email' => 'petani-login@example.com',
-                'password' => 'wrong-password',
-            ])
-            ->assertRedirect('/login')
-            ->assertSessionHasErrors('email');
-
-        $this->assertGuest();
-    }
-
     public function test_admin_can_create_user_from_management_page(): void
     {
-        $admin = User::factory()->admin()->create();
-
-        $this->actingAs($admin)
-            ->post('/admin/users', [
-                'name' => 'Petani Baru',
-                'email' => 'petani-managed@example.com',
-                'phone_number' => '+628111111111',
-                'role' => 'petani',
-                'password' => 'Password123!',
-                'password_confirmation' => 'Password123!',
-            ])
+        $this->post('/admin/users', [
+            'name' => 'Petani Baru',
+            'email' => 'petani-managed@example.com',
+            'phone_number' => '+628111111111',
+            'role' => 'petani',
+            'password' => 'Password123!',
+            'password_confirmation' => 'Password123!',
+        ])
             ->assertRedirect('/admin/users');
 
         $this->assertDatabaseHas('users', [
@@ -87,20 +45,18 @@ final class SprintTwoAuthUserManagementTest extends TestCase
 
     public function test_admin_can_update_managed_user(): void
     {
-        $admin = User::factory()->admin()->create();
         $user = User::factory()->create([
             'role' => 'petani',
         ]);
 
-        $this->actingAs($admin)
-            ->put("/admin/users/{$user->id}", [
-                'name' => 'Petani Update',
-                'email' => $user->email,
-                'phone_number' => '+628222222222',
-                'role' => 'admin',
-                'password' => '',
-                'password_confirmation' => '',
-            ])
+        $this->put("/admin/users/{$user->id}", [
+            'name' => 'Petani Update',
+            'email' => $user->email,
+            'phone_number' => '+628222222222',
+            'role' => 'admin',
+            'password' => '',
+            'password_confirmation' => '',
+        ])
             ->assertRedirect('/admin/users');
 
         $this->assertDatabaseHas('users', [
@@ -111,16 +67,15 @@ final class SprintTwoAuthUserManagementTest extends TestCase
         ]);
     }
 
-    public function test_admin_cannot_delete_self(): void
+    public function test_admin_can_delete_user(): void
     {
-        $admin = User::factory()->admin()->create();
+        $user = User::factory()->create();
 
-        $this->actingAs($admin)
-            ->delete("/admin/users/{$admin->id}")
-            ->assertSessionHasErrors('user');
+        $this->delete("/admin/users/{$user->id}")
+            ->assertRedirect('/admin/users');
 
-        $this->assertDatabaseHas('users', [
-            'id' => $admin->id,
+        $this->assertDatabaseMissing('users', [
+            'id' => $user->id,
         ]);
     }
 }

@@ -44,25 +44,15 @@ final class SprintTenTestingTest extends TestCase
     }
 
     /**
-     * Test 1: Test login dan role.
+     * Test 1: Semua halaman dapat diakses tanpa login.
      */
-    public function test_login_and_role_access(): void
+    public function test_all_pages_are_accessible_without_login(): void
     {
-        // GUEST cannot access dashboard or admin pages
-        $this->get('/dashboard')->assertRedirect('/login');
-        $this->get('/admin/users')->assertRedirect('/login');
-
-        // PETANI can access dashboard, but not admin page
-        $petani = User::factory()->create([
-            'role' => 'petani',
-        ]);
-        $this->actingAs($petani)->get('/dashboard')->assertOk();
-        $this->actingAs($petani)->get('/admin/users')->assertForbidden();
-
-        // ADMIN can access dashboard and admin page
-        $admin = User::factory()->admin()->create();
-        $this->actingAs($admin)->get('/dashboard')->assertOk();
-        $this->actingAs($admin)->get('/admin/users')->assertOk();
+        $this->get('/dashboard')->assertOk();
+        $this->get('/admin/users')->assertOk();
+        $this->get('/sprayer')->assertOk();
+        $this->get('/history/sensor')->assertOk();
+        $this->get('/history/spray')->assertOk();
     }
 
     /**
@@ -109,7 +99,6 @@ final class SprintTenTestingTest extends TestCase
         $frozenNow = Carbon::create(2026, 5, 24, 10, 0, 0, 'Asia/Jakarta');
         Carbon::setTestNow($frozenNow);
 
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'off');
 
         SensorReading::query()->create([
@@ -123,8 +112,7 @@ final class SprintTenTestingTest extends TestCase
             'recorded_at' => $frozenNow,
         ]);
 
-        $this->actingAs($user)
-            ->get('/dashboard')
+        $this->get('/dashboard')
             ->assertOk()
             ->assertSeeText($device->name)
             ->assertSeeText('31.5°C')
@@ -185,12 +173,10 @@ final class SprintTenTestingTest extends TestCase
      */
     public function test_manual_control_actions_and_restrictions(): void
     {
-        $user = User::factory()->create();
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'off');
 
         // Turn ON manual
-        $this->actingAs($user)
-            ->post('/sprayer/status', [
+        $this->post('/sprayer/status', [
                 'status' => 'on',
             ])
             ->assertRedirect('/sprayer')
@@ -203,8 +189,7 @@ final class SprintTenTestingTest extends TestCase
 
         // Rejects status change when mode is automatic
         $device->update(['mode' => 'automatic']);
-        $this->actingAs($user)
-            ->from('/sprayer')
+        $this->from('/sprayer')
             ->post('/sprayer/status', [
                 'status' => 'off',
             ])
@@ -253,7 +238,7 @@ final class SprintTenTestingTest extends TestCase
      */
     public function test_history_pages_loading(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['name' => 'Petani Log']);
         $device = $this->makeDevice(mode: 'manual', sprayerStatus: 'off');
 
         // Seed data for histories
@@ -285,28 +270,18 @@ final class SprintTenTestingTest extends TestCase
             'sent_at' => now(),
         ]);
 
-        // Check sensor history
-        $this->actingAs($user)
-            ->get('/history/sensor')
+        $this->get('/history/sensor')
             ->assertOk()
             ->assertSeeText('31.5°C')
             ->assertSeeText('70%')
             ->assertSeeText('35%');
 
-        // Check spray history
-        $this->actingAs($user)
-            ->get('/history/spray')
+        $this->get('/history/spray')
             ->assertOk()
             ->assertSeeText('Manual')
             ->assertSeeText('ON')
-            ->assertSeeText('Tes manual');
-
-        // Check notification history
-        $this->actingAs($user)
-            ->get('/history/notification')
-            ->assertOk()
-            ->assertSeeText('+628123456700')
-            ->assertSeeText('Notifikasi Kritis');
+            ->assertSeeText('Tes manual')
+            ->assertSeeText('Petani Log');
     }
 
     /**
@@ -328,19 +303,14 @@ final class SprintTenTestingTest extends TestCase
             'recorded_at' => now(),
         ]);
 
-        // Get public summary
-        $this->get('/public/summary')
+        $this->get('/')
             ->assertOk()
             ->assertSeeText('Smart Sprayer')
             ->assertSeeText('31.5')
             ->assertSeeText('70')
             ->assertSeeText('35')
             ->assertSeeText('kritis')
-            ->assertSeeText('Data Publik');
-
-        // Get public home
-        $this->get('/')
-            ->assertOk()
+            ->assertSeeText('Data Publik')
             ->assertDontSeeText('Kontrol Sprayer')
             ->assertDontSeeText('Nyalakan')
             ->assertDontSeeText('Matikan')

@@ -45,7 +45,7 @@ final class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        $this->userManagementService->deleteUser($user, (int) auth()->id());
+        $this->userManagementService->deleteUser($user);
 
         return redirect()
             ->route('admin.users.index')

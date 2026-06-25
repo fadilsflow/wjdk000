@@ -9,7 +9,6 @@ use App\Models\NotificationLog;
 use App\Models\SensorReading;
 use App\Models\SprayLog;
 use App\Models\ThresholdSetting;
-use App\Models\User;
 use Illuminate\Support\Carbon;
 use Tests\Concerns\UsesMysqlTestDatabase;
 use Tests\TestCase;
@@ -33,10 +32,7 @@ final class SprintFiveDashboardTest extends TestCase
 
     public function test_dashboard_shows_empty_state_when_device_has_not_been_registered(): void
     {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)
-            ->get('/dashboard')
+        $this->get('/dashboard')
             ->assertOk()
             ->assertSeeText('Belum ada perangkat')
             ->assertSeeText('Belum ada data aktivitas perangkat.');
@@ -47,7 +43,6 @@ final class SprintFiveDashboardTest extends TestCase
         $frozenNow = Carbon::create(2026, 5, 24, 10, 0, 0, 'Asia/Jakarta');
         Carbon::setTestNow($frozenNow);
 
-        $user = User::factory()->create();
         $device = Device::query()->create([
             'name' => 'Sprayer Lahan Brebes',
             'location' => 'Brebes',
@@ -102,8 +97,7 @@ final class SprintFiveDashboardTest extends TestCase
             'sent_at' => $frozenNow->copy()->subMinutes(4),
         ]);
 
-        $this->actingAs($user)
-            ->get('/dashboard')
+        $this->get('/dashboard')
             ->assertOk()
             ->assertSeeText('Sprayer Lahan Brebes')
             ->assertSeeText('31.5°C')
