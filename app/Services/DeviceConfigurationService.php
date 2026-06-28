@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Models\Device;
 use App\Repositories\DeviceRepository;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 final class DeviceConfigurationService
 {
@@ -20,51 +19,24 @@ final class DeviceConfigurationService
      */
     public function getIndexData(): array
     {
-        $devices = $this->deviceRepository->getAllWithThresholds();
-        $selectedDevice = $devices->first();
+        $device = $this->deviceRepository->findDashboardDevice();
 
         return [
-            'devices' => $devices
-                ->map(static fn (Device $device): array => [
-                    'id' => $device->id,
-                    'name' => $device->name,
-                    'location' => $device->location,
-                    'api_key' => $device->getAttributes()['api_key'],
-                    'mode' => $device->mode,
-                    'sprayer_status' => $device->sprayer_status,
-                ])
-                ->all(),
+            'device' => $device instanceof Device ? [
+                'id' => $device->id,
+                'name' => $device->name,
+                'location' => $device->location,
+                'api_key' => $device->getAttributes()['api_key'],
+                'mode' => $device->mode,
+                'sprayer_status' => $device->sprayer_status,
+            ] : null,
             'thresholds' => [
-                'device_id' => $selectedDevice?->id,
-                'min_soil_moisture' => $selectedDevice?->thresholdSetting?->min_soil_moisture,
-                'max_temperature' => $selectedDevice?->thresholdSetting?->max_temperature,
-                'min_air_humidity' => $selectedDevice?->thresholdSetting?->min_air_humidity,
+                'device_id' => $device?->id,
+                'min_soil_moisture' => $device?->thresholdSetting?->min_soil_moisture,
+                'max_temperature' => $device?->thresholdSetting?->max_temperature,
+                'min_air_humidity' => $device?->thresholdSetting?->min_air_humidity,
             ],
         ];
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function createDevice(array $data): Device
-    {
-        return DB::transaction(function () use ($data): Device {
-            $device = $this->deviceRepository->create([
-                'name'           => $data['name'],
-                'location'       => $data['location'],
-                'api_key'        => Str::random(32),
-                'mode'           => 'automatic',
-                'sprayer_status' => 'off',
-            ]);
-
-            $device->thresholdSetting()->create([
-                'min_soil_moisture' => 40.0,
-                'max_temperature'   => 35.0,
-                'min_air_humidity'  => 60.0,
-            ]);
-
-            return $device;
-        });
     }
 
     /**
@@ -87,16 +59,5 @@ final class DeviceConfigurationService
                 $device->thresholdSetting()->create($payload);
             }
         });
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    public function updateDevice(Device $device, array $data): void
-    {
-        $this->deviceRepository->update($device, [
-            'name'     => $data['name'],
-            'location' => $data['location'],
-        ]);
     }
 }

@@ -8,8 +8,7 @@ $navLinks = $navLinks ?? [
         ['route' => 'history.spray', 'label' => 'Penyemprotan'],
     ]],
     ['route' => 'admin.devices.index', 'label' => 'Pengaturan', 'group' => 'admin', 'children' => [
-        ['route' => 'admin.devices.index', 'label' => 'Konfigurasi Alat'],
-        ['route' => 'admin.users.index', 'label' => 'Pengguna'],
+        ['route' => 'admin.devices.index', 'label' => 'Threshold Sensor'],
         ['route' => 'admin.whatsapp.index', 'label' => 'WhatsApp'],
     ]],
 ];
@@ -174,13 +173,9 @@ $isAdminRoute = request()->routeIs('admin.*');
         $flashMessages = [
             'sprayer-mode-updated'        => ['msg' => 'Mode sprayer diperbarui.', 'type' => 'success'],
             'sprayer-status-updated'      => ['msg' => 'Status sprayer diperbarui.', 'type' => 'success'],
-            'user-created'                => ['msg' => 'Pengguna baru berhasil dibuat.', 'type' => 'success'],
-            'user-updated'                => ['msg' => 'Data pengguna diperbarui.', 'type' => 'success'],
-            'user-deleted'                => ['msg' => 'Pengguna berhasil dihapus.', 'type' => 'success'],
             'whatsapp-settings-updated'   => ['msg' => 'Pengaturan WhatsApp disimpan.', 'type' => 'success'],
+            'whatsapp-test-sent'          => ['msg' => 'Pesan uji berhasil dikirim ke nomor penerima.', 'type' => 'success'],
             'threshold-updated'           => ['msg' => 'Threshold sensor diperbarui.', 'type' => 'success'],
-            'device-updated'              => ['msg' => 'Data perangkat diperbarui.', 'type' => 'success'],
-            'device-created'              => ['msg' => 'Perangkat baru berhasil ditambahkan.', 'type' => 'success'],
         ];
         $flashData = $flashStatus ? ($flashMessages[$flashStatus] ?? null) : null;
     @endphp

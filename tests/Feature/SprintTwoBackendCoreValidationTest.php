@@ -103,20 +103,6 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
         ]);
     }
 
-    public function test_admin_device_creation_requires_name_and_location(): void
-    {
-        $this->from('/admin/devices')
-            ->post('/admin/devices', [
-                'name' => '',
-                'location' => '',
-            ])
-            ->assertRedirect('/admin/devices')
-            ->assertSessionHasErrors([
-                'name',
-                'location',
-            ]);
-    }
-
     private function makeDevice(string $name): Device
     {
         $device = Device::query()->create([

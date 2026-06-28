@@ -52,6 +52,49 @@ final class SprintSevenWhatsappNotificationTest extends TestCase
         ]);
     }
 
+
+    public function test_admin_can_send_whatsapp_test_message_when_connected(): void
+    {
+        Http::fake([
+            'https://gateway.test/health' => Http::response([
+                'whatsapp_ready' => true,
+                'sender_number' => '628000000000',
+            ], 200),
+            'https://gateway.test/send' => Http::response(['success' => true], 200),
+        ]);
+
+        WhatsappSetting::query()->create([
+            'recipient_phone' => '+628123456700',
+        ]);
+
+        $this->post('/admin/whatsapp/test')
+            ->assertRedirect('/admin/whatsapp')
+            ->assertSessionHas('status', 'whatsapp-test-sent');
+
+        Http::assertSent(function ($request): bool {
+            return $request->url() === 'https://gateway.test/send'
+                && $request['to'] === '+628123456700'
+                && str_contains((string) $request['message'], 'Tes koneksi');
+        });
+    }
+
+    public function test_whatsapp_test_send_fails_when_not_connected(): void
+    {
+        Http::fake([
+            'https://gateway.test/health' => Http::response([
+                'whatsapp_ready' => false,
+            ], 200),
+        ]);
+
+        WhatsappSetting::query()->create([
+            'recipient_phone' => '+628123456700',
+        ]);
+
+        $this->post('/admin/whatsapp/test')
+            ->assertRedirect('/admin/whatsapp')
+            ->assertSessionHasErrors('test');
+    }
+
     public function test_sensor_endpoint_sends_critical_and_spray_start_notifications_with_template(): void
     {
         $device = $this->makeDeviceWithThreshold(mode: 'automatic', sprayerStatus: 'off');
