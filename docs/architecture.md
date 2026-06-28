@@ -8,7 +8,6 @@
 | Database          | MySQL                           | 8.0+                        |
 | ORM               | Eloquent ORM                    | Bawaan Laravel              |
 | Validation        | Laravel Form Request            | Bawaan Laravel              |
-| Auth              | Laravel Breeze (session-based)  | Role: admin / petani        |
 | Frontend          | Blade + Tailwind CSS v3         | Livewire opsional           |
 | Charts            | Chart.js atau ApexCharts        | Pilih satu, konsisten       |
 | Notifications     | WhatsApp Gateway/API            | Via Laravel HTTP Client      |
@@ -50,7 +49,7 @@ app/
 │   │   ├── Api/        ← Controller untuk IoT endpoint (api.php)
 │   │   ├── Admin/      ← Controller halaman khusus role admin
 │   │   └── ...         ← Controller fitur lain (1 controller per resource/fitur)
-│   ├── Middleware/     ← CheckRole, AuthenticateDevice, dll
+│   ├── Middleware/     ← AuthenticateDevice (API IoT), dll
 │   └── Requests/       ← 1 Form Request per use case (Store, Update, dll)
 ├── Models/             ← 1 file per tabel database
 ├── Services/           ← Business logic (1 service per domain/fitur besar)
@@ -61,7 +60,7 @@ resources/views/
 ├── components/         ← Blade components reusable
 ├── {fitur}/            ← Folder per fitur (dashboard, sprayer, history, admin, public)
 routes/
-├── web.php             ← Route autentikasi, dashboard, admin, sprayer, riwayat
+├── web.php             ← Dashboard, admin, sprayer, riwayat
 └── api.php             ← Route IoT (sensor-readings, device command)
 database/
 ├── migrations/         ← 1 file per perubahan skema (jangan edit lama)

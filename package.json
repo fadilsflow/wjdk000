@@ -6,7 +6,6 @@
         "build": "vite build",
         "dev": "vite",
         "test:e2e": "playwright test",
-        "test:e2e:public-auth": "playwright test tests/e2e/public-auth.spec.js",
         "test:e2e:sprayer": "playwright test tests/e2e/sprayer-control.spec.js",
         "test:e2e:headed": "playwright test --headed"
     },

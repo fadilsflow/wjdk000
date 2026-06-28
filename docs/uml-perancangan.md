@@ -5,8 +5,7 @@ Unified Modelling Language (UML) untuk memvisualisasikan alur sistem berbasis we
 Diagram disusun pada tingkat gambaran umum agar mudah dibaca, namun tetap
 mencerminkan alur dan struktur data sistem yang sebenarnya.
 
-Aktor pada sistem ini terdiri dari **Publik** (melihat ringkasan tanpa login),
-**Petani**, **Admin**, dan **Perangkat IoT** yang mengirimkan data sensor.
+Aktor pada sistem ini terdiri dari **Pengguna** (membuka dashboard, kontrol, dan admin tanpa login), **Publik** (melihat ringkasan), dan **Perangkat IoT** yang mengirimkan data sensor.
 
 ---
 
@@ -15,13 +14,11 @@ Aktor pada sistem ini terdiri dari **Publik** (melihat ringkasan tanpa login),
 ```mermaid
 flowchart LR
     publik([Publik])
-    petani([Petani])
-    admin([Admin])
+    pengguna([Pengguna])
     alat([Perangkat IoT])
 
     subgraph SYS[Sistem Smart Sprayer]
         uc1((Lihat Ringkasan Publik))
-        uc2((Login))
         uc3((Lihat Dashboard Monitoring))
         uc4((Kontrol Penyemprotan))
         uc5((Lihat Riwayat & Notifikasi))
@@ -31,53 +28,36 @@ flowchart LR
     end
 
     publik --> uc1
-    petani --> uc2
-    petani --> uc3
-    petani --> uc4
-    petani --> uc5
-    admin --> uc2
-    admin --> uc3
-    admin --> uc4
-    admin --> uc5
-    admin --> uc6
-    admin --> uc7
+    pengguna --> uc3
+    pengguna --> uc4
+    pengguna --> uc5
+    pengguna --> uc6
+    pengguna --> uc7
     alat --> uc8
 ```
 
-Aktor utama yang berinteraksi langsung adalah Petani dan Admin setelah melakukan
-login. Publik hanya dapat melihat halaman ringkasan, sedangkan Perangkat IoT
-berperan sebagai sumber data sensor lingkungan.
+Pengguna dapat membuka seluruh fitur web tanpa login. Publik hanya melihat ringkasan. Perangkat IoT berperan sebagai sumber data sensor.
 
 ---
 
-## 2. Activity Diagram — Login & Kontrol Sprayer
+## 2. Activity Diagram — Kontrol Sprayer
 
 ```mermaid
 flowchart TD
     A([Mulai]) --> B[Pengguna membuka website]
-    B --> C[Masuk halaman Login]
-    C --> D[Memasukkan email & kata sandi]
-    D --> E{Data login benar?}
-    E -- Tidak --> C
-    E -- Ya --> F[Sistem membuka sesi login]
-    F --> G[Membuka menu Kontrol Sprayer]
-    G --> H[Menekan tombol nyalakan/matikan]
-    H --> I[Sistem memvalidasi permintaan]
-    I --> J{Boleh dijalankan?}
-    J -- Tidak --> K[Tampilkan pesan penolakan]
-    K --> G
-    J -- Ya --> L[Memperbarui status alat di basis data]
-    L --> M[Mencatat riwayat penyemprotan]
-    M --> N[Mengirim notifikasi WhatsApp]
-    N --> O[Menampilkan status berhasil ke layar]
-    O --> P([Selesai])
+    B --> C[Membuka menu Kontrol Sprayer]
+    C --> D[Menekan tombol nyalakan/matikan]
+    D --> E[Sistem memvalidasi permintaan]
+    E --> F[Memperbarui status alat di basis data]
+    F --> G[Mencatat riwayat penyemprotan]
+    G --> H[Mengirim notifikasi WhatsApp]
+    H --> I[Menampilkan status berhasil ke layar]
+    I --> J([Selesai])
 ```
 
-Alur dimulai saat pengguna membuka website dan melakukan login. Setelah sistem
-memvalidasi kredensial, pengguna dapat membuka menu Kontrol Sprayer, menekan
-tombol aktivasi, lalu sistem memvalidasi permintaan, memperbarui status pada
-basis data, mencatat riwayat, mengirim notifikasi, dan menampilkan status
-berhasil ke layar.
+Alur dimulai saat pengguna membuka halaman Kontrol Sprayer, menekan tombol
+aktivasi, lalu sistem memperbarui status pada basis data, mencatat riwayat,
+mengirim notifikasi, dan menampilkan status berhasil ke layar.
 
 ---
 

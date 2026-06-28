@@ -30,10 +30,10 @@ const char *AP_PASSWORD = "12345678"; // Minimum 8 characters
 // BACKEND_SENSOR_URL example: http://192.168.1.10:8000/api/sensor-readings
 // DEVICE_API_KEY must match the api_key column in the Laravel devices table.
 // =====================================================
-const char *STA_SSID = "iPhone 15 Pro Max";
-const char *STA_PASSWORD = "digimon123";
+const char *STA_SSID = "syaiwan13";
+const char *STA_PASSWORD = "123456789";
 // const char *BACKEND_SENSOR_URL = "http://192.168.1.8:8000/api/sensor-readings";
-const char *BACKEND_SENSOR_URL = "https://ssp.kreeasi.web.id/api/sensor-readings";
+const char *BACKEND_SENSOR_URL = "https://smartsprayer.web.id/api/sensor-readings";
 const char *DEVICE_API_KEY = "HtfEoED9PhayKSg46lydZxa2QAkUfTas";
 
 bool backendControlMode = true;

@@ -10,13 +10,11 @@ left to right direction
 skinparam packageStyle rectangle
 
 actor "Publik" as Publik
-actor "Petani" as Petani
-actor "Admin" as Admin
+actor "Pengguna" as Pengguna
 actor "Perangkat IoT" as Alat
 
 rectangle "Sistem Smart Sprayer" {
     usecase "Lihat Ringkasan Publik" as UC1
-    usecase "Login" as UC2
     usecase "Lihat Dashboard Monitoring" as UC3
     usecase "Kontrol Penyemprotan" as UC4
     usecase "Lihat Riwayat & Notifikasi" as UC5
@@ -27,48 +25,29 @@ rectangle "Sistem Smart Sprayer" {
 
 Publik --> UC1
 
-Petani --> UC2
-Petani --> UC3
-Petani --> UC4
-Petani --> UC5
-
-Admin --> UC2
-Admin --> UC3
-Admin --> UC4
-Admin --> UC5
-Admin --> UC6
-Admin --> UC7
+Pengguna --> UC3
+Pengguna --> UC4
+Pengguna --> UC5
+Pengguna --> UC6
+Pengguna --> UC7
 
 Alat --> UC8
 @enduml
 
 
 ' =====================================================================
-' 2. ACTIVITY DIAGRAM - Login & Kontrol Sprayer
+' 2. ACTIVITY DIAGRAM - Kontrol Sprayer
 ' =====================================================================
 @startuml Activity
 start
 :Pengguna membuka website;
-:Masuk halaman Login;
-:Memasukkan email & kata sandi;
-if (Data login benar?) then (Tidak)
-    :Kembali ke halaman Login;
-    stop
-else (Ya)
-    :Sistem membuka sesi login;
-endif
 :Membuka menu Kontrol Sprayer;
 :Menekan tombol nyalakan/matikan;
 :Sistem memvalidasi permintaan;
-if (Boleh dijalankan?) then (Tidak)
-    :Tampilkan pesan penolakan;
-    stop
-else (Ya)
-    :Memperbarui status alat di basis data;
-    :Mencatat riwayat penyemprotan;
-    :Mengirim notifikasi WhatsApp;
-    :Menampilkan status berhasil ke layar;
-endif
+:Memperbarui status alat di basis data;
+:Mencatat riwayat penyemprotan;
+:Mengirim notifikasi WhatsApp;
+:Menampilkan status berhasil ke layar;
 stop
 @enduml
 
@@ -104,7 +83,7 @@ end
 class Pengguna {
     +nama
     +email
-    +kata_sandi
+    +nomor_telepon
     +peran
 }
 

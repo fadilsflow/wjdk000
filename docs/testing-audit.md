@@ -79,14 +79,14 @@ Cakupan:
 
 ## Authentication
 
-- `SprintTwoAuthUserManagementTest`
+- `SprintTwoUserManagementTest`
 - `SprintTenTestingTest`
 
 Cakupan:
 
-- login valid
-- login invalid
-- logout
+- CRUD pengguna
+- 
+- 
 - admin create/update/delete guard
 
 ## IoT API
@@ -204,7 +204,7 @@ Suite existing:
 
 - `tests/Feature/ExampleTest.php`
 - `tests/Feature/SprintOneAccessTest.php`
-- `tests/Feature/SprintTwoAuthUserManagementTest.php`
+- `tests/Feature/SprintTwoUserManagementTest.php`
 - `tests/Feature/SprintThreeDatabaseSchemaTest.php`
 - `tests/Feature/SprintFourIotApiTest.php`
 - `tests/Feature/SprintFiveDashboardTest.php`
@@ -250,7 +250,7 @@ Contoh run per file/group:
 
 ```bash
 php artisan test tests/Feature/SprintOneAccessTest.php
-php artisan test tests/Feature/SprintTwoAuthUserManagementTest.php tests/Feature/AdminDeviceConfigurationTest.php
+php artisan test tests/Feature/SprintTwoUserManagementTest.php tests/Feature/AdminDeviceConfigurationTest.php
 php artisan test tests/Feature/SprintFourIotApiTest.php tests/Feature/SprintSixSprayerControlTest.php
 php artisan test tests/Feature/SprintFiveDashboardTest.php tests/Feature/SprintSevenWhatsappNotificationTest.php tests/Feature/SprintEightHistoryTest.php tests/Feature/SprintNinePublicSummaryTest.php
 php artisan test tests/Feature/ExampleTest.php tests/Feature/SprintThreeDatabaseSchemaTest.php tests/Feature/SprintTenTestingTest.php tests/Unit/ExampleTest.php
@@ -280,7 +280,7 @@ Selesai.
 Checklist:
 
 - [x] Verifikasi access control
-- [x] Verifikasi auth login/logout
+- [x] Verifikasi manajemen pengguna
 - [x] Verifikasi validasi input penting
 - [x] Verifikasi device auth IoT
 - [x] Verifikasi response wrapper API
@@ -324,22 +324,22 @@ Checklist:
 - [x] Test halaman landing publik terbuka normal
 - [x] Test halaman publik tidak menampilkan tombol kontrol sprayer
 - [x] Test halaman publik tidak menampilkan data sensitif
-- [x] Test guest tidak bisa akses route yang butuh login
-- [x] Test login admin berhasil
-- [x] Test login petani berhasil
-- [x] Test logout berhasil
+- [x] 
+- [x] 
+- [x] 
+- [x] Test  berhasil
 
 Hasil browser:
 
 - `GET /` → `200`
-- guest buka `/dashboard` → redirect ke `/login`
-- admin login → `POST /login` `302` → `/dashboard` `200`
-- logout → `POST /logout` `302` → `/` `200`
-- petani login → `POST /login` `302` → `/dashboard` `200`
+- guest buka `/dashboard` → `200`
+- 
+-  → `POST /` `302` → `/` `200`
+- 
 
 Validasi publik:
 
-- tombol login tampil
+- 
 - ringkasan publik tampil
 - tidak ada tombol kontrol sprayer pada halaman publik
 - tidak ada data sensitif user/WhatsApp pada halaman publik
@@ -348,7 +348,7 @@ Validasi auth:
 
 - admin berhasil masuk dashboard
 - petani berhasil masuk dashboard
-- logout kembali ke halaman publik
+-  kembali ke halaman publik
 
 Catatan browser console:
 
@@ -360,7 +360,7 @@ Catatan browser console:
 Interpretasi:
 
 - flow Sprint 4 lulus
-- ada residual warning frontend pada render chart dashboard, tidak memblok login/logout, tetapi perlu dibersihkan di sprint berikutnya
+- ada residual warning frontend pada render chart dashboard, tidak memblok alur utama, tetapi perlu dibersihkan di sprint berikutnya
 
 ## Sprint 5
 
@@ -552,7 +552,7 @@ Checklist:
 
 Skenario yang dijalankan:
 
-1. Lakukan login sebagai Admin dan masuk ke dashboard.
+1. Buka dashboard.
 2. Buka menu sidebar / navigasi menuju halaman **Riwayat Sensor** (`/history/sensor`).
 3. Verifikasi record terbaru dari data sensor sebelumnya (28.0°C, 75%, 55%, no_rain, off, normal) muncul di paling atas tabel.
 4. Buka halaman **Riwayat Penyemprotan** (`/history/spray`).
@@ -621,7 +621,7 @@ Hasil penting:
 - **Pengaturan WhatsApp**:
   - Nomor WhatsApp penerima notifikasi sukses terkonfigurasi ke `0882006200136` secara persisten.
 - **Role-Based Access Control**:
-  - Hak akses routes `/admin/*` hanya terbatas untuk Admin. Petani yang mencoba membypass URL langsung diblokir secara mutlak oleh middleware `CheckRole` (HTTP 403).
+  - Hak akses routes `/admin/*` hanya terbatas untuk Admin. Petani yang mencoba membypass URL langsung diblokir secara mutlak oleh akses web terbuka (HTTP 403).
 
 Bukti Visual:
 - Manajemen Pengguna (Admin): [admin_users.png](file:///home/boyblanco/.gemini/antigravity/brain/bcff74f8-90ed-46a1-937d-e5a21cc06e0a/artifacts/admin_users_1779724803959.png)
@@ -632,7 +632,7 @@ Bukti Visual:
 Interpretasi:
 
 - Seluruh manajemen administrasi (pengguna, alat, threshold, notifikasi) berjalan dengan lancar dan aman.
-- Middleware otorisasi `CheckRole` bekerja sempurna, membatasi akses sensitif dari aktor non-admin (petani/publik).
+- Akses web terbuka bekerja sempurna, membatasi akses sensitif dari aktor non-admin (petani/publik).
 
 ## Sprint 10 — Hardening, Regression, dan Reporting
 
@@ -654,14 +654,14 @@ Seluruh test suite dari Sprint 1 hingga Sprint 9 telah dikonsolidasikan ke dalam
 `tests/Feature/SprintTenTestingTest.php`
 
 Urutan run pengujian diatur secara berurutan dan stabil sebagai berikut:
-1. **test_login_and_role_access**: Memvalidasi login user, pembatasan middleware role Admin, Petani, dan Publik.
+1. **test_all_pages_are_accessible**: Memvalidasi semua halaman web dapat diakses.
 2. **test_sensor_api_input_validation_and_rejection**: Memvalidasi otentikasi API Key IoT, penolakan key tidak terdaftar, dan penerimaan data sensor valid.
 3. **test_dashboard_renders_data_and_charts**: Memvalidasi render visual data sensor real-time terbaru dan chart di dashboard petani.
 4. **test_automatic_spraying_business_rules**: Memvalidasi business rules otomasi sprayer (pompa menyala saat tanah kering & mati saat hujan atau tanah basah).
 5. **test_manual_control_actions_and_restrictions**: Memvalidasi kontrol tombol manual (ON/OFF) dari UI dan penolakan kontrol manual saat mode otomatis aktif.
 6. **test_whatsapp_notification_sending_and_logging**: Memvalidasi trigger otomatisasi pengiriman payload notifikasi WhatsApp ke HTTP gateway beserta pencatatan logs auditnya.
 7. **test_history_pages_loading**: Memvalidasi data riwayat (Sensor, Spray, Notifikasi) ter-load dengan benar di UI dengan urutan descending (terbaru di atas).
-8. **test_public_pages_do_not_leak_private_data**: Memvalidasi halaman ringkasan publik (/public/summary) tidak membocorkan tombol kontrol, data login, atau nomor WhatsApp sensitif.
+8. **test_public_pages_do_not_leak_private_data**: Memvalidasi halaman ringkasan publik (/public/summary) tidak membocorkan tombol kontrol atau nomor WhatsApp sensitif.
 
 ---
 

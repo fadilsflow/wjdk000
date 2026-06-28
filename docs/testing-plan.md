@@ -203,8 +203,7 @@ Menjamin business logic inti aman sebelum browser test dijalankan.
 
 ### Task
 
-- Verifikasi access control untuk publik, petani, dan admin
-- Verifikasi autentikasi login/logout
+- Verifikasi halaman publik dan halaman utama dapat diakses
 - Verifikasi validasi input form penting
 - Verifikasi rule IoT device auth
 - Verifikasi response wrapper API
@@ -261,7 +260,7 @@ Menjamin frontend dapat dibangun tanpa error dependency atau import.
 
 ---
 
-## Sprint 4 — E2E Publik dan Auth
+## Sprint 4 — E2E Publik dan Halaman Utama
 
 ### Tujuan
 
@@ -272,19 +271,14 @@ Menguji alur paling dasar dari sisi browser.
 - Test halaman landing publik terbuka normal
 - Test halaman publik tidak menampilkan tombol kontrol sprayer
 - Test halaman publik tidak menampilkan data sensitif
-- Test guest tidak bisa akses route yang butuh login
-- Test login admin berhasil
-- Test login petani berhasil
-- Test logout berhasil
 
 ### Skenario Browser
 
 1. Buka `/`
 2. Verifikasi ringkasan publik tampil
 3. Pastikan kontrol admin tidak tampil
-4. Coba buka `/dashboard` tanpa login dan verifikasi redirect
-5. Login admin dan verifikasi redirect sukses
-6. Login petani dan verifikasi redirect sukses
+4. Buka `/dashboard` dan verifikasi halaman tampil
+5. Buka `/admin/users` dan verifikasi halaman admin tampil
 
 ### Deliverable
 
@@ -292,7 +286,7 @@ Menguji alur paling dasar dari sisi browser.
 
 ### Definition of Done
 
-- Alur publik dan login tervalidasi otomatis dari browser
+- Alur publik dan halaman utama tervalidasi otomatis dari browser
 
 ---
 
@@ -497,7 +491,6 @@ Menjadikan testing dapat dijalankan berulang dengan hasil yang mudah dibaca.
 | Fitur | Backend Test | Build Check | Browser E2E |
 |------|--------------|-------------|-------------|
 | Landing publik | Ya | Ya | Ya |
-| Login/logout | Ya | Tidak langsung | Ya |
 | Dashboard | Ya | Ya | Ya |
 | Sprayer control | Ya | Tidak langsung | Ya |
 | History | Ya | Tidak langsung | Ya |
@@ -516,7 +509,6 @@ Jika waktu terbatas, kerjakan urutan ini:
 1. `php artisan test`
 2. `npm run build`
 3. E2E publik
-4. E2E login
 5. E2E dashboard
 6. E2E sprayer control
 7. E2E IoT automatic rules

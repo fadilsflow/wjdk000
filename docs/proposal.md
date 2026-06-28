@@ -110,7 +110,7 @@ Unified Modeling Language (UML) digunakan sebagai alat bantu pemodelan sistem. D
 
 ### 6.11 Black Box Testing
 
-Black Box Testing digunakan untuk menguji fungsi sistem berdasarkan input dan output tanpa melihat struktur internal kode. Pengujian dilakukan pada fitur login, dashboard, API sensor, kontrol penyemprotan, notifikasi WhatsApp, riwayat, dan tampilan responsif.
+Black Box Testing digunakan untuk menguji fungsi sistem berdasarkan input dan output tanpa melihat struktur internal kode. Pengujian dilakukan pada fitur dashboard, API sensor, kontrol penyemprotan, notifikasi WhatsApp, riwayat, dan tampilan responsif.
 
 ## 7. Metodologi Penelitian
 

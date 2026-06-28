@@ -29,24 +29,18 @@ final class SprintOneAccessTest extends TestCase
             ->assertOk();
     }
 
-    public function test_dashboard_is_accessible_without_login(): void
+    public function test_dashboard_is_accessible(): void
     {
         $this->get('/dashboard')
             ->assertOk();
     }
 
-    public function test_admin_routes_are_accessible_without_login(): void
+    public function test_admin_routes_are_accessible(): void
     {
         $this->get('/admin/users')
             ->assertOk();
 
         $this->get('/admin/devices')
             ->assertOk();
-    }
-
-    public function test_login_route_is_not_available(): void
-    {
-        $this->get('/login')
-            ->assertNotFound();
     }
 }

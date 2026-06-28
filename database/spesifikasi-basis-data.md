@@ -17,7 +17,7 @@ Tabel **users** berfungsi untuk menyimpan data identitas dan kredensial (passwor
 | 5  | password          | VARCHAR   | 255     | Menyimpan kata sandi terenkripsi              |
 | 6  | role              | VARCHAR   | 255     | Menyimpan peran pengguna (Default: 'petani')  |
 | 7  | phone_number      | VARCHAR   | 20      | Menyimpan nomor telepon pengguna              |
-| 8  | remember_token    | VARCHAR   | 100     | Token remember me pada sesi login             |
+| 8  | remember_token    | VARCHAR   | 100     | Kolom legacy Laravel (tidak dipakai)          |
 | 9  | created_at        | TIMESTAMP | -       | Waktu data dibuat                             |
 | 10 | updated_at        | TIMESTAMP | -       | Waktu data terakhir diubah                    |
 

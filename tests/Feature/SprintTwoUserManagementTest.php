@@ -8,7 +8,7 @@ use App\Models\User;
 use Tests\Concerns\UsesMysqlTestDatabase;
 use Tests\TestCase;
 
-final class SprintTwoAuthUserManagementTest extends TestCase
+final class SprintTwoUserManagementTest extends TestCase
 {
     use UsesMysqlTestDatabase;
 

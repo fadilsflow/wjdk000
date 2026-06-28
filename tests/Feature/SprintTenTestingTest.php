@@ -44,9 +44,9 @@ final class SprintTenTestingTest extends TestCase
     }
 
     /**
-     * Test 1: Semua halaman dapat diakses tanpa login.
+     * Test 1: Semua halaman dapat diakses.
      */
-    public function test_all_pages_are_accessible_without_login(): void
+    public function test_all_pages_are_accessible(): void
     {
         $this->get('/dashboard')->assertOk();
         $this->get('/admin/users')->assertOk();

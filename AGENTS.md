@@ -20,7 +20,6 @@ Membangun website monitoring dan kendali sistem **Smart Sprayer IoT** untuk peng
 | Database            | MySQL 8.0+                                         |
 | ORM                 | Eloquent ORM                                       |
 | Validation          | Laravel Form Request + Eloquent rules              |
-| Auth                | Laravel Breeze (session-based) + role middleware   |
 | Cache               | Laravel Cache (file/redis driver)                  |
 | Queue / Worker      | Laravel Queue (database driver)                    |
 | Frontend            | Blade + Livewire (optional for reactive UI)        |
@@ -58,7 +57,7 @@ Request (HTTP / IoT)
 - **Dilarang:** Business logic, query database langsung, kondisional yang panjang
 
 ### Middleware (`app/Http/Middleware/`)
-- **Boleh:** Cek autentikasi, cek role, autentikasi perangkat IoT via API key
+- **Boleh:** Autentikasi perangkat IoT via API key (`AuthenticateDevice`)
 - **Dilarang:** Business logic, query langsung, manipulasi data response
 
 ### Form Requests (`app/Http/Requests/`)
@@ -95,7 +94,7 @@ Request (HTTP / IoT)
 
 | Entity               | Table                | Deskripsi                                       |
 |----------------------|----------------------|-------------------------------------------------|
-| User                 | `users`              | Admin dan Petani dengan role-based access       |
+| User                 | `users`              | Data pengguna (manajemen admin, `created_by` log) |
 | Device               | `devices`            | Perangkat IoT (ESP32), mode, dan status sprayer |
 | SensorReading        | `sensor_readings`    | Data sensor dari perangkat IoT                  |
 | ThresholdSetting     | `threshold_settings` | Konfigurasi threshold per device oleh Admin     |
@@ -122,16 +121,12 @@ sensor_data masuk
 5. **Notifikasi WhatsApp** — Dikirim untuk: kondisi kritis, sprayer mulai/berhenti, hujan terdeteksi (jika mode otomatis).
 6. **Konfigurasi gateway sensitif** — URL gateway, token, dan sender WhatsApp wajib dibaca dari `.env` / `config/services.php`, bukan dari database.
 7. **Recipient & template configurable** — Nomor penerima dan template pesan WhatsApp dikelola Admin di tabel `whatsapp_settings`.
-8. **Halaman publik** — Tidak boleh menampilkan tombol kontrol, nomor WhatsApp, atau data login.
-9. **Kontrol manual** — Hanya Admin dan Petani yang login yang boleh mengontrol sprayer.
+8. **Halaman publik** — Tidak boleh menampilkan tombol kontrol atau nomor WhatsApp sensitif.
 
-### Role & Hak Akses
+### Akses Web
 
-| Role    | Akses                                                                                      |
-|---------|--------------------------------------------------------------------------------------------|
-| Admin   | Semua fitur: manajemen user, konfigurasi alat, threshold, pengaturan WhatsApp, semua data  |
-| Petani  | Dashboard, riwayat, kontrol sprayer, notifikasi                                            |
-| Publik  | Halaman ringkasan publik saja (tanpa login)                                                |
+- Semua halaman web terbuka tanpa login.
+- Landing (`/`) menampilkan ringkasan publik non-sensitif.
 
 ---
 
@@ -181,10 +176,9 @@ Semua API response menggunakan wrapper standar:
 
 ## Security & Operations
 
-### Authentication
-- Session-based login via Laravel Breeze
-- Role middleware: `CheckRole` untuk membatasi akses per route group
-- IoT device menggunakan `api_key` header/body untuk autentikasi
+### IoT Device Authentication
+- ESP32 memakai `api_key` di header `X-Api-Key` atau request body
+- Middleware `AuthenticateDevice` memverifikasi key sebelum proses request API IoT
 
 ### Sensitive Data
 - **Zero hardcode** untuk API key, token, password — selalu gunakan `.env`
@@ -230,7 +224,6 @@ Sebuah task dianggap **selesai** jika semua kondisi berikut terpenuhi:
 - [ ] Semua nilai sensitif menggunakan env variable
 - [ ] Perubahan status sprayer tercatat di `spray_logs`
 - [ ] Pengiriman notifikasi tercatat di `notification_logs`
-- [ ] Middleware role diterapkan pada route yang dibatasi
 - [ ] API IoT mengembalikan format response standar
 - [ ] Rule: sprayer tidak aktif saat `rain_status = 'rain'` sudah diimplementasikan
 - [ ] Halaman publik tidak menampilkan data sensitif

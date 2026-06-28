@@ -87,7 +87,7 @@ Buka domain berikut di browser.
 https://ssp.kreeasi.web.id
 ```
 
-Untuk WhatsApp, login sebagai admin lalu buka:
+Untuk WhatsApp, buka:
 
 ```txt
 https://ssp.kreeasi.web.id/admin/whatsapp

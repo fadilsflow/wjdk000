@@ -136,7 +136,6 @@ Tanpa disk, efeknya adalah:
 - Session WhatsApp Web bisa hilang saat service restart atau redeploy.
 - Kamu mungkin harus scan QR WhatsApp ulang dari halaman admin.
 - File di `storage/` yang bukan database tidak dijamin bertahan.
-- User bisa logout saat container restart karena `SESSION_DRIVER=file`.
 
 Untuk kondisi tanpa disk, konfigurasi ini masih bisa dipakai:
 
@@ -179,10 +178,10 @@ Render.
 
 ## Login admin dan scan WhatsApp QR
 
-Setelah service aktif, login sebagai admin dan hubungkan akun WhatsApp.
+Setelah service aktif, buka halaman admin WhatsApp dan hubungkan akun.
 
 1. Buka URL Render service.
-2. Login dengan akun dari env seed:
+2. Buka halaman admin WhatsApp:
 
    ```txt
    Email: admin@smartsprayer.test

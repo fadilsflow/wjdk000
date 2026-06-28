@@ -61,13 +61,10 @@ ADMIN_SEED_PHONE=
 
 ## Security
 
-### Authentication & Authorization
+### Web Access
 
-- Login via session (Laravel Breeze)
-- Middleware `auth` untuk semua route yang butuh login
-- Middleware `CheckRole` untuk pembatasan per role (`admin`, `petani`)
-- Tiga kelompok route: `admin only`, `auth only`, `public (tanpa auth)`
-- Halaman publik (`/public/summary`) tidak boleh menampilkan kontrol alat atau data sensitif
+- Semua halaman web terbuka tanpa login (dashboard, sprayer, riwayat, admin)
+- Halaman landing (`/`) menampilkan ringkasan publik non-sensitif
 
 ### IoT Device Auth
 
@@ -127,7 +124,6 @@ php artisan queue:work                    # jalankan worker
 php artisan test                          # semua test
 php artisan test --filter NamaTest        # test spesifik
 npm run test:e2e                          # semua browser E2E
-npm run test:e2e:public-auth             # Sprint 4 public + auth
 npm run test:e2e:sprayer                 # Sprint 6 kontrol sprayer
 
 # Cache
@@ -150,7 +146,6 @@ Command yang tersedia:
 
 ```bash
 npm run test:e2e
-npm run test:e2e:public-auth
 npm run test:e2e:sprayer
 npm run test:e2e:headed
 ```
@@ -158,7 +153,7 @@ npm run test:e2e:headed
 Catatan:
 
 - Playwright config otomatis menjalankan `php artisan serve --host=127.0.0.1 --port=8000` bila app belum aktif
-- browser suite memakai `requestSubmit()` pada form login dan sprayer agar stabil terhadap Turbo/Alpine behavior
+- browser suite memakai `requestSubmit()` pada form sprayer agar stabil terhadap Turbo/Alpine behavior
 - hasil report HTML disimpan di folder `playwright-report/`
 
 ---

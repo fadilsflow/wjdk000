@@ -78,20 +78,17 @@ Catatan:
 
 ## 7. Fitur Produk
 
-### 7.1 Login dan Hak Akses
+### 7.1 Manajemen Pengguna
 
 Functional requirements:
 
-- Admin dan Petani dapat login.
-- User dapat logout.
-- Sistem membatasi akses halaman berdasarkan role.
-- Admin dapat mengelola data pengguna.
+- Admin dapat mengelola data pengguna (nama, email, nomor telepon, role).
+- Semua halaman web dapat diakses tanpa login.
 
 Acceptance criteria:
 
-- User valid dapat login.
-- User tidak valid ditolak.
-- Petani tidak dapat membuka halaman khusus Admin.
+- Data pengguna dapat dibuat, diubah, dan dihapus dari halaman admin.
+- Tidak ada halaman yang memerlukan login.
 
 ---
 
@@ -265,12 +262,11 @@ Data yang tidak boleh ditampilkan:
 
 - Tombol kontrol sprayer.
 - Nomor WhatsApp.
-- Data login user.
 - Konfigurasi alat.
 
 Acceptance criteria:
 
-- Halaman dapat dibuka tanpa login.
+- Halaman dapat dibuka tanpa autentikasi.
 - Tidak ada fitur kontrol alat pada halaman publik.
 - Tidak ada data sensitif yang tampil.
 
@@ -310,8 +306,7 @@ Acceptance criteria:
 
 ### 9.3 Alur Kontrol Manual
 
-1. User login.
-2. User membuka halaman kontrol sprayer.
+1. Pengguna membuka halaman kontrol sprayer.
 3. User menekan tombol nyalakan atau matikan sprayer.
 4. Website menyimpan perintah kontrol.
 5. Perangkat membaca atau menerima status kontrol.
@@ -441,7 +436,7 @@ Response contoh:
 - Data sensor disimpan sebagai riwayat monitoring.
 - Mode otomatis menggunakan status kondisi, data kelembapan tanah, dan status hujan sebagai dasar utama penyemprotan.
 - Penyemprotan otomatis tidak dilakukan saat sensor mendeteksi hujan.
-- Kontrol manual hanya dapat dilakukan oleh Admin dan Petani yang login.
+- Kontrol manual dapat dilakukan dari halaman web tanpa login.
 - Aktivitas penyemprotan harus dicatat pada log.
 - Notifikasi WhatsApp dikirim untuk kejadian penting sesuai scope sistem.
 - Halaman publik tidak boleh menampilkan kontrol alat atau data sensitif.
@@ -483,9 +478,6 @@ Response contoh:
 
 ### 15.2 Auth dan User
 
-- [ ] Buat login dan logout.
-- [ ] Buat role Admin dan Petani.
-- [ ] Buat middleware role.
 - [ ] Buat manajemen user untuk Admin.
 
 ### 15.3 Database
@@ -548,7 +540,6 @@ Response contoh:
 
 ### 15.10 Testing
 
-- [ ] Test login dan role.
 - [ ] Test input API sensor.
 - [ ] Test tampilan dashboard.
 - [ ] Test aturan penyemprotan otomatis.
@@ -562,7 +553,7 @@ Response contoh:
 
 Sistem dianggap selesai jika:
 
-- Admin dan Petani dapat login sesuai hak akses.
+- Semua halaman web dapat diakses tanpa login.
 - Website dapat menerima data sensor dari perangkat IoT.
 - Dashboard menampilkan suhu udara, kelembapan udara, kelembapan tanah, status hujan, status kondisi, dan status sprayer.
 - Sistem dapat menentukan status kondisi berdasarkan sensor dan threshold.

@@ -15,7 +15,6 @@ Controller adalah **traffic cop** — menerima request, delegate ke service, ret
 - Call satu service method per controller action
 - Return `view()`, `redirect()`, `response()->json()`
 - Ambil data input via `$request->validated()` — bukan `$request->all()`
-- Use `auth()->user()` atau `auth()->id()` untuk user yang sedang login
 
 ## Forbidden
 

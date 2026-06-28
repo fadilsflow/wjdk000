@@ -111,10 +111,9 @@ Cek rain_status
 8. **Public page restrictions** — Halaman publik (`/public/summary`) TIDAK boleh menampilkan:
    - Tombol kontrol sprayer
    - Nomor WhatsApp pengguna
-   - Data login / user
    - Konfigurasi alat / threshold
 
-9. **Access control** — Admin dapat mengakses semua fitur. Petani dapat mengakses dashboard, riwayat, dan kontrol sprayer. Halaman admin (manajemen user, konfigurasi device, threshold, WhatsApp) hanya untuk Admin.
+9. **Open web access** — Semua halaman web dapat diakses tanpa login. Halaman admin (manajemen user, device, threshold, WhatsApp) tidak dibatasi session.
 
 10. **Sensor data immutable** — Data `sensor_readings` yang sudah tersimpan tidak boleh diedit atau dihapus melalui website (hanya sebagai riwayat historis).
 

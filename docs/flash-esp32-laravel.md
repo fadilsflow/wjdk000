@@ -314,7 +314,7 @@ akses dari ESP32.
 Dashboard memakai polling JavaScript ke endpoint `/dashboard/latest`. Jika data
 tidak berubah, cek sisi server dan browser.
 
-- Pastikan kamu sudah login ke dashboard Laravel.
+- Pastikan dashboard Laravel dapat dibuka.
 - Pastikan `GET /dashboard/latest` tersedia di `php artisan route:list --path=dashboard`.
 - Buka DevTools browser dan cek tab **Network** untuk request
   `/dashboard/latest` setiap 2 detik.
