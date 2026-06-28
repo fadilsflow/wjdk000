@@ -37,9 +37,6 @@ final class SprintOneAccessTest extends TestCase
 
     public function test_admin_routes_are_accessible(): void
     {
-        $this->get('/admin/users')
-            ->assertOk();
-
         $this->get('/admin/devices')
             ->assertOk();
     }

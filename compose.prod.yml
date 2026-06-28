@@ -2,40 +2,33 @@ services:
   app:
     image: ${APP_IMAGE:-ghcr.io/fadilsflow/wjdk000:latest}
     restart: unless-stopped
-    ports:
-      - "${APP_PORT:-8080}:80"
+    expose:
+      - "80"
+    mem_limit: 1g
+    mem_reservation: 768m
+    oom_score_adj: -500
+    env_file:
+      - .env.prod
     environment:
       APP_NAME: "${APP_NAME:-Smart Sprayer IoT}"
       APP_ENV: ${APP_ENV:-production}
       APP_DEBUG: ${APP_DEBUG:-false}
-      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_URL: ${APP_URL:-https://smartsprayer.web.id}
       APP_KEY: ${APP_KEY:-}
       LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Jakarta}
 
-      DB_CONNECTION: ${DB_CONNECTION:-sqlite}
-      DB_URL: ${DB_URL:-}
-      DB_HOST: ${DB_HOST:-}
-      DB_PORT: ${DB_PORT:-3306}
-      DB_DATABASE: ${DB_DATABASE:-/var/www/html/storage/database/database.sqlite}
-      DB_USERNAME: ${DB_USERNAME:-}
-      DB_PASSWORD: ${DB_PASSWORD:-}
-      MYSQL_ATTR_SSL_CA: ${MYSQL_ATTR_SSL_CA:-}
-
-      CACHE_STORE: ${CACHE_STORE:-file}
-      SESSION_DRIVER: ${SESSION_DRIVER:-file}
-      QUEUE_CONNECTION: ${QUEUE_CONNECTION:-database}
-
       GATEWAY_PORT: ${GATEWAY_PORT:-3000}
-      WHATSAPP_GATEWAY_URL: ${WHATSAPP_GATEWAY_URL:-}
+      WHATSAPP_GATEWAY_URL: ${WHATSAPP_GATEWAY_URL:-http://127.0.0.1:3000/send}
       WHATSAPP_GATEWAY_TOKEN: ${WHATSAPP_GATEWAY_TOKEN:-}
       GATEWAY_SECRET_TOKEN: ${GATEWAY_SECRET_TOKEN:-}
+      NODE_OPTIONS: "--max-old-space-size=256 --max-semi-space-size=32"
       WHATSAPP_AUTH_DATA_PATH: ${WHATSAPP_AUTH_DATA_PATH:-/var/www/html/storage/app/whatsapp-auth}
       WHATSAPP_SENDER_NUMBER: ${WHATSAPP_SENDER_NUMBER:-}
 
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
-      RUN_SEEDERS_ONCE: ${RUN_SEEDERS_ONCE:-true}
+      RUN_SEEDERS_ONCE: ${RUN_SEEDERS_ONCE:-false}
       RUN_QUEUE_WORKER: ${RUN_QUEUE_WORKER:-true}
       RUN_SCHEDULER: ${RUN_SCHEDULER:-true}
       RUN_OPTIMIZE: ${RUN_OPTIMIZE:-true}
@@ -50,6 +43,33 @@ services:
       DEVICE_SEED_API_KEY: ${DEVICE_SEED_API_KEY:-smartsprayer-iot-key}
     volumes:
       - app-storage:/var/www/html/storage
+    networks:
+      - web
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    mem_limit: 128m
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:-smartsprayer.web.id}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@smartsprayer.web.id}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
 
 volumes:
   app-storage:
+  caddy-data:
+  caddy-config:

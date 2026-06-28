@@ -29,4 +29,19 @@ final class WhatsappController extends Controller
             ->route('admin.whatsapp.index')
             ->with('status', 'whatsapp-settings-updated');
     }
+
+    public function testSend(): RedirectResponse
+    {
+        $result = $this->whatsappSettingsService->sendTestMessage();
+
+        if (! $result['success']) {
+            return redirect()
+                ->route('admin.whatsapp.index')
+                ->withErrors(['test' => $result['message']]);
+        }
+
+        return redirect()
+            ->route('admin.whatsapp.index')
+            ->with('status', 'whatsapp-test-sent');
+    }
 }

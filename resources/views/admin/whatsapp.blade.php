@@ -11,7 +11,7 @@
         @php
             $status = $settings['connection_status'];
         @endphp
-        <div class="card p-4 flex items-center gap-4">
+        <div class="card p-4 flex items-center gap-4 flex-wrap">
             @if($status === 'connected')
                 <div class="w-2.5 h-2.5 rounded-full bg-[color:var(--color-brand)]"></div>
                 <div>
@@ -19,6 +19,19 @@
                     <div class="text-xs text-[color:var(--color-text-muted)]">Gateway aktif dan WhatsApp siap mengirim notifikasi</div>
                 </div>
                 <span class="ml-auto status-pill status-pill-normal text-xs">Aktif</span>
+                <form
+                    method="POST"
+                    action="{{ route('admin.whatsapp.test') }}"
+                    class="w-full sm:w-auto"
+                    x-data="{ loading: false }"
+                    @submit="loading = true"
+                >
+                    @csrf
+                    <button type="submit" class="btn-outline btn-sm w-full sm:w-auto" :disabled="loading">
+                        <span x-show="!loading">Kirim Pesan Uji</span>
+                        <span x-show="loading" x-cloak>Mengirim…</span>
+                    </button>
+                </form>
             @elseif($status === 'qr_pending')
                 <div class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
                 <div>

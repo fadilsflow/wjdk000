@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Repositories\WhatsappSettingRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 
 final class WhatsappSettingsService
 {
@@ -65,6 +66,59 @@ final class WhatsappSettingsService
                 'rain_detected_template'        => $data['rain_detected_template'],
             ]);
         });
+    }
+
+    /**
+     * @return array{success: bool, message: string}
+     */
+    public function sendTestMessage(): array
+    {
+        $health = $this->getGatewayHealthData();
+
+        if ($health['connection_status'] !== 'connected') {
+            return [
+                'success' => false,
+                'message' => 'WhatsApp belum terhubung. Selesaikan koneksi terlebih dahulu.',
+            ];
+        }
+
+        $recipient = $this->whatsappSettingRepository->getSingleton()?->recipient_phone;
+
+        if (! is_string($recipient) || trim($recipient) === '') {
+            return [
+                'success' => false,
+                'message' => 'Nomor penerima belum dikonfigurasi. Isi nomor WhatsApp target terlebih dahulu.',
+            ];
+        }
+
+        $gatewayUrl = config('services.whatsapp.gateway_url');
+        $token = config('services.whatsapp.gateway_token');
+
+        if (! is_string($gatewayUrl) || $gatewayUrl === '' || ! is_string($token) || $token === '') {
+            return [
+                'success' => false,
+                'message' => 'Gateway WhatsApp belum dikonfigurasi di berkas .env.',
+            ];
+        }
+
+        try {
+            Http::withToken($token)
+                ->post($gatewayUrl, [
+                    'to' => $recipient,
+                    'message' => 'Tes koneksi Smart Sprayer IoT — pesan ini dikirim dari halaman pengaturan WhatsApp.',
+                ])
+                ->throw();
+        } catch (Throwable) {
+            return [
+                'success' => false,
+                'message' => 'Gagal mengirim pesan uji. Periksa gateway dan nomor penerima.',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => "Pesan uji berhasil dikirim ke {$recipient}.",
+        ];
     }
 
     /**

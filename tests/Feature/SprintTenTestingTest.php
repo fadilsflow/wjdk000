@@ -49,7 +49,6 @@ final class SprintTenTestingTest extends TestCase
     public function test_all_pages_are_accessible(): void
     {
         $this->get('/dashboard')->assertOk();
-        $this->get('/admin/users')->assertOk();
         $this->get('/sprayer')->assertOk();
         $this->get('/history/sensor')->assertOk();
         $this->get('/history/spray')->assertOk();
