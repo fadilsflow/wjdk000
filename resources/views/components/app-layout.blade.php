@@ -164,7 +164,7 @@ $isAdminRoute = request()->routeIs('admin.*');
             Beranda Publik
         </a>
         <span class="mx-3 text-[color:var(--color-border)]">/</span>
-        <span>Smart Sprayer IoT — Bawang Merah Brebes</span>
+        <span>Smart Sprayer IoT X Universitas Harkat Negeri</span>
     </footer>
 
     {{-- Toast notifications --}}

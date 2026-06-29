@@ -350,10 +350,8 @@
         <div class="max-w-6xl mx-auto px-6 sm:px-8 py-8 flex flex-wrap items-center gap-3 text-xs text-[color:var(--color-text-muted)]">
             <div class="flex items-center gap-2.5">
                 <span class="w-6 h-6 rounded-full bg-[color:var(--color-brand)] grid place-items-center text-black font-black text-[10px]">S</span>
-                <span class="font-bold text-[color:var(--color-text-near)]">Smart Sprayer IoT</span>
+                <span class="font-bold text-[color:var(--color-text-near)]">Smart Sprayer IoT X Universitas Harkat Negeri</span>
             </div>
-            <span class="text-[color:var(--color-border)]">/</span>
-            <span>Bawang Merah Brebes</span>
             <div class="ml-auto flex items-center gap-4">
                 <a href="#data" class="hover:text-[color:var(--color-text)] transition-colors">Data Publik</a>
                 <a href="#tentang" class="hover:text-[color:var(--color-text)] transition-colors">Tentang</a>
