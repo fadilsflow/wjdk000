@@ -33,7 +33,7 @@ Penelitian ini dibatasi pada:
 
 1. Perancangan dan pembangunan sistem Smart Sprayer berbasis IoT untuk pengendalian hama kutu pada tanaman bawang merah.
 2. Penggunaan ESP32 sebagai pusat kendali.
-3. Penggunaan sensor BME280 untuk membaca suhu udara dan kelembapan udara.
+3. Penggunaan sensor DHT22 untuk membaca suhu udara dan kelembapan udara.
 4. Penggunaan sensor soil moisture untuk membaca kelembapan tanah.
 5. Penggunaan sensor hujan untuk mendeteksi kondisi hujan.
 6. Penggunaan relay dan pompa sebagai aktuator penyemprotan.
@@ -101,9 +101,9 @@ Sensor soil moisture digunakan untuk mendeteksi kadar air di dalam tanah. Data s
 
 Sensor hujan digunakan untuk mendeteksi adanya air hujan. Data ini digunakan agar sistem tidak melakukan penyemprotan ketika sedang hujan.
 
-### 8.10 Sensor BME280
+### 8.10 Sensor DHT22
 
-Sensor BME280 digunakan untuk membaca suhu udara dan kelembapan udara. Sensor ini mendukung pemantauan kondisi lingkungan di sekitar tanaman.
+Sensor DHT22 digunakan untuk membaca suhu udara dan kelembapan udara. Sensor ini mendukung pemantauan kondisi lingkungan di sekitar tanaman.
 
 ### 8.11 Relay
 
@@ -120,7 +120,7 @@ Sistem Smart Sprayer IoT bekerja dengan alur berikut:
 1. Panel surya menghasilkan energi dan mengisi baterai.
 2. ESP32 aktif dan melakukan inisialisasi komponen.
 3. ESP32 membaca sensor soil moisture.
-4. ESP32 membaca sensor BME280 untuk suhu dan kelembapan udara.
+4. ESP32 membaca sensor DHT22 untuk suhu dan kelembapan udara.
 5. ESP32 membaca sensor hujan.
 6. Data sensor dianalisis untuk menentukan kondisi lingkungan.
 7. Jika tanah kering dan tidak hujan, pompa sprayer aktif.

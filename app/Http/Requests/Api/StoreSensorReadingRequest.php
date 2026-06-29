@@ -18,7 +18,10 @@ final class StoreSensorReadingRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $apiKey = $this->input('api_key');
-        $humidity = $this->input('air_humidity', $this->input('humidity'));
+        $humidity = $this->input('air_humidity', $this->input('humidity', 0));
+        if ($humidity === null || $humidity === '') {
+            $humidity = 0;
+        }
         $soilMoisture = $this->input('soil_moisture', $this->input('soilPercent'));
         $rainStatus = $this->input('rain_status');
         $sprayerStatus = $this->input('sprayer_status');
@@ -52,7 +55,7 @@ final class StoreSensorReadingRequest extends FormRequest
         return [
             'api_key' => ['required', 'string'],
             'temperature' => ['required', 'numeric', 'between:-50,100'],
-            'air_humidity' => ['required', 'numeric', 'between:0,100'],
+            'air_humidity' => ['nullable', 'numeric', 'between:0,100'],
             'soil_moisture' => ['required', 'numeric', 'between:0,100'],
             'rain_status' => ['required', 'in:rain,no_rain'],
             'sprayer_status' => ['required', 'in:on,off'],

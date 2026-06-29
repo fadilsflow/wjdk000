@@ -41,7 +41,6 @@ final class WhatsappSettingsService
                 '{{device_name}}',
                 '{{mode}}',
                 '{{temperature}}',
-                '{{air_humidity}}',
                 '{{soil_moisture}}',
                 '{{rain_status}}',
                 '{{sprayer_status}}',
@@ -127,7 +126,7 @@ final class WhatsappSettingsService
     public function defaultTemplates(): array
     {
         return [
-            'critical_condition_template' => 'Peringatan {{device_name}}: kondisi {{condition_status}}. Suhu {{temperature}}C, kelembapan udara {{air_humidity}}%, kelembapan tanah {{soil_moisture}}%, hujan {{rain_status}}, mode {{mode}}.',
+            'critical_condition_template' => 'Peringatan {{device_name}}: kondisi {{condition_status}}. Suhu {{temperature}}C, kelembapan tanah {{soil_moisture}}%, hujan {{rain_status}}, mode {{mode}}.',
             'spray_start_template'        => 'Sprayer {{device_name}} mulai aktif. Status {{sprayer_status}}, mode {{mode}}, alasan: {{reason}}.',
             'spray_stop_template'         => 'Sprayer {{device_name}} berhenti. Status {{sprayer_status}}, mode {{mode}}, alasan: {{reason}}.',
             'rain_detected_template'      => 'Hujan terdeteksi di {{device_name}}. Sprayer tetap {{sprayer_status}}. Data terakhir: suhu {{temperature}}C, tanah {{soil_moisture}}%, mode {{mode}}.',

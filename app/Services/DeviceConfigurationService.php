@@ -34,7 +34,6 @@ final class DeviceConfigurationService
                 'device_id' => $device?->id,
                 'min_soil_moisture' => $device?->thresholdSetting?->min_soil_moisture,
                 'max_temperature' => $device?->thresholdSetting?->max_temperature,
-                'min_air_humidity' => $device?->thresholdSetting?->min_air_humidity,
             ],
         ];
     }
@@ -50,7 +49,6 @@ final class DeviceConfigurationService
             $payload = [
                 'min_soil_moisture' => (float) $data['min_soil_moisture'],
                 'max_temperature'   => (float) $data['max_temperature'],
-                'min_air_humidity'  => (float) $data['min_air_humidity'],
             ];
 
             if ($device->thresholdSetting !== null) {

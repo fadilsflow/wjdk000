@@ -22,7 +22,6 @@ final class UpdateThresholdRequest extends FormRequest
             'device_id'          => ['required', 'integer', 'exists:devices,id'],
             'min_soil_moisture'  => ['required', 'numeric', 'min:0', 'max:100'],
             'max_temperature'    => ['required', 'numeric', 'min:0', 'max:100'],
-            'min_air_humidity'   => ['required', 'numeric', 'min:0', 'max:100'],
         ];
     }
 }

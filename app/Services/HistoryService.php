@@ -36,7 +36,6 @@ final class HistoryService
                 ->map(static fn (SensorReading $reading): array => [
                     'time' => $reading->recorded_at?->format('Y-m-d H:i:s') ?? '-',
                     'temp' => $reading->temperature,
-                    'hum' => $reading->air_humidity,
                     'soil' => $reading->soil_moisture,
                     'soil_raw' => $reading->soil_raw,
                     'rain' => $reading->rain_status,

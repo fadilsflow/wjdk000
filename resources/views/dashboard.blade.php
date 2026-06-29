@@ -3,7 +3,6 @@
         $cs = $sensor['condition_status'] ?? 'normal';
         $soilMoisture = $sensor['soil_moisture'];
         $temperature = $sensor['temperature'];
-        $airHumidity = $sensor['air_humidity'];
         $recordedAt = $sensor['recorded_at'] ?? null;
         $soilRaw = $sensor['soil_raw'] ?? null;
         $rainRaw = $sensor['rain_raw'] ?? null;
@@ -14,7 +13,6 @@
         $temperatureThresholdLabel = $maxTemperature !== null ? rtrim(rtrim(number_format((float) $maxTemperature, 1, '.', ''), '0'), '.') : '-';
         $soilValueLabel = $soilMoisture !== null ? rtrim(rtrim(number_format((float) $soilMoisture, 1, '.', ''), '0'), '.').'%' : '-';
         $temperatureLabel = $temperature !== null ? rtrim(rtrim(number_format((float) $temperature, 1, '.', ''), '0'), '.').'°C' : '-';
-        $airHumidityLabel = $airHumidity !== null ? rtrim(rtrim(number_format((float) $airHumidity, 1, '.', ''), '0'), '.').'%' : '-';
         $soilRawLabel = $soilRaw !== null ? (string) $soilRaw : '-';
         $rainRawLabel = $rainRaw !== null ? (string) $rainRaw : '-';
         $sourceModeLabel = $isSimulation ? 'Simulasi ESP32' : 'Hardware real';
@@ -44,7 +42,7 @@
     <div class="p-4 space-y-3">
 
         {{-- ROW 1: Key metric tiles --}}
-        <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
 
             {{-- Status Kondisi --}}
             <div class="card flex flex-col">
@@ -90,7 +88,7 @@
             <div class="card flex flex-col">
                 <div class="card-header py-2">Suhu Udara</div>
                 <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
-                    <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold">Sensor BME280</div>
+                    <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold">Sensor DHT22</div>
                     <div class="text-4xl font-extrabold mt-1"
                          style="color: {{ $temperature !== null && $maxTemperature !== null && $temperature > $maxTemperature ? 'var(--color-warning)' : 'var(--color-brand)' }};"
                          data-realtime="temperature">{{ $temperatureLabel }}</div>
@@ -98,37 +96,26 @@
                 </div>
             </div>
 
-            {{-- Kelembapan Udara --}}
-            <div class="card flex flex-col">
-                <div class="card-header py-2">Kelembapan Udara</div>
-                <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
-                    <div class="text-[color:var(--color-text-muted)] text-[10px] uppercase tracking-wider font-bold">Sensor BME280</div>
-                    <div class="text-4xl font-extrabold mt-1 text-[color:var(--color-brand)]" data-realtime="air-humidity">{{ $airHumidityLabel }}</div>
-                    <div class="text-[color:var(--color-text-muted)] text-[11px] mt-1">Normal untuk monitoring</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ROW 2: Rain + Notification --}}
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
-
-            {{-- Rain Status --}}
+            {{-- Status Hujan --}}
+            @php($isRain = ($sensor['rain_status'] ?? '') === 'rain')
             <div class="card flex flex-col">
                 <div class="card-header py-2">Status Hujan</div>
-                <div class="p-3 flex-1 flex items-center gap-3">
-                    @php($isRain = ($sensor['rain_status'] ?? '') === 'rain')
-                    <div class="w-12 h-12 shrink-0 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center">
+                <div class="p-3 flex-1 flex flex-col items-center justify-center text-center">
+                    <div class="w-12 h-12 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center mb-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ $isRain ? 'var(--color-info)' : 'var(--color-text-near)' }}">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $isRain ? 'M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5zM8 19l-1 3M12 19l-1 3M16 19l-1 3' : 'M3 15a4 4 0 014-4h.7A6 6 0 0119 11.5a3.5 3.5 0 010 7H7a4 4 0 01-4-3.5z' }}"/>
                         </svg>
                     </div>
-                    <div class="min-w-0">
-                        <div class="text-lg font-extrabold leading-tight" style="color: {{ $isRain ? 'var(--color-info)' : 'var(--color-text)' }}" data-realtime="rain-title">{{ $isRain ? 'Hujan' : 'Tidak Hujan' }}</div>
-                        <div class="text-[color:var(--color-text-muted)] text-[11px] leading-snug" data-realtime="rain-description">{{ $isRain ? 'Penyemprotan otomatis tidak dijalankan.' : 'Penyemprotan diizinkan bila tanah kering.' }}</div>
-                        <div class="mt-1 text-[10px] font-bold text-[color:var(--color-text-muted)]">ADC hujan: <span class="font-mono text-[color:var(--color-text)]" data-realtime="rain-raw">{{ $rainRawLabel }}</span></div>
-                    </div>
+                    <div class="text-2xl font-extrabold leading-tight" style="color: {{ $isRain ? 'var(--color-info)' : 'var(--color-text)' }}" data-realtime="rain-title">{{ $isRain ? 'Hujan' : 'Tidak Hujan' }}</div>
+                    <div class="text-[color:var(--color-text-muted)] text-[11px] mt-1 leading-snug" data-realtime="rain-description">{{ $isRain ? 'Sprayer otomatis dimatikan.' : 'Sprayer diizinkan bila tanah kering.' }}</div>
+                    <div class="text-[10px] text-[color:var(--color-text-muted)] mt-1">ADC hujan: <span class="font-mono" data-realtime="rain-raw">{{ $rainRawLabel }}</span></div>
                 </div>
             </div>
+
+        </div>
+
+        {{-- ROW 2: Notification --}}
+        <div class="grid grid-cols-1 gap-3">
 
             {{-- Notification Status --}}
             <div class="card flex flex-col">
@@ -375,7 +362,6 @@
                     labels: state.chart?.labels ?? [],
                     datasets: [
                         { label: 'Suhu (°C)', data: state.chart?.temperature ?? [], borderColor: themeColor('--color-brand', '#1ed760'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
-                        { label: 'Kelemb. Udara (%)', data: state.chart?.air_humidity ?? [], borderColor: themeColor('--color-info', '#539df5'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                         { label: 'Kelemb. Tanah (%)', data: state.chart?.soil_moisture ?? [], borderColor: themeColor('--color-warning', '#ffa42b'), backgroundColor: 'transparent', tension: 0.3, pointRadius: 3 },
                     ],
                 },
@@ -411,8 +397,7 @@
             if (!state.chartInstance) return;
             state.chartInstance.data.labels = state.chart?.labels ?? [];
             state.chartInstance.data.datasets[0].data = state.chart?.temperature ?? [];
-            state.chartInstance.data.datasets[1].data = state.chart?.air_humidity ?? [];
-            state.chartInstance.data.datasets[2].data = state.chart?.soil_moisture ?? [];
+            state.chartInstance.data.datasets[1].data = state.chart?.soil_moisture ?? [];
             state.chartInstance.update('none');
         }
 
@@ -442,7 +427,6 @@
             setText('[data-realtime="device-mode"]', device.mode ?? '-');
             setText('[data-realtime="sprayer-status"]', sensor.sprayer_status ?? '-');
             setText('[data-realtime="temperature"]', formatNumber(sensor.temperature, '°C'));
-            setText('[data-realtime="air-humidity"]', formatNumber(sensor.air_humidity, '%'));
             setText('[data-realtime="rain-title"]', rainStatus ? 'Hujan' : 'Tidak Hujan');
             setText('[data-realtime="rain-description"]', rainStatus ? 'Penyemprotan otomatis tidak dijalankan.' : 'Penyemprotan otomatis diizinkan bila tanah kering.');
             setText('[data-realtime="last-update"]', sensor.recorded_at ? `Update sensor terakhir ${sensor.recorded_at}.` : 'Menunggu data sensor pertama masuk.');

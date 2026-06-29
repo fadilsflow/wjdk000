@@ -101,14 +101,12 @@ final class SprintFiveDashboardTest extends TestCase
             ->assertOk()
             ->assertSeeText('Sprayer Lahan Brebes')
             ->assertSeeText('31.5°C')
-            ->assertSeeText('70%')
             ->assertSeeText('35%')
             ->assertSeeText('ON')
             ->assertSeeText('Aktif otomatis karena tanah kering')
             ->assertSeeText('Peringatan kondisi kritis dikirim')
             ->assertSee('["09:30","09:55"]', false)
             ->assertSee('[30.2,31.5]', false)
-            ->assertSee('[74,70]', false)
             ->assertSee('[46,35]', false);
     }
 }

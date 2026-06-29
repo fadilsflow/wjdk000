@@ -122,21 +122,6 @@
                     >
                     <x-input-error :messages="$errors->get('max_temperature')" class="mt-1" />
                 </div>
-                <div>
-                    <label class="form-label">Min. Kelembapan Udara (%)</label>
-                    <input
-                        type="number"
-                        name="min_air_humidity"
-                        step="0.1"
-                        min="0"
-                        max="100"
-                        class="form-input"
-                        value="{{ old('min_air_humidity', $thresholds['min_air_humidity']) }}"
-                        required
-                    >
-                    <x-input-error :messages="$errors->get('min_air_humidity')" class="mt-1" />
-                </div>
-
                 @if($thresholds['device_id'] === null)
                     <p class="text-xs text-[color:var(--color-negative)]">Belum ada perangkat terdaftar.</p>
                 @else

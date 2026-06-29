@@ -90,7 +90,6 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
                 'device_id' => $device->id,
                 'min_soil_moisture' => 33,
                 'max_temperature' => 30,
-                'min_air_humidity' => 55,
             ])
             ->assertRedirect('/admin/devices')
             ->assertSessionHas('status', 'threshold-updated');
@@ -99,7 +98,6 @@ final class SprintTwoBackendCoreValidationTest extends TestCase
             'device_id' => $device->id,
             'min_soil_moisture' => 33.00,
             'max_temperature' => 30.00,
-            'min_air_humidity' => 55.00,
         ]);
     }
 

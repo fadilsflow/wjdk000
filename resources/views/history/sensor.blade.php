@@ -31,7 +31,6 @@
                         <tr>
                             <th>Waktu</th>
                             <th>Suhu</th>
-                            <th>Kelemb. Udara</th>
                             <th>Kelemb. Tanah</th>
                             <th>Raw Tanah</th>
                             <th>Hujan</th>
@@ -46,7 +45,6 @@
                             <tr>
                                 <td class="text-xs">{{ $r['time'] }}</td>
                                 <td>{{ $r['temp'] }}°C</td>
-                                <td>{{ $r['hum'] }}%</td>
                                 <td>{{ $r['soil'] }}%</td>
                                 <td class="font-mono text-xs">{{ $r['soil_raw'] ?? '-' }}</td>
                                 <td>
@@ -73,7 +71,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
+                                <td colspan="9" class="text-center text-sm text-[color:var(--color-text-muted)] py-6">
                                     Belum ada data riwayat sensor.
                                 </td>
                             </tr>

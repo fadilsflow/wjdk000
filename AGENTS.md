@@ -7,7 +7,7 @@
 
 ## Mission
 
-Membangun website monitoring dan kendali sistem **Smart Sprayer IoT** untuk pengendalian hama kutu pada tanaman bawang merah di Brebes. Sistem menerima data dari perangkat ESP32 (sensor BME280, soil moisture, sensor hujan, relay/pompa), menampilkan kondisi lingkungan real-time, mengelola penyemprotan otomatis/manual, dan mengirim notifikasi WhatsApp sebagai peringatan dini.
+Membangun website monitoring dan kendali sistem **Smart Sprayer IoT** untuk pengendalian hama kutu pada tanaman bawang merah di Brebes. Sistem menerima data dari perangkat ESP32 (sensor DHT22, soil moisture, sensor hujan, relay/pompa), menampilkan kondisi lingkungan real-time, mengelola penyemprotan otomatis/manual, dan mengirim notifikasi WhatsApp sebagai peringatan dini.
 
 ---
 

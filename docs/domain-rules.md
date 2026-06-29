@@ -17,7 +17,7 @@ Perangkat IoT (ESP32) yang terdaftar di sistem. Setiap device punya `api_key` un
 
 ### SensorReading
 Data pembacaan sensor dari perangkat, disimpan setiap kali ESP32 mengirim data. **Immutable** — tidak boleh diedit/dihapus setelah tersimpan.
-- Sensor fields: `temperature`, `air_humidity`, `soil_moisture`, `soil_raw`, `rain_status`, `rain_raw`, `sprayer_status`, `simulation_mode`
+- Sensor fields: `temperature`, `soil_moisture` (kolom `air_humidity` tetap di DB/API untuk kompatibilitas ESP32, tidak ditampilkan di website), `soil_raw`, `rain_status`, `rain_raw`, `sprayer_status`, `simulation_mode`
 - Payload ESP32 aktual boleh memakai alias: `humidity`, `soilPercent`, `soilRaw`, `raining`, `rainRaw`, `pumpOn`, `simulationMode`; backend memetakan alias ke field domain di atas.
 - **rain_status:** `'rain'` | `'no_rain'`
 - **condition_status:** `'normal'` | `'waspada'` | `'kritis'` (dihitung saat data masuk)
@@ -25,7 +25,7 @@ Data pembacaan sensor dari perangkat, disimpan setiap kali ESP32 mengirim data. 
 
 ### ThresholdSetting
 Konfigurasi batas nilai sensor per device, diatur oleh Admin. Satu device = satu konfigurasi threshold.
-- Fields utama: `min_soil_moisture`, `max_temperature`, `min_air_humidity`
+- Fields utama: `min_soil_moisture`, `max_temperature`
 - Nilai threshold ini yang digunakan Service untuk menentukan `condition_status`
 
 ### SprayLog
@@ -78,7 +78,6 @@ Cek rain_status
           │     → kirim notifikasi 'critical_condition' & 'spray_start'
           │
           ├── temperature > threshold.max_temperature
-          │   OR air_humidity < threshold.min_air_humidity
           │     → condition_status = 'waspada'
           │     → sprayer_command tidak berubah otomatis
           │

@@ -43,7 +43,7 @@
         };
 
         // --- Trend helpers for charts & deltas ---
-        $trend = $trend ?? ['labels' => [], 'temperature' => [], 'air_humidity' => [], 'soil_moisture' => [], 'count' => 0];
+        $trend = $trend ?? ['labels' => [], 'temperature' => [], 'soil_moisture' => [], 'count' => 0];
         $hasTrend = ($trend['count'] ?? 0) >= 2;
 
         $delta = function (array $series) {
@@ -58,7 +58,6 @@
         };
 
         $tempDelta  = $delta($trend['temperature'] ?? []);
-        $humDelta   = $delta($trend['air_humidity'] ?? []);
         $soilDelta  = $delta($trend['soil_moisture'] ?? []);
         $soilAvg    = $avg($trend['soil_moisture'] ?? []);
         $soilNow    = $sensor['soil_moisture'];
@@ -71,7 +70,6 @@
             return [$arrow.' '.($d > 0 ? '+' : '').$d.$unit, $color];
         };
         [$tempBadge, $tempBadgeColor] = $deltaBadge($tempDelta, '°');
-        [$humBadge, $humBadgeColor]   = $deltaBadge($humDelta, '%');
         [$soilBadge, $soilBadgeColor] = $deltaBadge($soilDelta, '%');
     @endphp
 
@@ -223,8 +221,8 @@
             </div>
         </div>
 
-        {{-- 4 sensor cards with trend deltas --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {{-- Sensor cards --}}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="card p-5">
                 <div class="flex items-start justify-between gap-2">
                     <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Suhu Udara</div>
@@ -233,17 +231,7 @@
                 <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
                     {{ $sensor['temperature'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['temperature'] !== null ? '°C' : '' }}</span>
                 </div>
-                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
-            </div>
-            <div class="card p-5">
-                <div class="flex items-start justify-between gap-2">
-                    <div class="text-[11px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">Kelemb. Udara</div>
-                    <span class="text-[10px] font-bold whitespace-nowrap" style="color: {{ $humBadgeColor }};">{{ $humBadge }}</span>
-                </div>
-                <div class="mt-2 text-4xl font-black text-[color:var(--color-text)]">
-                    {{ $sensor['air_humidity'] ?? '-' }}<span class="text-xl text-[color:var(--color-text-muted)] font-bold">{{ $sensor['air_humidity'] !== null ? '%' : '' }}</span>
-                </div>
-                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor BME280</div>
+                <div class="mt-2 text-xs text-[color:var(--color-text-muted)]">Sensor DHT22</div>
             </div>
             <div class="card p-5">
                 <div class="flex items-start justify-between gap-2">
@@ -268,7 +256,7 @@
         <div class="grid lg:grid-cols-3 gap-4 mt-4">
             <div class="card p-5 lg:col-span-2">
                 <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-extrabold text-[color:var(--color-text)]">Tren Suhu &amp; Kelembapan Udara</h3>
+                    <h3 class="text-sm font-extrabold text-[color:var(--color-text)]">Tren Suhu Udara</h3>
                     <span class="text-[10px] uppercase tracking-widest font-bold text-[color:var(--color-text-muted)]">{{ $trend['count'] ?? 0 }} terakhir</span>
                 </div>
                 <div class="relative h-64 sm:h-72">
@@ -323,7 +311,7 @@
                         <span class="shrink-0 w-10 h-10 rounded-full bg-[color:var(--color-bg-elevated)] grid place-items-center text-[color:var(--color-brand)] font-black text-sm">01</span>
                         <div>
                             <div class="font-extrabold text-[color:var(--color-text)]">Sensor Lingkungan</div>
-                            <div class="text-sm text-[color:var(--color-text-muted)] mt-1">BME280 mengukur suhu &amp; kelembapan udara. Soil moisture &amp; sensor hujan melengkapi data lahan.</div>
+                            <div class="text-sm text-[color:var(--color-text-muted)] mt-1">DHT22 mengukur suhu udara. Soil moisture &amp; sensor hujan melengkapi data lahan.</div>
                         </div>
                     </li>
                     <li class="flex gap-4">
@@ -438,7 +426,6 @@
                     type: 'line',
                     data: { labels: labels, datasets: [
                         { label: 'Suhu (°C)', data: t.temperature || [], borderColor: warning, backgroundColor: gradient(warning), ...line },
-                        { label: 'Kelemb. Udara (%)', data: t.air_humidity || [], borderColor: info, backgroundColor: gradient(info), ...line },
                     ]},
                     options: baseOptions(true),
                 }));

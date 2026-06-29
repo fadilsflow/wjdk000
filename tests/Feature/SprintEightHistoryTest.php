@@ -59,7 +59,6 @@ final class SprintEightHistoryTest extends TestCase
         $this->get('/history/sensor?from_date=2026-05-24&to_date=2026-05-24')
             ->assertOk()
             ->assertSeeText('31.5°C')
-            ->assertSeeText('70%')
             ->assertSeeText('35%')
             ->assertSeeText('Kritis')
             ->assertDontSeeText('29.5°C');

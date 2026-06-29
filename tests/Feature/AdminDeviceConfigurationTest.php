@@ -49,7 +49,6 @@ final class AdminDeviceConfigurationTest extends TestCase
             ->assertSeeText('Automatic')
             ->assertSeeText('ON')
             ->assertSee('value="40"', false)
-            ->assertSee('value="32"', false)
-            ->assertSee('value="60"', false);
+            ->assertSee('value="32"', false);
     }
 }
